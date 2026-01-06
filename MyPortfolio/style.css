@@ -120,8 +120,13 @@ h2.section-title {
 .hero-image img {
   width: 100%;
   max-width: 360px;
-  border-radius: 20px;
+  border-radius: 30%;
   border: 1px solid var(--border);
+}
+
+.hero-image img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 /* Text */

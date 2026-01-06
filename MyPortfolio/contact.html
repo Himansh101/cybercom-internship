@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Himanshu Koshti | Portfolio</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Prata&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+
+    <!-- CSS -->
+    <style>
+        #contact {
+            height: 85vh;
+        }
+
+
+        .contactParts {
+            display: flex;
+            /* grid-template-columns: 1fr 1fr; */
+
+            gap: 2rem;
+            justify-content: center;
+            align-items: center;
+            /* flex-wrap: wrap; */
+        }
+
+        .contact {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+    </style>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">Himanshu</div>
+
+                <div class="menu-icon" id="menu-icon">
+                    ☰
+                </div>
+                <div class="menu-icon" id="closeIcon" style="display: none;">
+                    X
+                </div>
+
+                <div class="nav-links" id="nav-links">
+                    <a href="index.html#about">About</a>
+                    <a href="index.html#skills">Skills</a>
+                    <a href="index.html#projects">Projects</a>
+                    <a href="index.html#contact">Contact</a>
+                </div>
+            </nav>
+
+        </div>
+    </header>
+
+    <section id="contact">
+        <div class="container">
+            <div class="contact-card">
+                <h2 class="section-title">Get In Touch</h2>
+                <div class="contactParts">
+                    <div class="contactInfo">
+                        <a href="mailto:koshtihim3@gmail.com" class="btn">Contact Me</a>
+                        <div class="contact">
+                            <div class="box">
+                                <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
+                                <div class="text">
+                                    <h3>Address</h3>
+                                    <p>Ahmedabad, Gujarat, India</p>
+                                </div>
+                            </div>
+                            <div class="box">
+                                <div class="icon"><i class="fas fa-phone"></i></div>
+                                <div class="text">
+                                    <h3>Phone</h3>
+                                    <p><a href="tel"></a>+91 9876543210</p>
+                                </div>
+                            </div>
+                            <div class="box">
+                                <div class="icon"><i class="fas fa-envelope"></i></div>
+                                <div class="text">
+                                    <h3>Email</h3>
+                                    <p>koshtihimanhu3@gmail.com</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <form id="contactForm" action="">
+                        <input type="text" placeholder="Your Name" required />
+                        <input type="text" placeholder="Contact Purpose" required />
+                        <textarea type="text" placeholder="Description" required></textarea>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-content">
+
+            <div class="footer-icons">
+                <a href="https://www.linkedin.com/in/himanshu-koshti-8ab656258" target="_blank" aria-label="LinkedIn">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+
+                <a href="https://github.com/Himanshu101/cybercom-internship" target="_blank" aria-label="GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
+
+            <p>© 2026 Your Name. All rights reserved.</p>
+
+        </div>
+    </footer>
+
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+
+</html>

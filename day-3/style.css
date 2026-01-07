@@ -9,11 +9,17 @@ body{
     font-family: 'Work Sans', sans-serif;
     color: #333;
     padding: 1rem;
+    line-height: 1.6;
 }
 
 #title{
     text-align: center;
     margin-bottom: 1rem;
+}
+
+h3{
+    text-align: center;
+    margin-top: 1.5rem;
 }
 
 table{
@@ -37,7 +43,34 @@ table, th, td {
     color: #111827;
 }
 
+.navLink{
+    text-align: right;
+}
+
+#navLink{
+    margin-bottom: 1rem;
+    margin-right: 3rem;
+    border: 1px solid #656363;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    background-color: #514e4e ;
+}
+
+#navLink a{
+    color: #e5e7eb;
+    text-decoration: none;
+}
+
+#navLink:hover{
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+    color: white;
+    transition: 0.3s;
+}
+
+
 /* Product List Table Specific Styles */
+
 .container {
   max-width: 1100px;
   margin: 50px auto;

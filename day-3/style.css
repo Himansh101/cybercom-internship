@@ -1,0 +1,124 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body{
+    background: #f0f0f0;
+    font-family: 'Work Sans', sans-serif;
+    color: #333;
+    padding: 1rem;
+}
+
+#title{
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+table{
+    width: 95%;
+}
+
+table, th, td {
+  border:1px solid black;
+  margin: 1rem;
+  border-collapse: collapse;
+  border-color: #656363;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+#tableTitle{
+    text-align: center;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    font-size: 2rem;
+    color: #111827;
+}
+
+/* Product List Table Specific Styles */
+.container {
+  max-width: 1100px;
+  margin: 50px auto;
+  padding: 0 20px;
+  justify-items: center;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  width: 90vw;
+}
+
+tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background 0.3s;
+}
+
+tbody tr:hover {
+  background: #f1f5f9;
+}
+
+
+img {
+    width: 9rem;
+    height: 12rem;
+    object-fit: contain;
+    border-radius: 5%;
+    border: 1px solid #e5e7eb;
+}
+
+@media (max-width: 768px) {
+  th, td {
+    padding: 12px;
+  }
+
+  img {
+    width: 55px;
+    height: 55px;
+  }
+}
+
+/* Feature row hidden by default */
+.feature-row {
+  display: none;
+  background: #f8fafc;
+  
+}
+
+.feature-row td {
+  padding: 16px 24px;
+  text-align: left;
+}
+
+/* Feature list */
+.features {
+  list-style: disc;
+  padding-left: 20px;
+  color: #374151;
+  text-align: left;
+}
+
+/* Show features on hover */
+.productRow:hover + .feature-row {
+  display: table-row;
+}
+
+/* Smooth appearance */
+.feature-row {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

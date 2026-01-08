@@ -198,11 +198,10 @@ input, select {
 
 @media (max-width: 600px) {
 
-  .navLinks{
-    width: 70%;
-    margin-left: 4rem;
-  }
-
+  .navLinks {
+  width: 100%;
+  justify-content: center;
+}
   
   .formGroup{
       flex-direction: column;

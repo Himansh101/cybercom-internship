@@ -34,7 +34,7 @@ body {
     margin-bottom: 2rem;
 }
 
-#navLink {
+.navLink {
     color: #0b1e0c;
     font-weight: 600;
     font-size: 1.1em;
@@ -44,13 +44,13 @@ body {
     background-color: #9dc2d7;
 }
 
-#navLink:hover {
+.navLink:hover {
     background-color: #fff;
     color: #0b1e0c;
     transition: 0.3s ease-in-out;
 }
 
-#navLink a {
+.navLink a {
     text-decoration: none;
     color: inherit;
 }
@@ -82,50 +82,68 @@ body {
 
 .formSection {
     margin: 1.2rem 0;
-    width: 70%;
 }
 
-.formSection label {
-    display: block;
-    /* margin-bottom: 0.5rem; */
-    font-weight: 600;
+.extraInfo{
+    display: flex;
+    gap: 1rem;
+    margin: 1.2rem 0;
+}
+
+.formGroup{
+    width: 90%;
+}
+/* ========================= INPUTS & SELECT ========================= */
+
+.formSection input, 
+.formSection select {
+  width: 100%;
+}
+
+.formSection label,
+.extraInfo label {
+  display: block;
+  font-weight: 600;
+}
+
+
+input, select {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.extraInfo select{
+    appearance: none;
+    text-align: center;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 550;
+    color: #0b1e0c;
 }
 
 .nameFields {
     display: flex;
     gap: 1rem;
     flex-direction: column;
+    align-items: flex-start;
 }
-
-.nameFields input {
-    width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 0.5rem;
-}
-
-.languageFields {
-    display: flex;
-    gap: 1rem;
-    /* flex-direction: column; */
-}
-
-.languageFields input {
-    margin-left: 0.5rem;
-    margin-right: -0.5rem;
-}
-
-.vehicleFields {
+.emailFields, .passwordFields {
     display: flex;
     gap: 1rem;
 }
 
-.vehicleFields input {
-    margin-left: 0.5rem;
-    margin-right: -0.5rem;
+.vehicleFields, .languageFields, .genderFields, .termsFields {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
-#submitButton {
+.submitButton {
     display: block;
     width: 30%;
     margin: 1.5rem auto 0 auto;
@@ -138,103 +156,68 @@ body {
     cursor: pointer;
 }
 
-#submitButton:hover {
+.submitButton:hover {
     background-color: #145214;
-    transition: 0.3s ease-in-out;
+    transition: background-color 0.3s ease-in-out;
     cursor: pointer;
 }
 
-/*------- Registration Form Styles -------*/
-.registrationForm {
+/*------- Registration and Login Form Styles -------*/
+
+.registrationForm, .loginForm {
     display: grid;
     place-items: center;
 }
 
-.emailFields {
-    display: flex;
-    gap: 1rem;
-}
-
-.emailFields input {
-    width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 0.5rem;
-}
-
-.passwordFields {
-    display: flex;
-    gap: 1rem;
-}
-
-.passwordFields input {
-    width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 0.5rem;
-}
-
-.genderFields {
-    display: flex;
-    gap: 1rem;
-}
-
-.genderFields input {
-    margin-left: 0.5rem;
-    margin-right: -0.5rem;
-}
-
-.ageFields {
-    display: flex;
-    gap: 1rem;
-}
-
-.ageFields input {
-    width: 20%;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 0.5rem;
-}
-
-.qualificationFields {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-}
-
-.qualificationFields label {
-    font-weight: 600;
-}
-
-.qualificationFields #qualification {
-    text-align: center;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    appearance: none;
-    color: #0b1e0c;
-    font-size: 1em;
-    font-weight: 550;
-}
+/*--------- EDUCATION & AGE ROW ------------*/
 
 .educationAgeFields {
-    display: flex;
-    gap: 9rem;
-    align-items: center;
+  display: flex;
+  gap: 3rem;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* ------------ AGE INPUT ---------- */
+
+.ageFields input {
+  max-width: 120px;
 }
 
 .termsFields {
-    display: flex;
-    gap: 1rem;
+    width: 50%;
 }
 
-.termsFields input {
-    margin-left: 0.5rem;
-    margin-right: -0.5rem;
+/* ------------- FOCUS STATES ------------- */
+
+.formSection input:focus,
+.formSection select:focus {
+  outline: 2px solid #1e0b10;
+  outline-offset: 2px;
 }
 
-/*------- Login Form Styles -------*/
-.loginForm {
-    display: grid;
-    place-items: center;
+@media (max-width: 600px) {
+
+  .navLinks{
+    width: 70%;
+    margin-left: 4rem;
+  }
+
+  
+  .formGroup{
+      flex-direction: column;
+    }
+    
+  .genderFields,
+  .ageFields{
+      flex-direction: row;
+  }
+
+  .educationAgeFields {
+    gap: 1.5rem;
+  }
+
+  .submitButton {
+    width: 100%;
+  }
 }

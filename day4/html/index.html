@@ -15,10 +15,10 @@
     <h2 class="topic">Day 4: HTML and CSS</h2>
 
     <div class="navLinks">
-        <span id="navLink">
+        <span class="navLink">
             <a href="registrationForm.html">Registration Form</a>
         </span>
-        <span id="navLink">
+        <span class="navLink">
             <a href="loginForm.html">Login Form</a>
         </span>
     </div>
@@ -28,31 +28,31 @@
 
         <form class="sampleForm">
 
-            <div class="nameFields formSection">
+            <div class="nameFields formSection formGroup ">
                 <label for="fname">First name:</label>
-                <input type="text" id="fname" name="fname" value="John"><br>
+                <input type="text" id="fname" name="fname" value="John">
                 <label for="lname">Last name:</label>
-                <input type="text" id="lname" name="lname" value="Doe"><br>
+                <input type="text" id="lname" name="lname" value="Doe">
             </div>
 
-            <div class="languageFields formSection">
+            <div class="languageFields extraInfo formGroup ">
                 <input type="radio" id="html" name="fav_language" value="HTML">
                 <label for="html">HTML</label>
                 <input type="radio" id="css" name="fav_language" value="CSS">
                 <label for="css">CSS</label>
                 <input type="radio" id="javascript" name="fav_language" value="JavaScript">
-                <label for="javascript">JavaScript</label><br>
+                <label for="javascript">JavaScript</label>
             </div>
 
-            <div class="vehicleFields formSection">
+            <div class="vehicleFields extraInfo formGroup ">
                 <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
                 <label for="vehicle1"> I have a bike</label>
                 <input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
                 <label for="vehicle2"> I have a car</label>
                 <input type="checkbox" id="vehicle3" name="vehicle3" value="Boat">
-                <label for="vehicle3"> I have a boat</label><br>
+                <label for="vehicle3"> I have a boat</label>
             </div>
-            <input type="submit" value="Submit" id="submitButton">
+            <input type="submit" value="Submit" class="submitButton">
         </form>
     </div>
 

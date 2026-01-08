@@ -201,7 +201,15 @@ input, select {
   .navLinks {
   width: 100%;
   justify-content: center;
-}
+  }
+ 
+  .navLink{
+    width: 7rem;
+    font-size: 0.6em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
   
   .formGroup{
       flex-direction: column;

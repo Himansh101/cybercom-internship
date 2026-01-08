@@ -1,21 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Day 4 of Cybercom-internship</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
     <h1 id="title">
         Cybercom Creation
     </h1>
     <h2 class="topic">Day 4: HTML and CSS</h2>
 
-    <div class="navLink"><span id="navLink"><a href="registration.html">Registration Form</a></span>
-    <span id="navLink"><a href="login.html">Login Form</a></span></div>
+    <div class="navLinks">
+        <span id="navLink">
+            <a href="registrationForm.html">Registration Form</a>
+        </span>
+        <span id="navLink">
+            <a href="loginForm.html">Login Form</a>
+        </span>
+    </div>
 
-    <form action=""></form>
+    <div class="formContainer">
+        <h3 class="formTitle">HTML Form Example</h3>
+
+        <form class="sampleForm">
+
+            <div class="nameFields formSection">
+                <label for="fname">First name:</label>
+                <input type="text" id="fname" name="fname" value="John"><br>
+                <label for="lname">Last name:</label>
+                <input type="text" id="lname" name="lname" value="Doe"><br>
+            </div>
+
+            <div class="languageFields formSection">
+                <input type="radio" id="html" name="fav_language" value="HTML">
+                <label for="html">HTML</label>
+                <input type="radio" id="css" name="fav_language" value="CSS">
+                <label for="css">CSS</label>
+                <input type="radio" id="javascript" name="fav_language" value="JavaScript">
+                <label for="javascript">JavaScript</label><br>
+            </div>
+
+            <div class="vehicleFields formSection">
+                <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
+                <label for="vehicle1"> I have a bike</label>
+                <input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
+                <label for="vehicle2"> I have a car</label>
+                <input type="checkbox" id="vehicle3" name="vehicle3" value="Boat">
+                <label for="vehicle3"> I have a boat</label><br>
+            </div>
+            <input type="submit" value="Submit" id="submitButton">
+        </form>
+    </div>
 
 </body>
+
 </html>

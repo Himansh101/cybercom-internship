@@ -1,17 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Day 5 of Cybercom-internship</title>
 </head>
+
 <body>
     <h1>Cybercom Creation</h1>
-    <h2>Day 5</h2>
-    <h3>bug fix in main  branch</h3>
+    <h2>Day 5 : Git and Javascript</h2>
+    <!-- <h3>bug fix in main  branch</h3> -->
 
-    <p>Bug fix 1</p>
+    <!-- <p>Bug fix 1</p> -->
+
+    <h3>JavaScript Statements</h3>
+
+    <p>A JavaScript <b>program</b> is a list of <b>statements</b> to be executed by a computer.</p>
+
+    <p id="demo"></p>
+
+    <button id="clickBtn" onclick="btnClicked()">Click this Button</button>
+
+    <script>
+
+        alert('hello student');
+
+        let x, y, z;  // Statement 1
+        x = 5;        // Statement 2
+        y = 6;        // Statement 3
+        z = x + y;    // Statement 4
+
+        document.getElementById("demo").innerHTML = "The value of z is " + z;
+
+        function btnClicked() {
+            document.getElementById("clickBtn").innerText = "Button is Clicked!";
+        }
+
+    </script>
 
 </body>
+
 </html>

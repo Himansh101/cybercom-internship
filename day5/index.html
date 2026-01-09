@@ -21,9 +21,65 @@
 
     <p id="demo"></p>
 
+    <button onclick="window.print()">Print this screen</button>
+
     <button id="clickBtn" onclick="btnClicked()">Click this Button</button>
 
+    <!-- void in javascript example -->
+    <h2>The void Operator</h2>
+
+    <p>
+        <a href="javascript:void(0);">Useless link</a>
+    </p>
+
+    <p>
+        <a href="javascript:void(document.body.style.backgroundColor='grey');">
+            Click me to change the background color of body to grey.</a>
+    </p>
+
+    <p>The toString() method returns the elements of an array as a comma separated string:</p>
+
+    <p id="demo1"></p>
+
+    <p>Convert a date to a string:</p>
+    <p id="demo2"></p>
+
+    <p>The toString() method of an object returns "[object Object]":</p>
+
+    <p id="demo3"></p>
+
+    <p>The Number() metod converts a variable (or value) into a number:</p>
+
+    <p id="typeconversionDemo"></p>
+
     <script>
+        //Use of toString
+        const fruits = ["Banana", "Orange", "Apple", "Mango"];
+
+        let myList = fruits.toString();
+        document.getElementById("demo1").innerHTML = myList;
+
+        const d = new Date();
+        let text = d.toString();
+        document.getElementById("demo2").innerHTML = d;
+
+        let person = {
+            firstname: "John",
+            lastname: "Doe",
+        }
+        let objectString = person.toString();
+        document.getElementById("demo3").innerHTML = objectString;
+
+        document.getElementById("typeconversionDemo").innerHTML =
+            Number("3.14") + "<br>" +
+            Number(Math.PI) + "<br>" +
+            Number("    ") + "<br>" +
+            Number("") + "<br>" +
+            Number("99 88") + "<br>" +
+            Number("John") + "<br>";
+    </script>
+
+    <!-- <script>
 
         alert('hello student');
 
@@ -38,8 +94,9 @@
             document.getElementById("clickBtn").innerText = "Button is Clicked!";
         }
 
-    </script>
+    </script> -->
 
+    <script src="script.js"></script>
 </body>
 
 </html>

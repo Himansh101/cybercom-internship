@@ -9,6 +9,11 @@ console.log("Subtraction:", a - b);
 console.log("Multiplication:", a * b);
 console.log("Division:", a / b);
 console.log("Modulus:", a % b);
+console.log("Exponential:", a ** b);
+console.log("Post-Increment: ", a++);
+console.log("Pre-Increment: ", ++b);
+console.log("Post-Decrement: ", a--);
+console.log("Pre-Decrement: ", --b);
 
 // 2. Assignment Operators
 let x = 10;
@@ -54,6 +59,16 @@ let text3 = "Hello" + 5;
 console.log(text1)
 console.log(text2)
 console.log(text3)
+
+//String Comparison
+let temp1 = "24"
+let temp2 = "42"
+
+if(temp1 < temp2){
+    console.log(temp1 , "is bigger than", temp2)
+}else{
+    console.log(temp1, "is lesser than", temp2)
+}
 
 //Conditional Assignment operations
 //AND operators
@@ -158,3 +173,25 @@ let n = 10;
 
 let check = (n % 2 === 0) ? "Even Number" : "Odd Number";
 console.log(check);
+
+//falsy values
+// 0
+// -0
+// 0n
+// ""
+// null
+// NaN
+// undefined
+// false
+
+function checkDrive() {
+    const age = Number(document.getElementById("age").value);
+
+    if (age < 18) {
+        document.getElementById("result").innerText = "You can't drive cars";
+    } else {
+        document.getElementById("result").innerText = "You can drive cars";
+    }
+}
+
+

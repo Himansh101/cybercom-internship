@@ -100,11 +100,11 @@ let num2 = 0;
 num2 ??= 10;
 console.log(num2)
 
-let num3;
+let num3 = null;
 num3 ??= 10;
 console.log(num3)
 
-let num4;
+let num4 = 20;
 num4 ??= 10;
 console.log(num4)
 

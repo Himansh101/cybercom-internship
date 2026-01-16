@@ -1,0 +1,21 @@
+body {
+  font-family: Arial;
+  padding: 20px;
+}
+
+section {
+  margin-bottom: 30px;
+}
+
+.active {
+  color: white;
+  background: teal;
+  padding: 5px;
+}
+
+#box {
+  width: 50px;
+  height: 50px;
+  background: red;
+  position: relative;
+}

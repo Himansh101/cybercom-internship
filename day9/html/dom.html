@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DOM Mini Project</title>
+  <style>
+    body {
+      font-family: Arial;
+      margin: 20px;
+    }
+
+    section {
+      border: 2px solid #ccc;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .success {
+      color: green;
+    }
+
+    #box {
+      width: 60px;
+      height: 60px;
+      background-color: blue;
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Interactive DOM Mini Project</h1>
+
+  <!-- SECTION 1 -->
+  <section>
+    <h2>1. Change Text (HTML DOM)</h2>
+    <p id="text">This text will change</p>
+    <button onclick="changeText()">Change Text</button>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section>
+    <h2>2. Change CSS</h2>
+    <p id="colorText">Change my color</p>
+    <button onclick="changeColor()">Change Color</button>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section>
+    <h2>3. Counter (Events)</h2>
+    <p>Count: <span id="count">0</span></p>
+    <button onclick="increase()">+</button>
+    <button onclick="decrease()">-</button>
+  </section>
+
+  <!-- SECTION 4 -->
+  <section>
+    <h2>4. Form Validation</h2>
+    <input type="text" id="username" placeholder="Enter username">
+    <button onclick="validateForm()">Submit</button>
+    <p id="message"></p>
+  </section>
+
+  <!-- SECTION 5 -->
+  <section>
+    <h2>5. Dynamic List</h2>
+    <input type="text" id="itemInput" placeholder="Add item">
+    <button onclick="addItem()">Add</button>
+    <ul id="list"></ul>
+  </section>
+
+  <!-- SECTION 6 -->
+  <section>
+    <h2>6. DOM Animation</h2>
+    <button onclick="animateBox()">Animate</button>
+    <div id="box"></div>
+  </section>
+
+  <script src="../js/dom.js"></script>
+</body>
+</html>

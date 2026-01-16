@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DOM Events Mini Project</title>
+  <style>
+    body {
+      font-family: Arial;
+      margin: 20px;
+    }
+
+    section {
+      border: 2px solid #ccc;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+
+    .box {
+      width: 100px;
+      height: 100px;
+      background: steelblue;
+      margin-top: 10px;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .success {
+      color: green;
+    }
+
+    #scrollBox {
+      height: 150px;
+      overflow: auto;
+      border: 1px solid black;
+    }
+
+    #scrollContent {
+      height: 500px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>DOM Events Demonstration</h1>
+
+<!-- SECTION 1: Mouse Events -->
+<section>
+  <h2>1. Mouse Events</h2>
+  <button id="clickBtn">Click Me</button>
+  <button id="dblBtn">Double Click Me</button>
+  <div class="box" id="mouseBox"></div>
+  <p id="mouseMsg"></p>
+</section>
+
+<!-- SECTION 2: Keyboard Events -->
+<section>
+  <h2>2. Keyboard Events</h2>
+  <input type="text" id="keyInput" placeholder="Type something">
+  <p id="keyMsg"></p>
+</section>
+
+<!-- SECTION 3: Form Events -->
+<section>
+  <h2>3. Form Events</h2>
+  <form id="myForm">
+    <input type="text" id="username" placeholder="Username">
+    <button type="submit">Submit</button>
+  </form>
+  <p id="formMsg"></p>
+</section>
+
+<!-- SECTION 4: Input / Focus Events -->
+<section>
+  <h2>4. Input & Focus Events</h2>
+  <input type="text" id="focusInput" placeholder="Focus on me">
+  <p id="focusMsg"></p>
+</section>
+
+<!-- SECTION 5: Window Events -->
+<section>
+  <h2>5. Window Events</h2>
+  <p id="windowMsg"></p>
+  <div id="scrollBox">
+    <div id="scrollContent"></div>
+  </div>
+</section>
+
+<!-- SECTION 6: DOM Animation -->
+<section>
+  <h2>6. DOM Animation</h2>
+  <button id="animateBtn">Animate Box</button>
+  <div class="box" id="animateBox"></div>
+</section>
+
+<script src="../js/event.js"></script>
+</body>
+</html>

@@ -263,7 +263,7 @@ const App = {
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const view = e.target.dataset.view;
-                
+
                 // Check if user can access this section
                 if (!Auth.canViewSection(view)) {
                     alert('You do not have permission to access this section');
@@ -298,7 +298,7 @@ const App = {
         if (internForm) {
             internForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
+
                 // Check permission before processing
                 if (!RulesEngine.canCreateIntern()) {
                     alert('❌ You do not have permission to create interns');
@@ -360,7 +360,7 @@ const App = {
         if (taskForm) {
             taskForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
+
                 // Check permission before processing
                 if (!RulesEngine.canCreateTask()) {
                     alert('❌ You do not have permission to create tasks');

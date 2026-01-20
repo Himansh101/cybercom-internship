@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Intern Operations System</title>
-    
+
     <link rel="stylesheet" href="./css/reset.css">
     <link rel="stylesheet" href="./css/layout.css">
     <link rel="stylesheet" href="./css/components.css">
 </head>
+
 <body>
     <!-- Login Screen (Shows initially) -->
     <div id="login-screen" class="login-screen">
@@ -22,14 +24,16 @@
             <div id="login-form-container" class="auth-form-container">
                 <h2>Login</h2>
                 <div id="login-error"></div>
-                <form id="login-form" class="auth-form">
+                <form id="login-form" class="auth-form" method="post">
                     <div class="form-group">
                         <label>Username *</label>
-                        <input type="text" name="username" placeholder="Enter username" required autocomplete="username">
+                        <input type="text" name="username" placeholder="Enter username" required
+                            autocomplete="username">
                     </div>
                     <div class="form-group">
                         <label>Password *</label>
-                        <input type="password" name="password" placeholder="Enter password" required autocomplete="current-password">
+                        <input type="password" name="password" placeholder="Enter password" required
+                            autocomplete="current-password">
                     </div>
                     <button type="submit" class="btn btn-primary btn-block">Login</button>
                 </form>
@@ -42,19 +46,21 @@
             <div id="signup-form-container" class="auth-form-container" style="display: none;">
                 <h2>Create Account</h2>
                 <div id="signup-error"></div>
-                <form id="signup-form" class="auth-form">
+                <form id="signup-form" class="auth-form" method="post">
                     <div class="form-group">
                         <label>Full Name *</label>
                         <input type="text" name="fullname" placeholder="Enter your full name" required>
                     </div>
                     <div class="form-group">
                         <label>Username *</label>
-                        <input type="text" name="username" placeholder="Choose a username" required autocomplete="username">
+                        <input type="text" name="username" placeholder="Choose a username" required
+                            autocomplete="username">
                         <small>Username must be 3-20 characters</small>
                     </div>
                     <div class="form-group">
                         <label>Password *</label>
-                        <input type="password" name="password" placeholder="Choose a password" required autocomplete="new-password">
+                        <input type="password" name="password" placeholder="Choose a password" required
+                            autocomplete="new-password">
                         <small>Password must be at least 6 characters</small>
                     </div>
                     <div class="form-group">
@@ -90,7 +96,8 @@
                     <p style="margin-bottom: 10px; font-size: 0.9em;">
                         Role: <strong id="current-user-role"></strong>
                     </p>
-                    <button class="btn btn-secondary" onclick="Auth.logout()" style="font-size: 0.85em; padding: 6px 12px;">
+                    <button class="btn btn-secondary" onclick="Auth.logout()"
+                        style="font-size: 0.85em; padding: 6px 12px;">
                         🚪 Logout
                     </button>
                 </div>
@@ -128,7 +135,7 @@
             <div class="card" id="create-intern-card">
                 <h2>Add New Intern</h2>
                 <div id="intern-error"></div>
-                <form id="intern-form">
+                <form id="intern-form" method="post">
                     <div class="form-group">
                         <label>Full Name *</label>
                         <input type="text" name="name" placeholder="John Doe" required>
@@ -169,14 +176,15 @@
             <div class="card" id="create-task-card">
                 <h2>Create New Task</h2>
                 <div id="task-error"></div>
-                <form id="task-form">
+                <form id="task-form" method="post">
                     <div class="form-group">
                         <label>Task Title *</label>
                         <input type="text" name="title" placeholder="Build landing page" required>
                     </div>
                     <div class="form-group">
                         <label>Description *</label>
-                        <textarea name="description" rows="3" placeholder="Create a responsive landing page with modern design..." required></textarea>
+                        <textarea name="description" rows="3"
+                            placeholder="Create a responsive landing page with modern design..." required></textarea>
                     </div>
                     <div class="form-group">
                         <label>Required Skills (comma-separated) *</label>
@@ -218,4 +226,5 @@
     <script src="./js/renderer.js"></script>
     <script src="./js/app.js"></script>
 </body>
+
 </html>

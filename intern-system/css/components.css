@@ -421,6 +421,7 @@
 } */
 
 /* Navigation Buttons */
+/* Navigation Buttons */
 .nav-btn {
     flex: 1;
     padding: 15px 20px;
@@ -872,10 +873,11 @@
     justify-content: center;
     padding: 20px;
     z-index: 9999;
+    overflow-y: auto;
 }
 
 .login-container {
-    max-width: 1200px;
+    max-width: 500px;
     width: 100%;
 }
 
@@ -886,118 +888,59 @@
 }
 
 .login-header h1 {
-    font-size: 3em;
+    font-size: 2.5em;
     margin-bottom: 10px;
     font-weight: 700;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .login-header p {
-    font-size: 1.3em;
+    font-size: 1.1em;
     opacity: 0.95;
 }
 
-.login-roles {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
-.role-card {
+/* Auth Form Container */
+.auth-form-container {
     background: white;
     border-radius: 12px;
-    padding: 30px;
-    text-align: center;
-    transition: all 0.3s ease;
-    border: 3px solid transparent;
-    cursor: pointer;
+    padding: 40px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
-.role-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
-    border-color: #667eea;
-}
-
-.role-card:active {
-    transform: translateY(-4px);
-}
-
-.role-icon {
-    font-size: 4em;
-    margin-bottom: 15px;
-    line-height: 1;
-}
-
-.role-card h3 {
-    font-size: 1.8em;
-    margin-bottom: 8px;
+.auth-form-container h2 {
+    margin-bottom: 25px;
     color: #212529;
+    text-align: center;
+    font-size: 1.8em;
 }
 
-.role-card > p {
-    color: #6c757d;
-    font-size: 1em;
+.auth-form {
     margin-bottom: 20px;
 }
 
-.role-permissions {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    text-align: left;
+.btn-block {
+    width: 100%;
+    margin-top: 10px;
 }
 
-.role-permissions li {
-    padding: 8px 0;
-    color: #495057;
-    font-size: 0.95em;
-    border-bottom: 1px solid #e9ecef;
-    position: relative;
-    padding-left: 25px;
+.auth-switch {
+    text-align: center;
+    color: #6c757d;
+    font-size: 14px;
+    margin-top: 20px;
 }
 
-.role-permissions li:last-child {
-    border-bottom: none;
-}
-
-.role-permissions li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: #28a745;
-    font-weight: bold;
-    font-size: 1.2em;
-}
-
-/* Role-specific colors */
-.role-card:nth-child(1):hover {
-    border-color: #ffd700;
-}
-
-.role-card:nth-child(1) .role-icon {
-    color: #ffd700;
-}
-
-.role-card:nth-child(2):hover {
-    border-color: #667eea;
-}
-
-.role-card:nth-child(2) .role-icon {
+.auth-switch a {
     color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
 }
 
-.role-card:nth-child(3):hover {
-    border-color: #28a745;
+.auth-switch a:hover {
+    text-decoration: underline;
 }
 
-.role-card:nth-child(3) .role-icon {
-    color: #28a745;
-}
-
-/* Responsive Design for Login */
+/* Responsive Design for Auth Forms */
 @media (max-width: 768px) {
     .login-header h1 {
         font-size: 2em;
@@ -1007,17 +950,12 @@
         font-size: 1em;
     }
     
-    .login-roles {
-        grid-template-columns: 1fr;
-        gap: 20px;
+    .auth-form-container {
+        padding: 30px 25px;
     }
     
-    .role-card {
-        padding: 25px;
-    }
-    
-    .role-icon {
-        font-size: 3em;
+    .auth-form-container h2 {
+        font-size: 1.5em;
     }
 }
 

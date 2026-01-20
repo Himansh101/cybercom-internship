@@ -12,8 +12,26 @@ const Auth = {
     // User storage (simulates database)
     users: [],
     
-    // Initialize: Load users from memory
+    // LocalStorage keys
+    STORAGE_KEYS: {
+        USERS: 'intern_system_users',
+        CURRENT_USER: 'intern_system_current_user'
+    },
+    
+    // Initialize: Load users from localStorage
     init() {
+        // Load users from localStorage
+        const savedUsers = localStorage.getItem(this.STORAGE_KEYS.USERS);
+        if (savedUsers) {
+            try {
+                this.users = JSON.parse(savedUsers);
+                console.log(`ℹ️ Loaded ${this.users.length} users from storage`);
+            } catch (error) {
+                console.error('Error loading users from storage:', error);
+                this.users = [];
+            }
+        }
+
         // Create default admin account if no users exist
         if (this.users.length === 0) {
             this.users.push({
@@ -24,7 +42,74 @@ const Auth = {
                 role: 'ADMIN',
                 createdAt: new Date().toISOString()
             });
+            this.saveUsers();
             console.log('ℹ️ Default admin account created (username: admin, password: admin123)');
+        }
+
+        // Check if user was previously logged in
+        this.checkSavedSession();
+    },
+
+    // Save users to localStorage
+    saveUsers() {
+        try {
+            localStorage.setItem(this.STORAGE_KEYS.USERS, JSON.stringify(this.users));
+        } catch (error) {
+            console.error('Error saving users to storage:', error);
+        }
+    },
+
+    // Save current session
+    saveSession(user) {
+        try {
+            localStorage.setItem(this.STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+        } catch (error) {
+            console.error('Error saving session:', error);
+        }
+    },
+
+    // Clear session
+    clearSession() {
+        try {
+            localStorage.removeItem(this.STORAGE_KEYS.CURRENT_USER);
+        } catch (error) {
+            console.error('Error clearing session:', error);
+        }
+    },
+
+    // Check for saved session on page load
+    checkSavedSession() {
+        const savedUser = localStorage.getItem(this.STORAGE_KEYS.CURRENT_USER);
+        if (savedUser) {
+            try {
+                const user = JSON.parse(savedUser);
+                console.log(`ℹ️ Found saved session for ${user.name}`);
+                
+                // Auto-login with saved session
+                State.setUser(user);
+                
+                // Hide login screen, show main app
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+
+                this.updateUserDisplay();
+                this.renderNavigation();
+
+                // Initialize the app
+                if (typeof App !== 'undefined') {
+                    App.wireFilters();
+                    App.wireForms();
+                }
+
+                if (typeof Renderer !== 'undefined') {
+                    Renderer.renderAll();
+                }
+
+                console.log('✅ Auto-logged in from saved session');
+            } catch (error) {
+                console.error('Error loading saved session:', error);
+                this.clearSession();
+            }
         }
     },
 
@@ -146,6 +231,7 @@ const Auth = {
         };
 
         this.users.push(newUser);
+        this.saveUsers(); // Save to localStorage
         console.log(`✅ New user registered: ${newUser.username} (${newUser.role})`);
         
         return newUser;
@@ -189,6 +275,7 @@ const Auth = {
         };
 
         State.setUser(sessionUser);
+        this.saveSession(sessionUser); // Save session to localStorage
 
         // Hide login screen, show main app
         document.getElementById('login-screen').style.display = 'none';
@@ -216,6 +303,7 @@ const Auth = {
         if (!State.currentUser) return;
 
         State.clearUser();
+        this.clearSession(); // Clear from localStorage
 
         document.getElementById('login-screen').style.display = 'flex';
         document.getElementById('main-app').style.display = 'none';

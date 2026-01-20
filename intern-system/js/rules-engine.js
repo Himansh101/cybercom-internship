@@ -276,7 +276,7 @@ const RulesEngine = {
 
     // Get all tasks that depend on a specific task
     getDependentTasks(taskId) {
-        return State.tasks.filter(task => 
+        return State.tasks.filter(task =>
             task.dependencies && task.dependencies.includes(taskId)
         );
     },

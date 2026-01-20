@@ -38,10 +38,10 @@
 //     tasks: [],
 //     logs: [],
 //     usedEmails: new Set(),
-    
+
 //     // UI State
 //     currentView: 'dashboard',
-    
+
 //     // ID Generators
 //     nextInternId: 1,
 //     nextTaskId: 1,
@@ -64,12 +64,12 @@
 //             userId: this.currentUser?.id || 'SYSTEM',
 //             userRole: this.currentUser?.role || 'SYSTEM'
 //         });
-        
+
 //         // Keep only last 100 logs
 //         if (this.logs.length > 100) {
 //             this.logs = this.logs.slice(0, 100);
 //         }
-        
+
 //         if (this.isAuthenticated && typeof Renderer !== 'undefined') {
 //             Renderer.renderLogs();
 //             Renderer.renderStats();
@@ -96,14 +96,14 @@
 //     // Get filtered data based on user role
 //     getVisibleInterns() {
 //         if (!this.currentUser) return [];
-        
+
 //         // All roles can see all interns (different from tasks)
 //         return this.interns;
 //     },
 
 //     getVisibleTasks() {
 //         if (!this.currentUser) return [];
-        
+
 //         // INTERN role: only see their assigned tasks
 //         if (this.currentUser.role === 'INTERN' && this.currentUser.internId) {
 //             const intern = this.interns.find(i => i.id === this.currentUser.internId);
@@ -112,14 +112,14 @@
 //             }
 //             return [];
 //         }
-        
+
 //         // ADMIN and MANAGER: see all tasks
 //         return this.tasks;
 //     },
 
 //     getVisibleLogs() {
 //         if (!this.currentUser) return [];
-        
+
 //         // INTERN role: only see logs related to their tasks
 //         if (this.currentUser.role === 'INTERN' && this.currentUser.internId) {
 //             const intern = this.interns.find(i => i.id === this.currentUser.internId);
@@ -132,7 +132,7 @@
 //             }
 //             return [];
 //         }
-        
+
 //         // ADMIN and MANAGER: see all logs
 //         return this.logs;
 //     },
@@ -146,7 +146,7 @@
 //         this.nextInternId = 1;
 //         this.nextTaskId = 1;
 //         this.currentView = 'dashboard';
-        
+
 //         if (this.isAuthenticated && typeof Renderer !== 'undefined') {
 //             Renderer.renderAll();
 //         }
@@ -166,7 +166,7 @@ const Auth = {
 
     // User storage (simulates database)
     users: [],
-    
+
     // Initialize: Load users from memory
     init() {
         // Create default admin account if no users exist
@@ -302,7 +302,7 @@ const Auth = {
 
         this.users.push(newUser);
         console.log(`✅ New user registered: ${newUser.username} (${newUser.role})`);
-        
+
         return newUser;
     },
 
@@ -312,7 +312,7 @@ const Auth = {
         await new Promise(resolve => setTimeout(resolve, 800));
 
         // Find user
-        const user = this.users.find(u => 
+        const user = this.users.find(u =>
             u.username.toLowerCase() === username.toLowerCase()
         );
 
@@ -549,10 +549,10 @@ const State = {
     tasks: [],
     logs: [],
     usedEmails: new Set(),
-    
+
     // UI State
     currentView: 'dashboard',
-    
+
     // ID Generators
     nextInternId: 1,
     nextTaskId: 1,
@@ -575,11 +575,11 @@ const State = {
             userId: this.currentUser?.id || 'SYSTEM',
             userRole: this.currentUser?.role || 'SYSTEM'
         });
-        
+
         if (this.logs.length > 100) {
             this.logs = this.logs.slice(0, 100);
         }
-        
+
         if (this.isAuthenticated && typeof Renderer !== 'undefined') {
             Renderer.renderLogs();
             Renderer.renderStats();
@@ -611,7 +611,7 @@ const State = {
 
     getVisibleTasks() {
         if (!this.currentUser) return [];
-        
+
         if (this.currentUser.role === 'INTERN' && this.currentUser.internId) {
             const intern = this.interns.find(i => i.id === this.currentUser.internId);
             if (intern) {
@@ -619,24 +619,24 @@ const State = {
             }
             return [];
         }
-        
+
         return this.tasks;
     },
 
     getVisibleLogs() {
         if (!this.currentUser) return [];
-        
+
         if (this.currentUser.role === 'INTERN' && this.currentUser.internId) {
             const intern = this.interns.find(i => i.id === this.currentUser.internId);
             if (intern) {
                 return this.logs.filter(log => {
-                    return log.userId === this.currentUser.id || 
-                           intern.assignedTasks.some(taskId => log.details.includes(taskId));
+                    return log.userId === this.currentUser.id ||
+                        intern.assignedTasks.some(taskId => log.details.includes(taskId));
                 });
             }
             return [];
         }
-        
+
         return this.logs;
     },
 
@@ -649,7 +649,7 @@ const State = {
         this.nextInternId = 1;
         this.nextTaskId = 1;
         this.currentView = 'dashboard';
-        
+
         if (this.isAuthenticated && typeof Renderer !== 'undefined') {
             Renderer.renderAll();
         }

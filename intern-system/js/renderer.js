@@ -202,11 +202,11 @@ const Renderer = {
 
     renderStats() {
         const stats = document.getElementById('stats');
-        
+
         // Use filtered data based on role
         const visibleInterns = State.getVisibleInterns();
         const visibleTasks = State.getVisibleTasks();
-        
+
         const total = visibleInterns.length;
         const active = visibleInterns.filter(i => i.status === 'ACTIVE').length;
         const onboarding = visibleInterns.filter(i => i.status === 'ONBOARDING').length;
@@ -314,8 +314,8 @@ const Renderer = {
         const visibleTasks = State.getVisibleTasks();
 
         if (visibleTasks.length === 0) {
-            const emptyMessage = Auth.isIntern() 
-                ? 'No tasks assigned to you yet' 
+            const emptyMessage = Auth.isIntern()
+                ? 'No tasks assigned to you yet'
                 : 'No tasks created yet';
             list.innerHTML = `<div class="empty-state"><p>${emptyMessage}</p></div>`;
             return;
@@ -344,9 +344,9 @@ const Renderer = {
                         <div class="dependency-list">
                             <strong>⚠️ Dependencies:</strong>
                             ${task.dependencies.map(depId => {
-                                const depTask = State.tasks.find(t => t.id === depId);
-                                return `<span class="dependency-tag">${depId} ${depTask ? `(${depTask.status})` : '(NOT FOUND)'}</span>`;
-                            }).join('')}
+                const depTask = State.tasks.find(t => t.id === depId);
+                return `<span class="dependency-tag">${depId} ${depTask ? `(${depTask.status})` : '(NOT FOUND)'}</span>`;
+            }).join('')}
                         </div>
                     ` : ''}
                     <div class="hours-display">
@@ -369,15 +369,15 @@ const Renderer = {
         // Show assignment dropdown only if user can assign tasks
         if (!task.assignedTo && task.status !== 'BLOCKED' && Auth.can('canAssignTask')) {
             const activeInterns = State.interns.filter(i => i.status === 'ACTIVE');
-            
+
             if (activeInterns.length > 0) {
                 actions += `
                     <div style="margin-top: 12px;">
                         <select id="assign-${task.id}" style="padding: 8px 12px; margin-right: 10px; border: 1px solid #ced4da; border-radius: 4px;">
                             <option value="">Select intern...</option>
                             ${activeInterns.map(i =>
-                                `<option value="${i.id}">${i.name} - ${i.skills.join(', ')}</option>`
-                            ).join('')}
+                    `<option value="${i.id}">${i.name} - ${i.skills.join(', ')}</option>`
+                ).join('')}
                         </select>
                         <button class="btn btn-primary" onclick="App.assignTask('${task.id}')">Assign Task</button>
                     </div>

@@ -216,7 +216,7 @@ function myFunction1(value, index, array) {
 
 console.log("'every' method output",allOver18);
 
-let anyOver18 = numbers1.every(myFunction);
+let anyOver18 = numbers1.some(myFunction);
 console.log("'some' method output",anyOver18);
 
 //The Array.from() method returns an Array object from string or object

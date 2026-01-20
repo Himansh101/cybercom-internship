@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Registration Form</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Registration Form</h2>
+
+        <p class="error" id="errorMsg"></p>
+
+        <form id="regForm">
+            <label for="name">Name</label>
+            <input name="name" type="text" id="name">
+
+            <label for="email">Email</label>
+            <input name="email" type="email" id="email">
+
+            <label for="password">Password</label>
+            <input name="password" type="password" id="password">
+
+            <label for="mobile">Mobile Number</label>
+            <input name="mobile" type="text" id="mobile">
+
+            <label for="address">Address</label>
+            <textarea name="address" id="address"></textarea>
+
+            <label for="qualification">Qualification</label>
+            <select name="qualification" id="qualification">
+                <option value="">Select</option>
+                <option value="SSC">SSC</option>
+                <option value="HSC">HSC</option>
+                <option value="B.Tech">Graduation in B.Tech</option>
+                <option value="M.Tech">Graduation in M.Tech</option>
+            </select>
+
+            <label for="dob">Date of Birth</label>
+            <input name="dob" type="date" id="dob">
+
+            <div class="genders">
+                <label for="gender">Gender:</label>
+                <input type="radio" id="male" name="gender" value="male">
+                <label for="male"> Male</label>
+                <input type="radio" id="female" name="gender" value="female">
+                <label for="female"> Female</label>
+            </div>
+
+            <div class="terms">
+                <input name="terms" type="checkbox" id="terms">
+                <label for="terms">I agree to the terms and conditions</label>
+            </div>
+
+            <br><br>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div class="container" style="margin-top:20px">
+  <h2>Submitted Data</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Mobile</th>
+        <th>Qualification</th>
+        <th>DOB</th>
+        <th>Gender</th>
+        <th>Address</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -164,6 +164,25 @@ const Auth = {
         INTERN: 'INTERN'
     },
 
+    // User storage (simulates database)
+    users: [],
+    
+    // Initialize: Load users from memory
+    init() {
+        // Create default admin account if no users exist
+        if (this.users.length === 0) {
+            this.users.push({
+                id: 'USER_ADMIN_DEFAULT',
+                username: 'admin',
+                password: 'admin123', // In production, this should be hashed!
+                fullname: 'System Administrator',
+                role: 'ADMIN',
+                createdAt: new Date().toISOString()
+            });
+            console.log('ℹ️ Default admin account created (username: admin, password: admin123)');
+        }
+    },
+
     // Role permissions configuration
     permissions: {
         ADMIN: {
@@ -226,29 +245,107 @@ const Auth = {
         }
     },
 
-    // Login user with specified role
-    login(role) {
-        if (!this.ROLES[role]) {
-            console.error('Invalid role:', role);
-            return;
+    // Show login form
+    showLogin() {
+        document.getElementById('login-form-container').style.display = 'block';
+        document.getElementById('signup-form-container').style.display = 'none';
+        document.getElementById('auth-subtitle').textContent = 'Please login to continue';
+        document.getElementById('login-error').innerHTML = '';
+        document.getElementById('signup-error').innerHTML = '';
+    },
+
+    // Show signup form
+    showSignup() {
+        document.getElementById('login-form-container').style.display = 'none';
+        document.getElementById('signup-form-container').style.display = 'block';
+        document.getElementById('auth-subtitle').textContent = 'Create your account';
+        document.getElementById('login-error').innerHTML = '';
+        document.getElementById('signup-error').innerHTML = '';
+    },
+
+    // Signup new user
+    async signup(formData) {
+        const { username, password, fullname, role } = formData;
+
+        // Validate username
+        if (username.length < 3 || username.length > 20) {
+            throw new Error('Username must be 3-20 characters');
         }
 
-        const user = { ...this.demoUsers[role] };
+        // Validate password
+        if (password.length < 6) {
+            throw new Error('Password must be at least 6 characters');
+        }
+
+        // Check if username already exists
+        if (this.users.find(u => u.username.toLowerCase() === username.toLowerCase())) {
+            throw new Error('Username already exists');
+        }
+
+        // Validate role
+        if (!this.ROLES[role]) {
+            throw new Error('Invalid role selected');
+        }
+
+        // Simulate async operation
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Create new user
+        const newUser = {
+            id: `USER_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            username: username.toLowerCase(),
+            password: password, // In production, hash this!
+            fullname: fullname.trim(),
+            role: role,
+            createdAt: new Date().toISOString()
+        };
+
+        this.users.push(newUser);
+        console.log(`✅ New user registered: ${newUser.username} (${newUser.role})`);
+        
+        return newUser;
+    },
+
+    // Login with username and password
+    async loginWithCredentials(username, password) {
+        // Simulate async operation
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        // Find user
+        const user = this.users.find(u => 
+            u.username.toLowerCase() === username.toLowerCase()
+        );
+
+        if (!user) {
+            throw new Error('Invalid username or password');
+        }
+
+        if (user.password !== password) {
+            throw new Error('Invalid username or password');
+        }
 
         // If logging in as INTERN, link to first ACTIVE intern
-        if (role === 'INTERN') {
+        let internId = null;
+        if (user.role === 'INTERN') {
             const activeIntern = State.interns.find(i => i.status === 'ACTIVE');
             if (activeIntern) {
-                user.internId = activeIntern.id;
-                user.name = activeIntern.name;
+                internId = activeIntern.id;
             } else {
-                alert('⚠️ No active interns found. Please login as Admin first to create and activate an intern.');
-                return;
+                throw new Error('No active intern account found. Please contact admin.');
             }
         }
 
-        State.setUser(user);
+        // Create session user
+        const sessionUser = {
+            id: user.id,
+            name: user.fullname,
+            role: user.role,
+            internId: internId
+        };
 
+        State.setUser(sessionUser);
+
+        // Hide login screen, show main app
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('main-app').style.display = 'block';
 
@@ -265,7 +362,8 @@ const Auth = {
             Renderer.renderAll();
         }
 
-        console.log(`✅ Logged in as ${user.name} (${role})`);
+        console.log(`✅ Logged in as ${sessionUser.name} (${sessionUser.role})`);
+        return sessionUser;
     },
 
     // Logout current user
@@ -368,6 +466,77 @@ const Auth = {
         return this.permissions[State.currentUser.role];
     }
 };
+
+// Wire up login/signup forms
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Auth
+    Auth.init();
+
+    // Login form
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errorDiv = document.getElementById('login-error');
+            errorDiv.innerHTML = '';
+
+            try {
+                errorDiv.innerHTML = '<div class="loading">⏳ Logging in...</div>';
+
+                const username = e.target.username.value.trim();
+                const password = e.target.password.value;
+
+                if (!username || !password) {
+                    throw new Error('Please enter username and password');
+                }
+
+                await Auth.loginWithCredentials(username, password);
+
+                errorDiv.innerHTML = '<div class="success">✅ Login successful!</div>';
+                e.target.reset();
+            } catch (error) {
+                errorDiv.innerHTML = `<div class="error">❌ ${error.message}</div>`;
+            }
+        });
+    }
+
+    // Signup form
+    const signupForm = document.getElementById('signup-form');
+    if (signupForm) {
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errorDiv = document.getElementById('signup-error');
+            errorDiv.innerHTML = '';
+
+            try {
+                errorDiv.innerHTML = '<div class="loading">⏳ Creating account...</div>';
+
+                const formData = {
+                    username: e.target.username.value.trim(),
+                    password: e.target.password.value,
+                    fullname: e.target.fullname.value.trim(),
+                    role: e.target.role.value
+                };
+
+                if (!formData.username || !formData.password || !formData.fullname || !formData.role) {
+                    throw new Error('All fields are required');
+                }
+
+                await Auth.signup(formData);
+
+                errorDiv.innerHTML = '<div class="success">✅ Account created! Please login.</div>';
+                e.target.reset();
+
+                // Switch to login form after 2 seconds
+                setTimeout(() => {
+                    Auth.showLogin();
+                }, 2000);
+            } catch (error) {
+                errorDiv.innerHTML = `<div class="error">❌ ${error.message}</div>`;
+            }
+        });
+    }
+});
 
 // ===== STATE MANAGEMENT =====
 const State = {

@@ -15,44 +15,62 @@
         <div class="login-container">
             <div class="login-header">
                 <h1>🎓 Intern Operations System</h1>
-                <p>Please select your role to continue</p>
+                <p id="auth-subtitle">Please login or create an account</p>
             </div>
-            <div class="login-roles">
-                <button class="role-card" onclick="Auth.login('ADMIN')">
-                    <div class="role-icon">👑</div>
-                    <h3>Admin</h3>
-                    <p>Full system access</p>
-                    <ul class="role-permissions">
-                        <li>Create & manage interns</li>
-                        <li>Create & assign tasks</li>
-                        <li>View all reports</li>
-                        <li>Manage dependencies</li>
-                    </ul>
-                </button>
-                
-                <button class="role-card" onclick="Auth.login('MANAGER')">
-                    <div class="role-icon">👔</div>
-                    <h3>Manager</h3>
-                    <p>Task management access</p>
-                    <ul class="role-permissions">
-                        <li>View interns</li>
-                        <li>Assign tasks</li>
-                        <li>View reports</li>
-                        <li>Monitor progress</li>
-                    </ul>
-                </button>
-                
-                <button class="role-card" onclick="Auth.login('INTERN')">
-                    <div class="role-icon">🎓</div>
-                    <h3>Intern</h3>
-                    <p>Personal task access</p>
-                    <ul class="role-permissions">
-                        <li>View assigned tasks</li>
-                        <li>Update task status</li>
-                        <li>View task details</li>
-                        <li>Track progress</li>
-                    </ul>
-                </button>
+
+            <!-- Login Form -->
+            <div id="login-form-container" class="auth-form-container">
+                <h2>Login</h2>
+                <div id="login-error"></div>
+                <form id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <label>Username *</label>
+                        <input type="text" name="username" placeholder="Enter username" required autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label>Password *</label>
+                        <input type="password" name="password" placeholder="Enter password" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Login</button>
+                </form>
+                <p class="auth-switch">
+                    Don't have an account? <a href="#" onclick="Auth.showSignup(); return false;">Sign up</a>
+                </p>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signup-form-container" class="auth-form-container" style="display: none;">
+                <h2>Create Account</h2>
+                <div id="signup-error"></div>
+                <form id="signup-form" class="auth-form">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" name="fullname" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Username *</label>
+                        <input type="text" name="username" placeholder="Choose a username" required autocomplete="username">
+                        <small>Username must be 3-20 characters</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Password *</label>
+                        <input type="password" name="password" placeholder="Choose a password" required autocomplete="new-password">
+                        <small>Password must be at least 6 characters</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Role *</label>
+                        <select name="role" required>
+                            <option value="">Select your role</option>
+                            <option value="ADMIN">Admin - Full system access</option>
+                            <option value="MANAGER">Manager - Task management</option>
+                            <option value="INTERN">Intern - View your tasks</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                </form>
+                <p class="auth-switch">
+                    Already have an account? <a href="#" onclick="Auth.showLogin(); return false;">Login</a>
+                </p>
             </div>
         </div>
     </div>
@@ -196,7 +214,6 @@
     <script src="./js/state.js"></script>
     <script src="./js/fake-server.js"></script>
     <script src="./js/validators.js"></script>
-    <!-- <script src="./js/auth.js"></script> -->
     <script src="./js/rules-engine.js"></script>
     <script src="./js/renderer.js"></script>
     <script src="./js/app.js"></script>

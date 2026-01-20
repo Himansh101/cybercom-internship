@@ -195,7 +195,7 @@ const Auth = {
 
     // Signup new user
     async signup(formData) {
-        const { username, password, fullname, role } = formData;
+        const { username, password, fullname, role, skills } = formData;
 
         // Validate username
         if (username.length < 3 || username.length > 20) {
@@ -217,6 +217,13 @@ const Auth = {
             throw new Error('Invalid role selected');
         }
 
+        // Validate skills for INTERN role
+        if (role === 'INTERN') {
+            if (!skills || skills.trim() === '') {
+                throw new Error('Skills are required for intern registration');
+            }
+        }
+
         // Simulate async operation
         await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -232,9 +239,69 @@ const Auth = {
 
         this.users.push(newUser);
         this.saveUsers(); // Save to localStorage
+
+        // If user is registering as INTERN, automatically create intern record
+        if (role === 'INTERN') {
+            const skillsArray = skills.split(',').map(s => s.trim()).filter(s => s);
+            const internRecord = await this.createInternRecordForUser(newUser, skillsArray);
+            newUser.internId = internRecord.id; // Link user to intern record
+            this.saveUsers(); // Update user with internId
+        }
+
         console.log(`✅ New user registered: ${newUser.username} (${newUser.role})`);
         
         return newUser;
+    },
+
+    // Create intern record when user signs up as INTERN
+    async createInternRecordForUser(user, skills = []) {
+        // Generate unique email from username
+        const email = `${user.username}@intern.system`;
+
+        // Check email uniqueness
+        if (State.usedEmails.has(email.toLowerCase())) {
+            // If email exists, add random suffix
+            const randomEmail = `${user.username}_${Date.now()}@intern.system`;
+            State.usedEmails.add(randomEmail.toLowerCase());
+            
+            const intern = {
+                id: `${State.currentYear}_${String(State.nextInternId).padStart(3, '0')}`,
+                name: user.fullname,
+                email: randomEmail,
+                skills: skills, // Skills provided during signup
+                status: 'ONBOARDING',
+                createdAt: new Date().toISOString(),
+                assignedTasks: [],
+                userId: user.id // Link back to user account
+            };
+
+            State.nextInternId++;
+            State.interns.push(intern);
+            State.addLog('INTERN_CREATED', `${intern.name} (${intern.id}) registered with skills: ${skills.join(', ')}`);
+            State.saveState(); // Save to localStorage
+            
+            return intern;
+        }
+
+        State.usedEmails.add(email.toLowerCase());
+
+        const intern = {
+            id: `${State.currentYear}_${String(State.nextInternId).padStart(3, '0')}`,
+            name: user.fullname,
+            email: email,
+            skills: skills, // Skills provided during signup
+            status: 'ONBOARDING',
+            createdAt: new Date().toISOString(),
+            assignedTasks: [],
+            userId: user.id // Link back to user account
+        };
+
+        State.nextInternId++;
+        State.interns.push(intern);
+        State.addLog('INTERN_CREATED', `${intern.name} (${intern.id}) registered with skills: ${skills.join(', ')}`);
+        State.saveState(); // Save to localStorage
+        
+        return intern;
     },
 
     // Login with username and password
@@ -255,14 +322,25 @@ const Auth = {
             throw new Error('Invalid username or password');
         }
 
-        // If logging in as INTERN, link to first ACTIVE intern
+        // Get internId based on role
         let internId = null;
         if (user.role === 'INTERN') {
-            const activeIntern = State.interns.find(i => i.status === 'ACTIVE');
-            if (activeIntern) {
-                internId = activeIntern.id;
+            // Find intern record linked to this user
+            const linkedIntern = State.interns.find(i => i.userId === user.id);
+            
+            if (linkedIntern) {
+                internId = linkedIntern.id;
+                
+                // Check if intern is activated
+                if (linkedIntern.status === 'ONBOARDING') {
+                    throw new Error('Your account is pending approval. Please wait for admin to activate your account.');
+                }
+                
+                if (linkedIntern.status === 'EXITED') {
+                    throw new Error('Your intern account has been deactivated. Please contact admin.');
+                }
             } else {
-                throw new Error('No active intern account found. Please contact admin.');
+                throw new Error('No intern record found. Please contact admin.');
             }
         }
 
@@ -302,13 +380,20 @@ const Auth = {
     logout() {
         if (!State.currentUser) return;
 
+        // Ask for confirmation before logout
+        if (!confirm('Are you sure you want to logout?')) {
+            return; // User clicked "Cancel", don't logout
+        }
+
+        const userName = State.currentUser.name;
+        
         State.clearUser();
         this.clearSession(); // Clear from localStorage
 
         document.getElementById('login-screen').style.display = 'flex';
         document.getElementById('main-app').style.display = 'none';
 
-        console.log('✅ Logged out successfully');
+        console.log(`✅ ${userName} logged out successfully`);
     },
 
     // Update user display in header
@@ -402,7 +487,10 @@ const Auth = {
 
 // Wire up login/signup forms
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Auth
+    // Initialize State FIRST
+    State.initializeState();
+    
+    // Then Initialize Auth
     Auth.init();
 
     // Login form
@@ -448,17 +536,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     username: e.target.username.value.trim(),
                     password: e.target.password.value,
                     fullname: e.target.fullname.value.trim(),
-                    role: e.target.role.value
+                    role: e.target.role.value,
+                    skills: e.target.skills ? e.target.skills.value.trim() : ''
                 };
 
                 if (!formData.username || !formData.password || !formData.fullname || !formData.role) {
-                    throw new Error('All fields are required');
+                    throw new Error('All required fields must be filled');
                 }
 
                 await Auth.signup(formData);
 
                 errorDiv.innerHTML = '<div class="success">✅ Account created! Please login.</div>';
                 e.target.reset();
+                
+                // Hide skills field after reset
+                const skillsGroup = document.getElementById('skills-group');
+                if (skillsGroup) skillsGroup.style.display = 'none';
 
                 // Switch to login form after 2 seconds
                 setTimeout(() => {
@@ -490,6 +583,84 @@ const State = {
     nextInternId: 1,
     nextTaskId: 1,
     currentYear: new Date().getFullYear(),
+
+    // LocalStorage keys
+    STORAGE_KEYS: {
+        INTERNS: 'intern_system_interns',
+        TASKS: 'intern_system_tasks',
+        LOGS: 'intern_system_logs',
+        USED_EMAILS: 'intern_system_used_emails',
+        NEXT_INTERN_ID: 'intern_system_next_intern_id',
+        NEXT_TASK_ID: 'intern_system_next_task_id'
+    },
+
+    // Initialize state from localStorage
+    initializeState() {
+        try {
+            // Load interns
+            const savedInterns = localStorage.getItem(this.STORAGE_KEYS.INTERNS);
+            if (savedInterns) {
+                this.interns = JSON.parse(savedInterns);
+                console.log(`✅ Loaded ${this.interns.length} interns from storage`);
+                // Debug: Show intern statuses
+                this.interns.forEach(intern => {
+                    console.log(`   - ${intern.name}: ${intern.status}`);
+                });
+            }
+
+            // Load tasks
+            const savedTasks = localStorage.getItem(this.STORAGE_KEYS.TASKS);
+            if (savedTasks) {
+                this.tasks = JSON.parse(savedTasks);
+                console.log(`✅ Loaded ${this.tasks.length} tasks from storage`);
+            }
+
+            // Load logs
+            const savedLogs = localStorage.getItem(this.STORAGE_KEYS.LOGS);
+            if (savedLogs) {
+                this.logs = JSON.parse(savedLogs);
+                console.log(`✅ Loaded ${this.logs.length} logs from storage`);
+            }
+
+            // Load used emails
+            const savedEmails = localStorage.getItem(this.STORAGE_KEYS.USED_EMAILS);
+            if (savedEmails) {
+                this.usedEmails = new Set(JSON.parse(savedEmails));
+                console.log(`✅ Loaded ${this.usedEmails.size} used emails from storage`);
+            }
+
+            // Load ID counters
+            const savedInternId = localStorage.getItem(this.STORAGE_KEYS.NEXT_INTERN_ID);
+            if (savedInternId) {
+                this.nextInternId = parseInt(savedInternId);
+            }
+
+            const savedTaskId = localStorage.getItem(this.STORAGE_KEYS.NEXT_TASK_ID);
+            if (savedTaskId) {
+                this.nextTaskId = parseInt(savedTaskId);
+            }
+
+            console.log(`✅ State initialization complete`);
+        } catch (error) {
+            console.error('Error loading state from localStorage:', error);
+        }
+    },
+
+    // Save all state to localStorage
+    saveState() {
+        try {
+            localStorage.setItem(this.STORAGE_KEYS.INTERNS, JSON.stringify(this.interns));
+            localStorage.setItem(this.STORAGE_KEYS.TASKS, JSON.stringify(this.tasks));
+            localStorage.setItem(this.STORAGE_KEYS.LOGS, JSON.stringify(this.logs));
+            localStorage.setItem(this.STORAGE_KEYS.USED_EMAILS, JSON.stringify(Array.from(this.usedEmails)));
+            localStorage.setItem(this.STORAGE_KEYS.NEXT_INTERN_ID, this.nextInternId.toString());
+            localStorage.setItem(this.STORAGE_KEYS.NEXT_TASK_ID, this.nextTaskId.toString());
+            
+            console.log(`💾 State saved: ${this.interns.length} interns, ${this.tasks.length} tasks`);
+        } catch (error) {
+            console.error('Error saving state to localStorage:', error);
+        }
+    },
 
     // Update state and trigger re-render
     update(updates) {

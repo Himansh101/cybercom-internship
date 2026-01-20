@@ -12,11 +12,11 @@ const Renderer = {
 
     renderStats() {
         const stats = document.getElementById('stats');
-
+        
         // Use filtered data based on role
         const visibleInterns = State.getVisibleInterns();
         const visibleTasks = State.getVisibleTasks();
-
+        
         const total = visibleInterns.length;
         const active = visibleInterns.filter(i => i.status === 'ACTIVE').length;
         const onboarding = visibleInterns.filter(i => i.status === 'ONBOARDING').length;
@@ -98,12 +98,38 @@ const Renderer = {
     renderInternActions(intern) {
         let actions = '';
 
-        // Show activate button only if user has permission
-        if (intern.status === 'ONBOARDING' && RulesEngine.canPerformInternAction(intern, 'activate')) {
-            actions += `<button class="btn btn-success" onclick="App.activateIntern('${intern.id}')">Activate</button>`;
+        // Show different UI based on whether intern has skills
+        if (intern.status === 'ONBOARDING' && Auth.isAdmin()) {
+            if (intern.skills.length === 0) {
+                // No skills - admin needs to add them
+                actions += `
+                    <div style="margin-top: 15px;">
+                        <p style="color: #856404; background: #fff3cd; padding: 8px; border-radius: 4px; font-size: 13px; margin-bottom: 10px;">
+                            ⚠️ No skills added yet. Add skills to activate this intern.
+                        </p>
+                        <input type="text" 
+                               id="skills-${intern.id}" 
+                               placeholder="Add skills (comma-separated)" 
+                               style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; margin-bottom: 8px; font-size: 14px;">
+                        <button class="btn btn-primary" onclick="App.addSkillsToIntern('${intern.id}')" style="margin-right: 5px;">
+                            Add Skills
+                        </button>
+                    </div>
+                `;
+            } else {
+                // Has skills - ready to activate
+                actions += `
+                    <div style="margin-top: 15px;">
+                        <p style="color: #155724; background: #d4edda; padding: 8px; border-radius: 4px; font-size: 13px; margin-bottom: 10px;">
+                            ✅ Intern registered with skills. Click activate to allow login.
+                        </p>
+                        <button class="btn btn-success" onclick="App.activateIntern('${intern.id}')">Activate Intern</button>
+                    </div>
+                `;
+            }
         }
 
-        // Show exit button only if user has permission
+        // Show exit button only if user has permission and intern is active
         if (intern.status === 'ACTIVE' && RulesEngine.canPerformInternAction(intern, 'exit')) {
             actions += `<button class="btn btn-danger" onclick="App.exitIntern('${intern.id}')">Mark as Exited</button>`;
         }
@@ -124,8 +150,8 @@ const Renderer = {
         const visibleTasks = State.getVisibleTasks();
 
         if (visibleTasks.length === 0) {
-            const emptyMessage = Auth.isIntern()
-                ? 'No tasks assigned to you yet'
+            const emptyMessage = Auth.isIntern() 
+                ? 'No tasks assigned to you yet' 
                 : 'No tasks created yet';
             list.innerHTML = `<div class="empty-state"><p>${emptyMessage}</p></div>`;
             return;
@@ -154,9 +180,9 @@ const Renderer = {
                         <div class="dependency-list">
                             <strong>⚠️ Dependencies:</strong>
                             ${task.dependencies.map(depId => {
-                const depTask = State.tasks.find(t => t.id === depId);
-                return `<span class="dependency-tag">${depId} ${depTask ? `(${depTask.status})` : '(NOT FOUND)'}</span>`;
-            }).join('')}
+                                const depTask = State.tasks.find(t => t.id === depId);
+                                return `<span class="dependency-tag">${depId} ${depTask ? `(${depTask.status})` : '(NOT FOUND)'}</span>`;
+                            }).join('')}
                         </div>
                     ` : ''}
                     <div class="hours-display">
@@ -179,15 +205,15 @@ const Renderer = {
         // Show assignment dropdown only if user can assign tasks
         if (!task.assignedTo && task.status !== 'BLOCKED' && Auth.can('canAssignTask')) {
             const activeInterns = State.interns.filter(i => i.status === 'ACTIVE');
-
+            
             if (activeInterns.length > 0) {
                 actions += `
                     <div style="margin-top: 12px;">
                         <select id="assign-${task.id}" style="padding: 8px 12px; margin-right: 10px; border: 1px solid #ced4da; border-radius: 4px;">
                             <option value="">Select intern...</option>
                             ${activeInterns.map(i =>
-                    `<option value="${i.id}">${i.name} - ${i.skills.join(', ')}</option>`
-                ).join('')}
+                                `<option value="${i.id}">${i.name} - ${i.skills.join(', ')}</option>`
+                            ).join('')}
                         </select>
                         <button class="btn btn-primary" onclick="App.assignTask('${task.id}')">Assign Task</button>
                     </div>

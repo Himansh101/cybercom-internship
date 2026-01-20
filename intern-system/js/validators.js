@@ -10,11 +10,11 @@ const Validators = {
             errors.push('Email is required');
         }
 
-        if (!formData.skills || !formData.skills.trim()) {
-            errors.push('At least one skill is required');
-        }
+        // if (!formData.skills || !formData.skills.trim()) {
+        //     errors.push('At least one skill is required');
+        // }
 
-        return errors;
+        // return errors;
     },
 
     validateTaskForm(formData) {

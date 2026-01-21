@@ -7,6 +7,7 @@
   <title>EasyCart | Cart</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
   <link rel="stylesheet" href="./../styles.css">
 </head>
 
@@ -23,56 +24,59 @@
   </header>
 
   <main>
-    <section>
-      <h1 class="mb-12">Cart Items</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            <th>Subtotal</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="cart-items">
-          <tr data-price="10999">
-            <td>Noise Cancelling Headphones</td>
-            <td>₹10,999</td>
-            <td class="qty-cell">
-              <div class="qty-control">
-                <button class="btn-qty minus">-</button>
-                <input type="number" value="1" min="1" readonly>
-                <button class="btn-qty plus">+</button>
-              </div>
-            </td>
-            <td class="subtotal">₹10,999</td>
-            <td><button class="btn-remove">Remove</button></td>
-          </tr>
-          <tr data-price="10199">
-            <td>Classic Leather Tote</td>
-            <td>₹10,199</td>
-            <td class="qty-cell">
-              <div class="qty-control">
-                <button class="btn-qty minus">-</button>
-                <input type="number" value="2" min="1" readonly>
-                <button class="btn-qty plus">+</button>
-              </div>
-            </td>
-            <td class="subtotal">₹20,398</td>
-            <td><button class="btn-remove">Remove</button></td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+    <a href="plp.html" class="back-btn"><i class="ri-arrow-left-line"></i> Continue Shopping</a>
+    <div class="cart-layout">
+      <section>
+        <h1 class="mb-12">Cart Items</h1>
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Quantity</th>
+              <th>Subtotal</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="cart-items">
+            <tr data-price="10999">
+              <td>Noise Cancelling Headphones</td>
+              <td>₹10,999</td>
+              <td class="qty-cell">
+                <div class="qty-control">
+                  <button class="btn-qty minus">-</button>
+                  <input type="number" value="1" min="1" readonly>
+                  <button class="btn-qty plus">+</button>
+                </div>
+              </td>
+              <td class="subtotal">₹10,999</td>
+              <td><button class="btn-remove" aria-label="Remove"><i class="ri-delete-bin-line"></i></button></td>
+            </tr>
+            <tr data-price="10199">
+              <td>Classic Leather Tote</td>
+              <td>₹10,199</td>
+              <td class="qty-cell">
+                <div class="qty-control">
+                  <button class="btn-qty minus">-</button>
+                  <input type="number" value="2" min="1" readonly>
+                  <button class="btn-qty plus">+</button>
+                </div>
+              </td>
+              <td class="subtotal">₹20,398</td>
+              <td><button class="btn-remove" aria-label="Remove"><i class="ri-delete-bin-line"></i></button></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
 
-    <aside class="summary">
-      <h2>Price Summary</h2>
-      <div class="row"><span>Subtotal</span><span id="cart-subtotal">₹31,397</span></div>
-      <div class="row"><span>Shipping</span><span>₹99</span></div>
-      <div class="row total"><span>Total</span><span id="cart-total">₹31,496</span></div>
-      <a class="btn btn-success" href="checkout.html">Proceed to Checkout</a>
-    </aside>
+      <aside class="summary">
+        <h2>Price Summary</h2>
+        <div class="row"><span>Subtotal</span><span id="cart-subtotal">₹31,397</span></div>
+        <div class="row"><span>Shipping</span><span>₹99</span></div>
+        <div class="row total"><span>Total</span><span id="cart-total">₹31,496</span></div>
+        <a class="btn btn-success" href="checkout.html">Proceed to Checkout</a>
+      </aside>
+    </div>
   </main>
 </body>
 

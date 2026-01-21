@@ -200,6 +200,15 @@ nav a:hover::after {
     transform: translateX(-50%) scaleX(1);
 }
 
+nav a.active {
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--color-white);
+}
+
+nav a.active::after {
+    transform: translateX(-50%) scaleX(1);
+}
+
 /* ---------- Layout ---------- */
 main {
     max-width: 1200px;
@@ -219,6 +228,23 @@ section:first-child {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 24px;
+}
+
+.plp .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 1024px) {
+    .plp .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .plp .grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ---------- Cards ---------- */
@@ -257,6 +283,9 @@ section:first-child {
 
 .card img {
     width: 100%;
+    height: 250px;
+    object-fit: contain;
+    background: var(--bg-tertiary);
     border-radius: var(--radius-md);
     transition: transform var(--transition-base);
 }
@@ -388,6 +417,50 @@ section:first-child {
     transform: translateY(0);
 }
 
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.category-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #92400e;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid rgba(146, 64, 14, 0.2);
+    margin-bottom: 8px;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 10px 18px;
+    background: var(--bg-primary);
+    border: 2px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    color: var(--color-gray-700);
+    font-weight: 600;
+    transition: all var(--transition-base);
+}
+
+.back-btn:hover {
+    border-color: var(--color-primary-start);
+    color: var(--color-primary-start);
+    transform: translateX(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.back-btn::before {
+    content: '←';
+    font-size: 1.2rem;
+}
+
 /* ---------- Hero Section ---------- */
 .hero {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
@@ -473,16 +546,30 @@ footer {
 }
 
 .plp .card img {
-    height: 220px;
+    width: 100%;
+    height: 250px;
     object-fit: contain;
     background: var(--bg-tertiary);
-    padding: 16px;
+    border-radius: var(--radius-md);
 }
 
 .product-card {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+    height: 100%;
+    width: auto;
+}
+
+.card-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-meta-row .category-badge {
+    margin-bottom: 0;
 }
 
 .price {
@@ -605,11 +692,70 @@ tbody tr:hover {
     background: var(--bg-tertiary);
 }
 
-.qty {
-    width: 80px;
+.qty-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: 4px;
+    width: fit-content;
+    border: 1px solid var(--color-gray-200);
+}
+
+.qty-control input {
+    width: 40px;
     text-align: center;
-    font-weight: 700;
-    color: var(--color-primary-start);
+    border: none;
+    background: transparent;
+    font-weight: 600;
+    color: var(--color-gray-800);
+    font-size: 1rem;
+}
+
+.qty-control input:focus {
+    outline: none;
+}
+
+.btn-qty {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-gray-200);
+    background: var(--color-white);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all var(--transition-base);
+    color: var(--color-gray-700);
+}
+
+.btn-qty:hover {
+    background: var(--color-primary-start);
+    color: white;
+    border-color: var(--color-primary-start);
+    transform: translateY(-1px);
+}
+
+.btn-remove {
+    background: rgba(239, 68, 68, 0.1);
+    border: none;
+    color: #ef4444;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+}
+
+.btn-remove:hover {
+    background: #ef4444;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
 }
 
 .summary {
@@ -824,6 +970,142 @@ tbody tr:hover {
 .auth-meta a:hover {
     color: var(--color-primary-end);
     text-decoration: underline;
+}
+
+/* ---------- Order Page ---------- */
+.orders main {
+    max-width: 800px;
+    margin: 40px auto 60px;
+}
+
+.order-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-md);
+    transition: transform var(--transition-base);
+}
+
+.order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--color-gray-200);
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.order-info h3 {
+    margin-bottom: 4px;
+    font-size: 1.1rem;
+}
+
+.order-meta {
+    font-size: 0.9rem;
+    color: var(--color-gray-500);
+}
+
+.order-items {
+    border-top: 1px solid var(--color-gray-200);
+    padding-top: 20px;
+    margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.order-item-chip {
+    background: var(--bg-tertiary);
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-gray-800);
+}
+
+/* Tracker Styles */
+.tracker {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    margin: 30px 0 10px;
+}
+
+/* Background Line */
+.tracker::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 10px;
+    right: 10px;
+    height: 3px;
+    background: var(--color-gray-200);
+    z-index: 0;
+}
+
+.step {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 25%;
+}
+
+.step-circle {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--color-white);
+    border: 3px solid var(--color-primary-start);
+    /* Next: Blue Border */
+    margin-bottom: 8px;
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary-start);
+}
+
+.step.active .step-circle {
+    border-color: var(--color-success-start);
+    /* Current: Green */
+    background: var(--color-success-start);
+    color: white;
+}
+
+.step.completed .step-circle {
+    border-color: var(--color-gray-400);
+    /* Previous: Grey */
+    background: var(--color-gray-400);
+    color: white;
+}
+
+/* Fill the link line for completed steps - Requires precise CSS or JS. 
+   Simplest CSS-only way: If previous sibling is active/completed? 
+   Actually, just coloring the dots is usually enough for simple UI. 
+*/
+
+.step-label {
+    font-size: 0.8rem;
+    color: var(--color-gray-500);
+    font-weight: 500;
+}
+
+.step.active .step-label,
+.step.completed .step-label {
+    color: var(--color-gray-900);
+    font-weight: 700;
 }
 
 /* ---------- Responsive Design ---------- */

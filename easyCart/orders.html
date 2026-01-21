@@ -15,40 +15,85 @@
     <div class="logo">EasyCart</div>
     <nav>
       <a href="index.html">Home</a>
-      <a href="plp.html">Shop</a>
+      <a href="plp.html">Products</a>
       <a href="cart.html">Cart</a>
+      <a href="orders.html" class="active">My Orders</a>
+      <a href="login.html">Login</a>
     </nav>
   </header>
 
   <main>
     <h1 class="mb-12">My Orders</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>Order #</th>
-          <th>Date</th>
-          <th>Items</th>
-          <th>Total</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>#EC-24018</td>
-          <td>Jan 18, 2026</td>
-          <td>Noise Cancelling Headphones, Classic Leather Tote</td>
-          <td>$248.00</td>
-          <td><span class="status delivered">Delivered</span></td>
-        </tr>
-        <tr>
-          <td>#EC-24019</td>
-          <td>Jan 20, 2026</td>
-          <td>Smart Fitness Watch</td>
-          <td>$89.00</td>
-          <td><span class="status processing">Processing</span></td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="order-list">
+      <!-- Order 1: Delivered -->
+      <div class="order-card">
+        <div class="order-header">
+          <div class="order-info">
+            <h3>Order #EC-24018</h3>
+            <div class="order-meta">Jan 18, 2026 · Total: ₹21,198</div>
+          </div>
+          <div class="status-badge delivered">Delivered</div>
+        </div>
+
+        <div class="tracker">
+          <div class="step completed">
+            <div class="step-circle">✓</div>
+            <div class="step-label">Placed</div>
+          </div>
+          <div class="step completed">
+            <div class="step-circle">✓</div>
+            <div class="step-label">Packed</div>
+          </div>
+          <div class="step completed">
+            <div class="step-circle">✓</div>
+            <div class="step-label">Shipped</div>
+          </div>
+          <div class="step active">
+            <div class="step-circle">✓</div>
+            <div class="step-label">Delivered</div>
+          </div>
+        </div>
+
+        <div class="order-items">
+          <span class="order-item-chip">Noise Cancelling Headphones</span>
+          <span class="order-item-chip">Classic Leather Tote</span>
+        </div>
+      </div>
+
+      <!-- Order 2: Processing -->
+      <div class="order-card">
+        <div class="order-header">
+          <div class="order-info">
+            <h3>Order #EC-24019</h3>
+            <div class="order-meta">Jan 20, 2026 · Total: ₹7,599</div>
+          </div>
+          <div class="status-badge processing">Processing</div>
+        </div>
+
+        <div class="tracker">
+          <div class="step completed">
+            <div class="step-circle">✓</div>
+            <div class="step-label">Placed</div>
+          </div>
+          <div class="step active">
+            <div class="step-circle">✓</div>
+            <div class="step-label">Processing</div>
+          </div>
+          <div class="step">
+            <div class="step-circle"></div>
+            <div class="step-label">Shipped</div>
+          </div>
+          <div class="step">
+            <div class="step-circle"></div>
+            <div class="step-label">Delivered</div>
+          </div>
+        </div>
+
+        <div class="order-items">
+          <span class="order-item-chip">Smart Fitness Watch</span>
+        </div>
+      </div>
+    </div>
   </main>
 </body>
 

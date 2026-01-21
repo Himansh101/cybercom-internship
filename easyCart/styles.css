@@ -211,9 +211,10 @@ nav a.active::after {
 
 /* ---------- Layout ---------- */
 main {
-    max-width: 1200px;
+    width: 90%;
+    max-width: none;
     margin: 40px auto 60px;
-    padding: 0 24px;
+    padding: 0;
 }
 
 section {
@@ -225,9 +226,12 @@ section:first-child {
 }
 
 .grid {
-    display: grid;
+    /* display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 24px;
+    gap: 24px; */
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3.2rem;
 }
 
 .plp .grid {
@@ -365,6 +369,7 @@ section:first-child {
     position: relative;
     overflow: hidden;
     box-shadow: var(--shadow-md);
+    width: fit-content;
 }
 
 .btn::before {
@@ -594,10 +599,7 @@ footer {
 }
 
 /* ---------- Product Detail Page (PDP) ---------- */
-.pdp main {
-    max-width: 1100px;
-    margin: 40px auto 60px;
-}
+
 
 .layout {
     display: grid;
@@ -973,10 +975,7 @@ tbody tr:hover {
 }
 
 /* ---------- Order Page ---------- */
-.orders main {
-    max-width: 800px;
-    margin: 40px auto 60px;
-}
+
 
 .order-card {
     background: var(--bg-primary);

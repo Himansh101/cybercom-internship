@@ -37,6 +37,7 @@ const Auth = {
             this.users.push({
                 id: 'USER_ADMIN_DEFAULT',
                 username: 'admin',
+                email: 'admin@system.local',
                 password: 'admin123', // In production, this should be hashed!
                 fullname: 'System Administrator',
                 role: 'ADMIN',
@@ -129,8 +130,8 @@ const Auth = {
         },
         MANAGER: {
             canCreateIntern: false,
-            canActivateIntern: false,
-            canExitIntern: false,
+            canActivateIntern: true,      // ✅ NEW: Managers can activate
+            canExitIntern: true,            // ✅ NEW: Managers can exit
             canCreateTask: false,
             canAssignTask: true,
             canCompleteTask: false,
@@ -195,21 +196,33 @@ const Auth = {
 
     // Signup new user
     async signup(formData) {
-        const { username, password, fullname, role, skills } = formData;
+        const { username, password, fullname, role, skills, email } = formData;
+
+        // Validate email
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            throw new Error('Please enter a valid email address');
+        }
+
+        // Check if email already exists (primary uniqueness check)
+        const emailExists = this.users.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
+        if (emailExists) {
+            throw new Error('Email already exists. Please use a different email.');
+        }
 
         // Validate username
         if (username.length < 3 || username.length > 20) {
             throw new Error('Username must be 3-20 characters');
         }
 
+        // Check if username already exists (secondary check)
+        const usernameExists = this.users.find(u => u.username && u.username.toLowerCase() === username.toLowerCase());
+        if (usernameExists) {
+            throw new Error('Username already exists. Please choose a different username.');
+        }
+
         // Validate password
         if (password.length < 6) {
             throw new Error('Password must be at least 6 characters');
-        }
-
-        // Check if username already exists
-        if (this.users.find(u => u.username.toLowerCase() === username.toLowerCase())) {
-            throw new Error('Username already exists');
         }
 
         // Validate role
@@ -231,6 +244,7 @@ const Auth = {
         const newUser = {
             id: `USER_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             username: username.toLowerCase(),
+            email: email.toLowerCase(),
             password: password, // In production, hash this!
             fullname: fullname.trim(),
             role: role,
@@ -248,41 +262,17 @@ const Auth = {
             this.saveUsers(); // Update user with internId
         }
 
-        console.log(`✅ New user registered: ${newUser.username} (${newUser.role})`);
+        console.log(`✅ New user registered: ${newUser.email} (${newUser.role})`);
         
         return newUser;
     },
 
     // Create intern record when user signs up as INTERN
     async createInternRecordForUser(user, skills = []) {
-        // Generate unique email from username
+        // Generate email from username (always unique since username is unique)
         const email = `${user.username}@intern.system`;
 
-        // Check email uniqueness
-        if (State.usedEmails.has(email.toLowerCase())) {
-            // If email exists, add random suffix
-            const randomEmail = `${user.username}_${Date.now()}@intern.system`;
-            State.usedEmails.add(randomEmail.toLowerCase());
-            
-            const intern = {
-                id: `${State.currentYear}_${String(State.nextInternId).padStart(3, '0')}`,
-                name: user.fullname,
-                email: randomEmail,
-                skills: skills, // Skills provided during signup
-                status: 'ONBOARDING',
-                createdAt: new Date().toISOString(),
-                assignedTasks: [],
-                userId: user.id // Link back to user account
-            };
-
-            State.nextInternId++;
-            State.interns.push(intern);
-            State.addLog('INTERN_CREATED', `${intern.name} (${intern.id}) registered with skills: ${skills.join(', ')}`);
-            State.saveState(); // Save to localStorage
-            
-            return intern;
-        }
-
+        // Add email to used emails set
         State.usedEmails.add(email.toLowerCase());
 
         const intern = {
@@ -534,13 +524,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const formData = {
                     username: e.target.username.value.trim(),
+                    email: e.target.email.value.trim(),
                     password: e.target.password.value,
                     fullname: e.target.fullname.value.trim(),
                     role: e.target.role.value,
                     skills: e.target.skills ? e.target.skills.value.trim() : ''
                 };
 
-                if (!formData.username || !formData.password || !formData.fullname || !formData.role) {
+                if (!formData.username || !formData.email || !formData.password || !formData.fullname || !formData.role) {
                     throw new Error('All required fields must be filled');
                 }
 

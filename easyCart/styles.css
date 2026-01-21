@@ -137,6 +137,66 @@ a {
     font-size: 0.9rem;
 }
 
+/* ---------- Search Bar ---------- */
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-full);
+    padding: 4px 4px 4px 16px;
+    margin: 0 24px;
+    flex: 0 1 400px;
+    /* Flexible width */
+    transition: all var(--transition-base);
+}
+
+.search-wrapper:focus-within {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+}
+
+.search-wrapper input {
+    border: none;
+    background: transparent;
+    color: var(--color-white);
+    padding: 8px 0;
+    font-size: 0.95rem;
+    width: 100%;
+}
+
+.search-wrapper input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.search-wrapper input:focus {
+    box-shadow: none;
+    /* Override generic input focus */
+}
+
+.search-btn {
+    background: var(--color-white);
+    color: var(--color-primary-start);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all var(--transition-base);
+    flex-shrink: 0;
+}
+
+.search-btn:hover {
+    transform: scale(1.05);
+    background: var(--color-primary-start);
+    color: var(--color-white);
+}
+
 /* ---------- Header / Navigation ---------- */
 header {
     background: rgba(15, 23, 42, 0.85);
@@ -461,10 +521,7 @@ section:first-child {
     box-shadow: var(--shadow-md);
 }
 
-.back-btn::before {
-    content: '←';
-    font-size: 1.2rem;
-}
+
 
 /* ---------- Hero Section ---------- */
 .hero {
@@ -643,15 +700,15 @@ footer {
 }
 
 /* ---------- Cart Page ---------- */
-.cart main {
-    margin: 40px auto 60px;
+.cart-layout {
+    margin-top: 20px;
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 32px;
 }
 
 @media (max-width: 968px) {
-    .cart main {
+    .cart-layout {
         grid-template-columns: 1fr;
     }
 }
@@ -793,15 +850,15 @@ tbody tr:hover {
 }
 
 /* ---------- Checkout Page ---------- */
-.checkout main {
-    margin: 40px auto 60px;
+.checkout-layout {
+    margin-top: 20px;
     display: grid;
     grid-template-columns: 1.5fr 1fr;
     gap: 32px;
 }
 
 @media (max-width: 968px) {
-    .checkout main {
+    .checkout-layout {
         grid-template-columns: 1fr;
     }
 }

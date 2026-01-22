@@ -90,7 +90,7 @@ $shipping = 99;
         </form>
       </section>
 
-      <aside>
+      <aside class="checkout-summary">
         <h2>Order Summary</h2>
         <div class="summary-items">
           <?php
@@ -99,18 +99,29 @@ $shipping = 99;
             $item_total = $product['price'] * $quantity;
             $subtotal += $item_total;
           ?>
-            <div class="row">
-              <span><?php echo $product['name']; ?> <?php echo ($quantity > 1) ? "x$quantity" : ""; ?></span>
-              <span>₹<?php echo number_format($item_total); ?></span>
+            <div class="summary-product-row">
+              <div class="summary-img-wrapper">
+                <img src="<?php echo $product['image']; ?>" alt="<?php echo $product['name']; ?>">
+                <?php if ($quantity > 1): ?>
+                  <span class="qty-badge"><?php echo $quantity; ?></span>
+                <?php endif; ?>
+              </div>
+
+              <div class="summary-product-info">
+                <span class="product-name"><?php echo $product['name']; ?></span>
+                <span class="product-price">₹<?php echo number_format($item_total); ?></span>
+              </div>
             </div>
           <?php endforeach; ?>
         </div>
 
-        <div class="row"><span>Shipping (Express)</span><span>₹<?php echo number_format($shipping); ?></span></div>
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 12px 0;">
-        <div class="row total">
-          <span>Total</span>
-          <span>₹<?php echo number_format($subtotal + $shipping); ?></span>
+        <div class="summary-totals">
+          <div class="row"><span>Shipping (Express)</span><span>₹<?php echo number_format($shipping); ?></span></div>
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 12px 0;">
+          <div class="row total">
+            <span>Total</span>
+            <span>₹<?php echo number_format($subtotal + $shipping); ?></span>
+          </div>
         </div>
         <button class="btn btn-success" type="submit" form="checkout-form">Place Order</button>
       </aside>

@@ -62,6 +62,7 @@ $subtotal = 0;
         <table>
           <thead>
             <tr>
+              <th>Image</th>
               <th>Product</th>
               <th>Price</th>
               <th>Quantity</th>
@@ -77,6 +78,12 @@ $subtotal = 0;
                 $subtotal += $item_total;
               ?>
                 <tr>
+                  <td class="cart-img-cell">
+                    <div class="cart-img-wrapper">
+                      <img src="<?php echo $product['image']; ?>" alt="<?php echo $product['name']; ?>">
+                    </div>
+                  </td>
+
                   <td><?php echo $product['name']; ?></td>
                   <td>₹<?php echo number_format($product['price']); ?></td>
                   <td class="qty-cell">
@@ -98,7 +105,7 @@ $subtotal = 0;
               <?php endforeach; ?>
             <?php else: ?>
               <tr>
-                <td colspan="5" style="text-align:center; padding: 40px;">Your cart is empty.</td>
+                <td colspan="6" style="text-align:center; padding: 40px;">Your cart is empty.</td>
               </tr>
             <?php endif; ?>
           </tbody>

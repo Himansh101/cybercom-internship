@@ -1,0 +1,51 @@
+/* ---------- Product Detail Page (PDP) ---------- */
+
+.layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 40px;
+    align-items: start;
+}
+
+.gallery img {
+    width: 100%;
+    max-height: 480px;
+    object-fit: contain;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-gray-200);
+    background: var(--bg-primary);
+    padding: 24px;
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-base);
+}
+
+.gallery img:hover {
+    box-shadow: var(--shadow-xl);
+    transform: scale(1.02);
+}
+
+.price {
+    font-weight: 800;
+    font-size: 1.25rem;
+    background: linear-gradient(135deg, var(--color-primary-start), var(--color-primary-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.pdp .price {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 16px 0;
+}
+
+.pdp .meta {
+    margin-top: 12px;
+}
+
+.list {
+    margin-top: 16px;
+    padding-left: 20px;
+    color: var(--color-gray-700);
+    line-height: 1.8;
+}

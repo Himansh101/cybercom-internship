@@ -1,0 +1,230 @@
+/* --- Meta Row Styling (Category & Brand) --- */
+.card-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* Brand Label Styling */
+.brand-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    /* Professional slate gray */
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    background: #f1f5f9;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* --- Product Image Wrapper --- */
+/* --- Product Image Wrapper --- */
+.product-image-wrapper {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #f8fafc;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    position: relative; /* Keep for the stock badge */
+    
+    /* Centering Logic */
+    display: flex;
+    align-items: center;    /* Vertical center */
+    justify-content: center; /* Horizontal center */
+}
+
+.product-image-wrapper img {
+    /* Changed from width: 100% to max-width/max-height for better centering */
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    padding: 15px; /* Added space so image doesn't touch edges */
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+/* Ensure the card hover doesn't break centering */
+.card:hover img {
+    transform: scale(1.08);
+}
+/* --- Card View Details Button --- */
+.btn-view {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 15px;
+    padding: 10px;
+    background: #f1f5f9;
+    color: #1e293b;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.btn-view:hover {
+    background: #6366f1;
+    color: white;
+}
+
+/* Layout Adjustments for Content Search */
+.content-search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.content-search-bar input {
+    flex: 1;
+    border: 1px solid #cbd5e1;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.content-search-bar button {
+    padding: 0 20px;
+    background: #6366f1;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.stock-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #ef4444;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    z-index: 10;
+}
+
+.is-out-of-stock h3 {
+    color: #94a3b8;
+}
+
+/* Tablets (Max 1500px) */
+/* --- High-Resolution Desktop (Above 1500px) --- */
+@media (min-width: 1501px) {
+    .grid {
+        grid-template-columns: repeat(3, 1fr); /* 3 cards per row */
+        gap: 2rem;
+    }
+}
+/* Tablets (Max 1024px) */
+@media (max-width: 1024px) {
+    .grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .shop-container {
+        grid-template-columns: 240px 1fr; /* Narrower sidebar */
+        gap: 20px;
+    }
+}
+
+/* Small Tablets / Large Phones (Max 768px) */
+@media (max-width: 768px) {
+    .shop-container {
+        grid-template-columns: 1fr; /* Stack sidebar on top of products */
+    }
+
+    .grid {
+        /* On mobile, we can allow 2 columns if the screen is wide enough, 
+           otherwise it will drop to 1 column automatically */
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+}
+
+/* Mobile Phones (Max 480px) */
+@media (max-width: 480px) {
+    .grid {
+        /* Force single column for very small screens */
+        grid-template-columns: 1fr;
+    }
+    
+    .product-image-wrapper {
+        aspect-ratio: 4 / 3; /* Shorter images to save vertical space on mobile */
+    }
+}
+
+/* Additional PLP Styles */
+.plp h1 {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--color-gray-900), var(--color-gray-700));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.plp h2 {
+    margin: 40px 0 20px;
+    color: var(--color-gray-800);
+}
+
+.plp .card img {
+    width: 100%;
+    height: 250px;
+    object-fit: contain;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+}
+
+.product-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+    width: auto;
+}
+
+.card-meta-row .category-badge {
+    margin-bottom: 0;
+}
+
+.price {
+    font-weight: 800;
+    font-size: 1.25rem;
+    background: linear-gradient(135deg, var(--color-primary-start), var(--color-primary-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@media (max-width: 1500px) {
+    .plp .grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .plp .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .plp .grid {
+        grid-template-columns: 1fr;
+    }
+}

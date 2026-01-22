@@ -1,0 +1,105 @@
+/* ---------- Auth Pages (Login/Signup) ---------- */
+.page-auth {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-auth::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    opacity: 0.1;
+    z-index: 0;
+}
+
+.page-login {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+.page-signup {
+    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+}
+
+.auth-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-xl);
+    padding: 40px;
+    width: 420px;
+    max-width: 90%;
+    box-shadow: var(--shadow-xl);
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(10px);
+}
+
+.auth-title {
+    margin-bottom: 24px;
+    text-align: center;
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--color-primary-start), var(--color-primary-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.auth-card label {
+    display: block;
+    font-weight: 600;
+    margin: 16px 0 8px;
+    color: var(--color-gray-700);
+    font-size: 0.95rem;
+}
+
+.auth-card input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all var(--transition-base);
+    background: var(--bg-primary);
+}
+
+.auth-card input:focus {
+    outline: none;
+    border-color: var(--color-primary-start);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    transform: translateY(-1px);
+}
+
+.auth-card input::placeholder {
+    color: var(--color-gray-400);
+}
+
+.auth-card .btn {
+    margin-top: 24px;
+    width: 100%;
+}
+
+.auth-meta {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--color-gray-600);
+    font-size: 0.95rem;
+}
+
+.auth-meta a {
+    color: var(--color-primary-start);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--transition-base);
+}
+
+.auth-meta a:hover {
+    color: var(--color-primary-end);
+    text-decoration: underline;
+}

@@ -12,6 +12,29 @@
     }
 }
 
+/* Styling the image cell */
+.cart-img-cell {
+    width: 80px; /* Limits the column width */
+}
+
+.cart-img-wrapper {
+    width: 60px;
+    height: 60px;
+    background: #f8fafc;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+
+.cart-img-wrapper img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -48,6 +71,11 @@ tbody tr {
 
 tbody tr:hover {
     background: var(--bg-tertiary);
+}
+
+/* Optional: Align table text vertically with the image */
+table tbody td {
+    vertical-align: middle;
 }
 
 .qty-control {
@@ -129,6 +157,75 @@ tbody tr:hover {
 .summary h2 {
     margin-bottom: 20px;
     font-size: 1.5rem;
+}
+.summary-items {
+    margin-bottom: 20px;
+}
+
+.summary-product-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.summary-img-wrapper {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Prevents image from squishing */
+}
+
+.summary-img-wrapper img {
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: contain;
+}
+
+/* Small quantity badge floating over the image corner */
+.qty-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #64748b;
+    color: white;
+    font-size: 0.65rem;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.summary-product-info {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 0.9rem;
+    align-items: center;
+}
+
+.product-name {
+    color: #1e293b;
+    font-weight: 500;
+    /* Optional: Truncate long names */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px; 
+}
+
+.product-price {
+    font-weight: 600;
+    color: #0f172a;
 }
 
 .row {

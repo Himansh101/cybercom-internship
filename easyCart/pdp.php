@@ -37,11 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
 ?>
 <!doctype html>
 <html lang="en">
-  
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EasyCart | <?php echo $product['name']; ?></title>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EasyCart | <?php echo $product['name']; ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
@@ -60,6 +60,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
       <a href="orders.php">My Orders</a>
       <a href="login.php">Login</a>
     </nav>
+    <button class="mobile-menu-btn" id="mobile-menu-btn">
+      <i class="ri-menu-line"></i>
+    </button>
   </header>
 
   <main>
@@ -149,6 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
       <p>© 2026 EasyCart. All rights reserved. | Internship Project</p>
     </div>
   </footer>
+  <script src="js/main.js"></script>
 </body>
 
 </html>

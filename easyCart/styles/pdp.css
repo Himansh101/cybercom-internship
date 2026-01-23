@@ -89,3 +89,23 @@
     border-color: var(--color-primary-start);
     box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
 }
+
+@media (max-width: 768px) {
+    .layout {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .gallery img {
+        max-height: 350px;
+        padding: 16px;
+    }
+
+    .pdp .price {
+        font-size: 1.5rem;
+    }
+
+    h1 {
+        font-size: 1.75rem;
+    }
+}

@@ -28,12 +28,15 @@
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 15px;
-    position: relative; /* Keep for the stock badge */
-    
+    position: relative;
+    /* Keep for the stock badge */
+
     /* Centering Logic */
     display: flex;
-    align-items: center;    /* Vertical center */
-    justify-content: center; /* Horizontal center */
+    align-items: center;
+    /* Vertical center */
+    justify-content: center;
+    /* Horizontal center */
 }
 
 .product-image-wrapper img {
@@ -43,7 +46,8 @@
     width: auto;
     height: auto;
     object-fit: contain;
-    padding: 15px; /* Added space so image doesn't touch edges */
+    padding: 15px;
+    /* Added space so image doesn't touch edges */
     transition: transform 0.3s ease, filter 0.3s ease;
 }
 
@@ -51,6 +55,7 @@
 .card:hover img {
     transform: scale(1.08);
 }
+
 /* --- Card View Details Button --- */
 .btn-view {
     display: flex;
@@ -83,6 +88,9 @@
     padding: 15px;
     border-radius: 12px;
     border: 1px solid #e2e8f0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .content-search-bar input {
@@ -124,19 +132,22 @@
 /* --- High-Resolution Desktop (Above 1500px) --- */
 @media (min-width: 1501px) {
     .grid {
-        grid-template-columns: repeat(3, 1fr); /* 3 cards per row */
+        grid-template-columns: repeat(3, 1fr);
+        /* 3 cards per row */
         gap: 2rem;
     }
 }
+
 /* Tablets (Max 1024px) */
 @media (max-width: 1024px) {
     .grid {
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
         gap: 1.5rem;
     }
-    
+
     .shop-container {
-        grid-template-columns: 240px 1fr; /* Narrower sidebar */
+        grid-template-columns: 240px 1fr;
+        /* Narrower sidebar */
         gap: 20px;
     }
 }
@@ -144,14 +155,33 @@
 /* Small Tablets / Large Phones (Max 768px) */
 @media (max-width: 768px) {
     .shop-container {
-        grid-template-columns: 1fr; /* Stack sidebar on top of products */
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .sidebar-filters {
+        position: relative;
+        top: 0;
+        max-height: none;
+    }
+
+    .content-search-bar {
+        padding: 8px;
+        gap: 6px;
+    }
+
+    .content-search-bar input {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+    }
+
+    .content-search-bar button {
+        padding: 0 12px;
     }
 
     .grid {
-        /* On mobile, we can allow 2 columns if the screen is wide enough, 
-           otherwise it will drop to 1 column automatically */
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 1rem;
+        gap: 1.5rem;
     }
 }
 
@@ -161,9 +191,10 @@
         /* Force single column for very small screens */
         grid-template-columns: 1fr;
     }
-    
+
     .product-image-wrapper {
-        aspect-ratio: 4 / 3; /* Shorter images to save vertical space on mobile */
+        aspect-ratio: 4 / 3;
+        /* Shorter images to save vertical space on mobile */
     }
 }
 

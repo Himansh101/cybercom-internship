@@ -9,6 +9,19 @@ $searchQuery    = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 $minPrice = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? (int)$_GET['min_price'] : 0;
 $maxPrice = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? (int)$_GET['max_price'] : 1000000;
+$sortBy   = $_GET['sort'] ?? 'newest';
+
+// 2. Apply Sorting logic early (before rendering)
+if ($sortBy === 'price_low') {
+  uasort($products, fn($a, $b) => $a['price'] <=> $b['price']);
+} elseif ($sortBy === 'price_high') {
+  uasort($products, fn($a, $b) => $b['price'] <=> $a['price']);
+} elseif ($sortBy === 'name_asc') {
+  uasort($products, fn($a, $b) => strcasecmp($a['name'], $b['name']));
+} elseif ($sortBy === 'name_desc') {
+  uasort($products, fn($a, $b) => strcasecmp($b['name'], $a['name']));
+}
+// Default 'newest' uses the original order in data.php (array order)
 
 /**
  * Filtered Render Function
@@ -107,56 +120,60 @@ function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $s
       <div class="shop-container">
 
         <aside class="sidebar-filters">
-          <div class="filter-group">
-            <h4>Price Range</h4>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <input type="number" name="min_price" placeholder="Min"
-                value="<?php echo $minPrice > 0 ? $minPrice : ''; ?>"
-                style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
-              <input type="number" name="max_price" placeholder="Max"
-                value="<?php echo $maxPrice < 1000000 ? $maxPrice : ''; ?>"
-                style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
+          <div class="filter-scroll-area">
+            <div class="filter-group">
+              <h4>Price Range</h4>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="number" name="min_price" placeholder="Min"
+                  value="<?php echo $minPrice > 0 ? $minPrice : ''; ?>"
+                  style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                <input type="number" name="max_price" placeholder="Max"
+                  value="<?php echo $maxPrice < 1000000 ? $maxPrice : ''; ?>"
+                  style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <h4>Availability</h4>
+              <label class="filter-option">
+                <input type="checkbox" name="stock_status[]" value="instock"
+                  <?php echo in_array('instock', $selectedStock) ? 'checked' : ''; ?>>
+                In Stock
+              </label>
+              <label class="filter-option">
+                <input type="checkbox" name="stock_status[]" value="outofstock"
+                  <?php echo in_array('outofstock', $selectedStock) ? 'checked' : ''; ?>>
+                Out of Stock
+              </label>
+            </div>
+
+            <div class="filter-group">
+              <h4>Categories</h4>
+              <?php foreach ($categories as $id => $name): ?>
+                <label class="filter-option">
+                  <input type="checkbox" name="categories[]" value="<?php echo $id; ?>"
+                    <?php echo in_array($id, $selectedCats) ? 'checked' : ''; ?>>
+                  <?php echo $name; ?>
+                </label>
+              <?php endforeach; ?>
+            </div>
+
+            <div class="filter-group">
+              <h4>Brands</h4>
+              <?php foreach ($brands as $id => $bData): ?>
+                <label class="filter-option">
+                  <input type="checkbox" name="brands[]" value="<?php echo $id; ?>"
+                    <?php echo in_array($id, $selectedBrands) ? 'checked' : ''; ?>>
+                  <?php echo $bData['name']; ?>
+                </label>
+              <?php endforeach; ?>
             </div>
           </div>
 
-          <div class="filter-group">
-            <h4>Availability</h4>
-            <label class="filter-option">
-              <input type="checkbox" name="stock_status[]" value="instock"
-                <?php echo in_array('instock', $selectedStock) ? 'checked' : ''; ?>>
-              In Stock
-            </label>
-            <label class="filter-option">
-              <input type="checkbox" name="stock_status[]" value="outofstock"
-                <?php echo in_array('outofstock', $selectedStock) ? 'checked' : ''; ?>>
-              Out of Stock
-            </label>
+          <div class="filter-actions">
+            <button type="submit" class="btn-apply">Apply Filters</button>
+            <a href="plp.php" class="btn-reset">Reset All</a>
           </div>
-
-          <div class="filter-group">
-            <h4>Categories</h4>
-            <?php foreach ($categories as $id => $name): ?>
-              <label class="filter-option">
-                <input type="checkbox" name="categories[]" value="<?php echo $id; ?>"
-                  <?php echo in_array($id, $selectedCats) ? 'checked' : ''; ?>>
-                <?php echo $name; ?>
-              </label>
-            <?php endforeach; ?>
-          </div>
-
-          <div class="filter-group">
-            <h4>Brands</h4>
-            <?php foreach ($brands as $id => $bData): ?>
-              <label class="filter-option">
-                <input type="checkbox" name="brands[]" value="<?php echo $id; ?>"
-                  <?php echo in_array($id, $selectedBrands) ? 'checked' : ''; ?>>
-                <?php echo $bData['name']; ?>
-              </label>
-            <?php endforeach; ?>
-          </div>
-
-          <button type="submit" class="btn-apply">Apply Filters</button>
-          <a href="plp.php" class="btn-reset">Reset All</a>
         </aside>
 
         <section>
@@ -167,24 +184,37 @@ function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $s
           </div>
 
           <div class="shop-content-header">
-            <h1>Our Collection</h1>
-            <span class="product-count">
-              <?php
-              $totalVisible = 0;
-              foreach ($products as $p) {
-                $cMatch = (empty($selectedCats) || in_array($p['cat_id'], $selectedCats));
-                $bMatch = (empty($selectedBrands) || in_array($p['brand_id'], $selectedBrands));
-                $sMatch = empty($searchQuery) || (stripos($p['name'], $searchQuery) !== false);
-                $pMatch = ($p['price'] >= $minPrice && $p['price'] <= $maxPrice);
+            <div>
+              <h1>Our Collection</h1>
+              <span class="product-count">
+                <?php
+                $totalVisible = 0;
+                foreach ($products as $p) {
+                  $cMatch = (empty($selectedCats) || in_array($p['cat_id'], $selectedCats));
+                  $bMatch = (empty($selectedBrands) || in_array($p['brand_id'], $selectedBrands));
+                  $sMatch = empty($searchQuery) || (stripos($p['name'], $searchQuery) !== false);
+                  $pMatch = ($p['price'] >= $minPrice && $p['price'] <= $maxPrice);
 
-                $st = ($p['in_stock']) ? 'instock' : 'outofstock';
-                $stMatch = (empty($selectedStock) || in_array($st, $selectedStock));
+                  $st = ($p['in_stock']) ? 'instock' : 'outofstock';
+                  $stMatch = (empty($selectedStock) || in_array($st, $selectedStock));
 
-                if ($cMatch && $bMatch && $sMatch && $pMatch && $stMatch) $totalVisible++;
-              }
-              echo $totalVisible . " Items Found";
-              ?>
-            </span>
+                  if ($cMatch && $bMatch && $sMatch && $pMatch && $stMatch) $totalVisible++;
+                }
+                echo $totalVisible . " Items Found";
+                ?>
+              </span>
+            </div>
+
+            <div class="sort-wrapper">
+              <label for="sort" style="font-size: 0.9rem; font-weight: 600; color: var(--color-gray-600);">Sort By:</label>
+              <select name="sort" id="sort" onchange="this.form.submit()" style="padding: 8px 12px; border: 1px solid var(--color-gray-200); border-radius: 6px; background: white; cursor: pointer; font-size: 0.9rem;">
+                <option value="newest" <?php echo $sortBy === 'newest' ? 'selected' : ''; ?>>Newest First</option>
+                <option value="price_low" <?php echo $sortBy === 'price_low' ? 'selected' : ''; ?>>Price: Low to High</option>
+                <option value="price_high" <?php echo $sortBy === 'price_high' ? 'selected' : ''; ?>>Price: High to Low</option>
+                <option value="name_asc" <?php echo $sortBy === 'name_asc' ? 'selected' : ''; ?>>Name: A to Z</option>
+                <option value="name_desc" <?php echo $sortBy === 'name_desc' ? 'selected' : ''; ?>>Name: Z to A</option>
+              </select>
+            </div>
           </div>
 
           <?php renderSidebarFilteredGrid($products, $brands, $categories, $selectedCats, $selectedBrands, $searchQuery, $minPrice, $maxPrice, $selectedStock); ?>

@@ -14,7 +14,18 @@
 
 /* Styling the image cell */
 .cart-img-cell {
-    width: 80px; /* Limits the column width */
+    width: 100px;
+}
+
+/* Product column - Make it wider */
+table th:nth-child(2),
+table td:nth-child(2) {
+    width: 90%;
+}
+
+/* Quantity column - Make it narrower */
+.qty-cell {
+    width: 10%;
 }
 
 .cart-img-wrapper {
@@ -104,7 +115,7 @@ table tbody td {
 }
 
 .btn-qty {
-    width: 32px;
+    width: 4rem;
     height: 32px;
     display: flex;
     align-items: center;
@@ -158,6 +169,7 @@ table tbody td {
     margin-bottom: 20px;
     font-size: 1.5rem;
 }
+
 .summary-items {
     margin-bottom: 20px;
 }
@@ -179,7 +191,8 @@ table tbody td {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0; /* Prevents image from squishing */
+    flex-shrink: 0;
+    /* Prevents image from squishing */
 }
 
 .summary-img-wrapper img {
@@ -220,7 +233,7 @@ table tbody td {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 140px; 
+    max-width: 140px;
 }
 
 .product-price {
@@ -243,6 +256,42 @@ table tbody td {
     border-top: 2px solid var(--color-gray-200);
     padding-top: 16px;
     margin-top: 16px;
+}
+
+/* Better empty state styling */
+.empty-msg {
+    text-align: center;
+    padding: 60px 20px !important;
+    color: #64748b;
+    font-size: 1.1rem;
+}
+
+/* Disabled button state */
+.btn-disabled {
+    background: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.summary-divider {
+    border: 0;
+    border-top: 1px solid #e2e8f0;
+    margin: 15px 0;
+}
+
+/* Vertical centering for table cells */
+table td {
+    vertical-align: middle;
+}
+
+/* Ensure table is responsive on small screens */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* ---------- Checkout Page ---------- */
@@ -347,4 +396,92 @@ textarea {
     width: 20px;
     height: 20px;
     accent-color: var(--color-primary-start);
+}
+
+.shipping-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.shipping-card {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 15px;
+}
+
+.shipping-card:hover {
+    border-color: #6366f1;
+    background: #f8fafc;
+}
+
+/* SHIPPING OPTION STYLES */
+/* Style when the radio button is checked */
+.shipping-card:has(input:checked) {
+    border-color: #6366f1;
+    background: #f5f3ff;
+}
+
+.shipping-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.method-title {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.method-desc {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.method-price {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.shipping-card input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #6366f1;
+}
+
+.shipping-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.btn-refresh {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-refresh:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+@media (max-width: 600px) {
+    .checkout .form-row {
+        grid-template-columns: 1fr !important;
+        /* Stack fields on mobile */
+        gap: 0 !important;
+    }
 }

@@ -3,18 +3,18 @@ session_start();
 
 // Handle Form Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+  $email = $_POST['email'];
+  $password = $_POST['password'];
 
-    // Phase 2 Logic: Simulate a successful login for any non-empty input
-    // In Phase 3, you will check these against a MySQL database
-    if (!empty($email) && !empty($password)) {
-        $_SESSION['user_email'] = $email;
-        header("Location: index.php");
-        exit();
-    } else {
-        $error = "Invalid email or password.";
-    }
+  // Phase 2 Logic: Simulate a successful login for any non-empty input
+  // In Phase 3, you will check these against a MySQL database
+  if (!empty($email) && !empty($password)) {
+    $_SESSION['user_email'] = $email;
+    header("Location: index.php");
+    exit();
+  } else {
+    $error = "Invalid email or password.";
+  }
 }
 
 // Check if user just arrived from a successful signup
@@ -50,16 +50,63 @@ $signup_success = isset($_GET['registered']) && $_GET['registered'] === 'true';
       </p>
     <?php endif; ?>
 
-    <form action="login.php" method="POST">
-      <label for="email">Email</label>
-      <input id="email" name="email" type="email" placeholder="you@example.com" required>
+    <form action="login.php" method="POST" id="loginForm" novalidate>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" placeholder="you@example.com" required>
+        <span class="error-message" id="email-error">Please enter a valid email address.</span>
+      </div>
 
-      <label for="password">Password</label>
-      <input id="password" name="password" type="password" placeholder="••••••••" required>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="••••••••" minlength="8" required>
+        <span class="error-message" id="password-error">Password must be at least 8 characters long.</span>
+      </div>
 
       <button class="btn btn-success" type="submit">Sign In</button>
     </form>
-    
+
+    <script>
+      const form = document.getElementById('loginForm');
+      const inputs = form.querySelectorAll('input');
+
+      inputs.forEach(input => {
+        input.addEventListener('blur', () => {
+          validateField(input);
+        });
+        input.addEventListener('input', () => {
+          if (input.nextElementSibling.style.display === 'block') {
+            validateField(input);
+          }
+        });
+      });
+
+      function validateField(input) {
+        const errorSpan = document.getElementById(input.id + '-error');
+        if (!input.checkValidity()) {
+          errorSpan.style.display = 'block';
+          input.style.borderColor = '#ef4444';
+        } else {
+          errorSpan.style.display = 'none';
+          input.style.borderColor = '';
+        }
+      }
+
+      form.addEventListener('submit', (e) => {
+        let isValid = true;
+        inputs.forEach(input => {
+          validateField(input);
+          if (!input.checkValidity()) {
+            isValid = false;
+          }
+        });
+
+        if (!isValid) {
+          e.preventDefault();
+        }
+      });
+    </script>
+
     <p class="auth-meta">New to EasyCart? <a href="signup.php">Create account</a></p>
     <p class="auth-meta"><a href="index.php">Back to Home</a></p>
   </div>

@@ -66,8 +66,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
 
     <div class="layout">
       <div class="gallery">
-        <img src="<?php echo $product['image']; ?>" alt="<?php echo $product['name']; ?>">
+        <div class="main-img-container">
+          <img id="main-product-image" src="<?php echo $product['image']; ?>" alt="<?php echo $product['name']; ?>">
+        </div>
+
+        <?php if (isset($product['images']) && count($product['images']) > 1): ?>
+          <div class="thumbnails">
+            <?php foreach ($product['images'] as $idx => $imgSrc): ?>
+              <div class="thumb-item <?php echo $idx === 0 ? 'active' : ''; ?>" onclick="switchImage('<?php echo $imgSrc; ?>', this)">
+                <img src="<?php echo $imgSrc; ?>" alt="Thumbnail <?php echo $idx + 1; ?>">
+              </div>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
       </div>
+
+      <script>
+        function switchImage(src, element) {
+          // Update main image
+          const mainImg = document.getElementById('main-product-image');
+
+          // Add a quick fade out effect
+          mainImg.style.opacity = '0';
+
+          setTimeout(() => {
+            mainImg.src = src;
+            mainImg.style.opacity = '1';
+          }, 200);
+
+          // Update active thumbnail
+          const thumbs = document.querySelectorAll('.thumb-item');
+          thumbs.forEach(thumb => thumb.classList.remove('active'));
+          element.classList.add('active');
+        }
+
+        // Initialize opacity transition
+        document.getElementById('main-product-image').style.transition = 'opacity 0.2s ease';
+      </script>
 
       <div>
         <h1><?php echo $product['name']; ?></h1>

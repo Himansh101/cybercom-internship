@@ -8,9 +8,23 @@ if (empty($_SESSION['cart'])) {
   exit();
 }
 
+// 1. Calculate Subtotal first
 $subtotal = 0;
-$shipping = 99;
+foreach ($_SESSION['cart'] as $id => $quantity) {
+  if (isset($products[$id])) {
+    $subtotal += $products[$id]['price'] * $quantity;
+  }
+}
+
+// 2. Determine Shipping Cost based on button click or radio selection
+$shipping = 90; // Default
+$method = $_POST['shipping_method'] ?? 'standard';
+
+if ($method === 'fast') {
+  $shipping = 150;
+}
 ?>
+
 <!doctype html>
 <html lang="en">
 
@@ -39,93 +53,111 @@ $shipping = 99;
 
   <main>
     <a href="cart.php" class="back-btn"><i class="ri-arrow-left-line"></i> Back to Cart</a>
-    <div class="checkout-layout">
-      <section>
-        <h1>Checkout Details</h1>
-        <form action="orders.php" id="checkout-form" method="POST">
+
+    <form action="orders.php" id="checkout-form" method="POST">
+      <div class="checkout-layout">
+
+        <section class="checkout-details">
+          <h1>Checkout Details</h1>
+
           <div class="form-group">
             <label for="name">Full Name</label>
-            <input type="text" id="name" name="name" placeholder="John Doe" required>
+            <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>" placeholder="John Doe" minlength="3" pattern="[a-zA-Z\s]+" title="Name should only contain letters and spaces, and be at least 3 characters long." required>
+            <span class="error-message" id="name-error">Please enter a valid name (min 3 letters).</span>
           </div>
 
-          <div class="form-group">
-            <label for="mobile">Mobile Number</label>
-            <input
-              type="tel"
-              id="mobile"
-              name="mobile"
-              pattern="\+91[1-9][0-9]{9}"
-              placeholder="+911234567890"
-              title="Please enter a valid number starting with +91 followed by 10 digits"
-              required>
-          </div>
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group">
+              <label for="mobile">Mobile Number (with +91)</label>
+              <input type="tel" id="mobile" name="mobile" value="<?php echo htmlspecialchars($_POST['mobile'] ?? ''); ?>" pattern="(\+91)[6-9][0-9]{9}" title="Enter a valid Indian mobile number starting with +91 (e.g., +919876543210)" placeholder="+919876543210" required>
+              <span class="error-message" id="mobile-error">Enter valid +91 number.</span>
+            </div>
 
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" placeholder="john@example.com" required>
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" placeholder="john@example.com" required>
+              <span class="error-message" id="email-error">Enter a valid email.</span>
+            </div>
           </div>
 
           <div class="form-group">
             <label for="address">Delivery Address</label>
-            <textarea id="address" name="address" placeholder="House No, Street, City, Pincode" required></textarea>
+            <textarea id="address" name="address" placeholder="House No, Street, Locality" minlength="10" title="Please provide a more detailed address (at least 10 characters)." required><?php echo htmlspecialchars($_POST['address'] ?? ''); ?></textarea>
+            <span class="error-message" id="address-error">Address must be at least 10 characters.</span>
           </div>
 
-          <div class="form-group">
-            <label>Payment Method</label>
-            <div class="radio-group">
-              <label class="radio-option">
-                <input type="radio" name="payment" value="card" checked>
-                <span>Credit / Debit Card</span>
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group">
+              <label for="city">City</label>
+              <input type="text" id="city" name="city" value="<?php echo htmlspecialchars($_POST['city'] ?? ''); ?>" placeholder="Mumbai" required>
+              <span class="error-message" id="city-error">Please enter your city.</span>
+            </div>
+            <div class="form-group">
+              <label for="pincode">Pincode</label>
+              <input type="text" id="pincode" name="pincode" value="<?php echo htmlspecialchars($_POST['pincode'] ?? ''); ?>" pattern="[1-9][0-9]{5}" title="Enter a valid 6-digit Indian Pincode" placeholder="400001" required>
+              <span class="error-message" id="pincode-error">Enter valid 6-digit Pincode.</span>
+            </div>
+          </div>
+
+          <div class="shipping-section mt-12">
+            <div class="shipping-header">
+              <h3>Shipping Method</h3>
+            </div>
+
+            <div class="shipping-options">
+              <label class="shipping-card">
+                <input type="radio" name="shipping_method" value="standard" <?php echo ($method === 'standard') ? 'checked' : ''; ?>>
+                <div class="shipping-info">
+                  <span class="method-title">Standard Delivery</span>
+                  <span class="method-desc">3-5 Business Days</span>
+                </div>
+                <span class="method-price">₹90</span>
               </label>
-              <label class="radio-option">
-                <input type="radio" name="payment" value="upi">
-                <span>UPI (Google Pay, PhonePe)</span>
-              </label>
-              <label class="radio-option">
-                <input type="radio" name="payment" value="cod">
-                <span>Cash on Delivery</span>
+
+              <label class="shipping-card">
+                <input type="radio" name="shipping_method" value="fast" <?php echo ($method === 'fast') ? 'checked' : ''; ?>>
+                <div class="shipping-info">
+                  <span class="method-title">Fast Delivery</span>
+                  <span class="method-desc">1-2 Business Days</span>
+                </div>
+                <span class="method-price">₹150</span>
               </label>
             </div>
           </div>
-        </form>
-      </section>
+        </section>
 
-      <aside class="checkout-summary">
-        <h2>Order Summary</h2>
-        <div class="summary-items">
-          <?php
-          foreach ($_SESSION['cart'] as $id => $quantity):
-            $product = $products[$id];
-            $item_total = $product['price'] * $quantity;
-            $subtotal += $item_total;
-          ?>
-            <div class="summary-product-row">
-              <div class="summary-img-wrapper">
-                <img src="<?php echo $product['image']; ?>" alt="<?php echo $product['name']; ?>">
-                <?php if ($quantity > 1): ?>
-                  <span class="qty-badge"><?php echo $quantity; ?></span>
-                <?php endif; ?>
+        <aside class="checkout-summary">
+          <h2>Order Summary</h2>
+          <div class="summary-items">
+            <?php foreach ($_SESSION['cart'] as $id => $quantity):
+              $product = $products[$id];
+            ?>
+              <div class="summary-product-row">
+                <div class="summary-img-wrapper">
+                  <img src="<?php echo $product['image']; ?>" alt="">
+                  <?php if ($quantity > 1): ?><span class="qty-badge"><?php echo $quantity; ?></span><?php endif; ?>
+                </div>
+                <div class="summary-product-info">
+                  <span class="product-name"><?php echo $product['name']; ?></span>
+                  <span class="product-price">₹<?php echo number_format($product['price'] * $quantity); ?></span>
+                </div>
               </div>
-
-              <div class="summary-product-info">
-                <span class="product-name"><?php echo $product['name']; ?></span>
-                <span class="product-price">₹<?php echo number_format($item_total); ?></span>
-              </div>
-            </div>
-          <?php endforeach; ?>
-        </div>
-
-        <div class="summary-totals">
-          <div class="row"><span>Shipping (Express)</span><span>₹<?php echo number_format($shipping); ?></span></div>
-          <hr style="border: 0; border-top: 1px solid #eee; margin: 12px 0;">
-          <div class="row total">
-            <span>Total</span>
-            <span>₹<?php echo number_format($subtotal + $shipping); ?></span>
+            <?php endforeach; ?>
           </div>
-        </div>
-        <button class="btn btn-success" type="submit" form="checkout-form">Place Order</button>
-      </aside>
-    </div>
+
+          <div class="summary-totals">
+            <div class="row"><span>Subtotal</span><span>₹<?php echo number_format($subtotal); ?></span></div>
+            <div class="row"><span>Shipping</span><span id="summary-shipping">₹<?php echo number_format($shipping); ?></span></div>
+            <hr>
+            <div class="row total">
+              <span>Total</span>
+              <span id="summary-total">₹<?php echo number_format($subtotal + $shipping); ?></span>
+            </div>
+          </div>
+          <button class="btn btn-success" type="submit">Place Order</button>
+        </aside>
+      </div>
+    </form>
   </main>
   <footer>
     <div class="footer-container">
@@ -165,6 +197,77 @@ $shipping = 99;
       <p>© 2026 EasyCart. All rights reserved. | Internship Project</p>
     </div>
   </footer>
+  <script>
+    const form = document.getElementById('checkout-form');
+    const inputs = form.querySelectorAll('input:not([type="radio"]), textarea');
+
+    inputs.forEach(input => {
+      input.addEventListener('blur', () => {
+        validateField(input);
+      });
+      input.addEventListener('input', () => {
+        const errorSpan = document.getElementById(input.id + '-error');
+        if (errorSpan && errorSpan.style.display === 'block') {
+          validateField(input);
+        }
+      });
+    });
+
+    function validateField(input) {
+      const errorSpan = document.getElementById(input.id + '-error');
+      if (!errorSpan) return;
+
+      if (!input.checkValidity()) {
+        errorSpan.style.display = 'block';
+        input.style.borderColor = '#ef4444';
+      } else {
+        errorSpan.style.display = 'none';
+        input.style.borderColor = '';
+      }
+    }
+
+    const subtotal = <?php echo $subtotal; ?>;
+    const shippingRadios = document.querySelectorAll('input[name="shipping_method"]');
+    const shippingDisplay = document.getElementById('summary-shipping');
+    const totalDisplay = document.getElementById('summary-total');
+
+    function updateSummary() {
+      const selectedMethod = document.querySelector('input[name="shipping_method"]:checked').value;
+      const shippingCost = selectedMethod === 'fast' ? 150 : 90;
+      const total = subtotal + shippingCost;
+
+      // Update the summary display with formatted numbers
+      shippingDisplay.textContent = `₹${shippingCost.toLocaleString()}`;
+      totalDisplay.textContent = `₹${total.toLocaleString()}`;
+    }
+
+    shippingRadios.forEach(radio => {
+      radio.addEventListener('change', updateSummary);
+    });
+
+    form.addEventListener('submit', (e) => {
+      // Remove the btn-refresh check since the button is gone
+
+      let isValid = true;
+      inputs.forEach(input => {
+        validateField(input);
+        if (!input.checkValidity()) {
+          isValid = false;
+        }
+      });
+
+      if (!isValid) {
+        e.preventDefault();
+        const firstError = form.querySelector('.error-message[style*="display: block"]');
+        if (firstError) {
+          firstError.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
+      }
+    });
+  </script>
 </body>
 
 </html>

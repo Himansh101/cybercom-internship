@@ -300,13 +300,13 @@ section:first-child {
     background-clip: text;
 }
 
-.brandCard{
+.brandCard {
     text-align: center;
     padding: 0.2rem;
     width: 23rem;
 }
 
-.brandCard h3{
+.brandCard h3 {
     font-size: 2rem;
 }
 
@@ -326,7 +326,7 @@ section:first-child {
     display: inline-block;
 }
 
-.indexPill{
+.indexPill {
     width: 15rem;
     text-align: center;
     padding: 1rem;
@@ -545,7 +545,16 @@ section:first-child {
 
 
 /* ---------- Forms ---------- */
+.error-message {
+    color: #ef4444;
+    font-size: 0.85rem;
+    margin-top: 4px;
+    display: none;
+}
 
+/* .form-group:has(input:invalid:not(:placeholder-shown)) .error-message,
+.form-group:has(input:not(:placeholder-shown)):invalid .error-message {
+} */
 
 
 
@@ -653,16 +662,47 @@ section:first-child {
     border: 1px solid #e2e8f0;
     margin-top: inherit;
     border-radius: 12px;
-    padding: 24px;
+    padding: 0;
+    /* Padding moved to children */
     position: sticky;
     top: 20px;
-    /* Distance from top when scrolling */
     height: fit-content;
+    max-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    /* Prevent sidebar itself from scrolling */
+}
+
+.filter-scroll-area {
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+    scrollbar-width: thin;
+}
+
+.filter-scroll-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.filter-scroll-area::-webkit-scrollbar-thumb {
+    background: var(--color-gray-200);
+    border-radius: 10px;
+}
+
+.filter-actions {
+    padding: 16px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 0 0 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .filter-group {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .filter-group h4 {

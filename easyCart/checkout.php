@@ -37,6 +37,7 @@ if ($method === 'fast') {
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
   <link rel="stylesheet" href="./styles/styles.css">
   <link rel="stylesheet" href="./styles/cart.css">
+  <script src="js/checkout.js" defer></script>
 </head>
 
 <body class="page-site checkout">
@@ -54,7 +55,7 @@ if ($method === 'fast') {
   <main>
     <a href="cart.php" class="back-btn"><i class="ri-arrow-left-line"></i> Back to Cart</a>
 
-    <form action="orders.php" id="checkout-form" method="POST">
+    <form action="orders.php" id="checkout-form" method="POST" data-subtotal="<?php echo $subtotal; ?>">
       <div class="checkout-layout">
 
         <section class="checkout-details">
@@ -197,77 +198,6 @@ if ($method === 'fast') {
       <p>© 2026 EasyCart. All rights reserved. | Internship Project</p>
     </div>
   </footer>
-  <script>
-    const form = document.getElementById('checkout-form');
-    const inputs = form.querySelectorAll('input:not([type="radio"]), textarea');
-
-    inputs.forEach(input => {
-      input.addEventListener('blur', () => {
-        validateField(input);
-      });
-      input.addEventListener('input', () => {
-        const errorSpan = document.getElementById(input.id + '-error');
-        if (errorSpan && errorSpan.style.display === 'block') {
-          validateField(input);
-        }
-      });
-    });
-
-    function validateField(input) {
-      const errorSpan = document.getElementById(input.id + '-error');
-      if (!errorSpan) return;
-
-      if (!input.checkValidity()) {
-        errorSpan.style.display = 'block';
-        input.style.borderColor = '#ef4444';
-      } else {
-        errorSpan.style.display = 'none';
-        input.style.borderColor = '';
-      }
-    }
-
-    const subtotal = <?php echo $subtotal; ?>;
-    const shippingRadios = document.querySelectorAll('input[name="shipping_method"]');
-    const shippingDisplay = document.getElementById('summary-shipping');
-    const totalDisplay = document.getElementById('summary-total');
-
-    function updateSummary() {
-      const selectedMethod = document.querySelector('input[name="shipping_method"]:checked').value;
-      const shippingCost = selectedMethod === 'fast' ? 150 : 90;
-      const total = subtotal + shippingCost;
-
-      // Update the summary display with formatted numbers
-      shippingDisplay.textContent = `₹${shippingCost.toLocaleString()}`;
-      totalDisplay.textContent = `₹${total.toLocaleString()}`;
-    }
-
-    shippingRadios.forEach(radio => {
-      radio.addEventListener('change', updateSummary);
-    });
-
-    form.addEventListener('submit', (e) => {
-      // Remove the btn-refresh check since the button is gone
-
-      let isValid = true;
-      inputs.forEach(input => {
-        validateField(input);
-        if (!input.checkValidity()) {
-          isValid = false;
-        }
-      });
-
-      if (!isValid) {
-        e.preventDefault();
-        const firstError = form.querySelector('.error-message[style*="display: block"]');
-        if (firstError) {
-          firstError.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
-          });
-        }
-      }
-    });
-  </script>
 </body>
 
 </html>

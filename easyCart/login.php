@@ -5,7 +5,7 @@ session_start();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $email = $_POST['email'];
   $password = $_POST['password'];
-
+  
   // Phase 2 Logic: Simulate a successful login for any non-empty input
   // In Phase 3, you will check these against a MySQL database
   if (!empty($email) && !empty($password)) {
@@ -22,16 +22,17 @@ $signup_success = isset($_GET['registered']) && $_GET['registered'] === 'true';
 ?>
 <!doctype html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EasyCart | Login</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
-  <link rel="stylesheet" href="./styles/styles.css">
-  <link rel="stylesheet" href="./styles/auth.css">
+  
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyCart | Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="./styles/styles.css">
+    <link rel="stylesheet" href="./styles/auth.css">
+    <script src="js/auth.js" defer></script>
 </head>
 
 <body class="page-auth page-login">
@@ -66,46 +67,6 @@ $signup_success = isset($_GET['registered']) && $_GET['registered'] === 'true';
       <button class="btn btn-success" type="submit">Sign In</button>
     </form>
 
-    <script>
-      const form = document.getElementById('loginForm');
-      const inputs = form.querySelectorAll('input');
-
-      inputs.forEach(input => {
-        input.addEventListener('blur', () => {
-          validateField(input);
-        });
-        input.addEventListener('input', () => {
-          if (input.nextElementSibling.style.display === 'block') {
-            validateField(input);
-          }
-        });
-      });
-
-      function validateField(input) {
-        const errorSpan = document.getElementById(input.id + '-error');
-        if (!input.checkValidity()) {
-          errorSpan.style.display = 'block';
-          input.style.borderColor = '#ef4444';
-        } else {
-          errorSpan.style.display = 'none';
-          input.style.borderColor = '';
-        }
-      }
-
-      form.addEventListener('submit', (e) => {
-        let isValid = true;
-        inputs.forEach(input => {
-          validateField(input);
-          if (!input.checkValidity()) {
-            isValid = false;
-          }
-        });
-
-        if (!isValid) {
-          e.preventDefault();
-        }
-      });
-    </script>
 
     <p class="auth-meta">New to EasyCart? <a href="signup.php">Create account</a></p>
     <p class="auth-meta"><a href="index.php">Back to Home</a></p>

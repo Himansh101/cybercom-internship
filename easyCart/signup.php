@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
   <link rel="stylesheet" href="./styles/styles.css">
   <link rel="stylesheet" href="./styles/auth.css">
+  <script src="js/auth.js" defer></script>
 </head>
 
 <body class="page-auth page-signup">
@@ -68,59 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <button class="btn btn-success" type="submit">Sign Up</button>
     </form>
 
-    <script>
-      const form = document.getElementById('signupForm');
-      const inputs = form.querySelectorAll('input');
-      const password = document.getElementById('password');
-      const confirm = document.getElementById('confirm');
-
-      inputs.forEach(input => {
-        input.addEventListener('blur', () => {
-          validateField(input);
-        });
-        input.addEventListener('input', () => {
-          const errorSpan = document.getElementById(input.id + '-error');
-          if (errorSpan && errorSpan.style.display === 'block') {
-            validateField(input);
-          }
-        });
-      });
-
-      function validateField(input) {
-        const errorSpan = document.getElementById(input.id + '-error');
-
-        // Custom check for password confirmation
-        if (input.id === 'confirm') {
-          if (password.value !== confirm.value) {
-            input.setCustomValidity("Passwords don't match");
-          } else {
-            input.setCustomValidity("");
-          }
-        }
-
-        if (!input.checkValidity()) {
-          errorSpan.style.display = 'block';
-          input.style.borderColor = '#ef4444';
-        } else {
-          errorSpan.style.display = 'none';
-          input.style.borderColor = '';
-        }
-      }
-
-      form.addEventListener('submit', (e) => {
-        let isValid = true;
-        inputs.forEach(input => {
-          validateField(input);
-          if (!input.checkValidity()) {
-            isValid = false;
-          }
-        });
-
-        if (!isValid) {
-          e.preventDefault();
-        }
-      });
-    </script>
 
     <p class="auth-meta">Already have an account? <a href="login.php">Login here</a></p>
     <p class="auth-meta"><a href="index.php">Back to Home</a></p>

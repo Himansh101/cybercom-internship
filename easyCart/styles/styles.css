@@ -171,6 +171,22 @@ nav {
     align-items: center;
 }
 
+.mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--color-white);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-base);
+}
+
+.mobile-menu-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
 nav a {
     color: rgba(255, 255, 255, 0.9);
     padding: 8px 16px;
@@ -229,12 +245,29 @@ section:first-child {
 }
 
 .grid {
-    /* display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 24px; */
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 3.2rem;
+    gap: 2rem;
+}
+
+@media (max-width: 1024px) {
+    .grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 550px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .grid {
+        gap: 0.75rem;
+    }
 }
 
 
@@ -302,15 +335,21 @@ section:first-child {
 
 .brandCard {
     text-align: center;
-    padding: 0.2rem;
-    width: 23rem;
+    padding: 1.5rem;
+    width: 100%;
 }
 
 .brandCard h3 {
-    font-size: 2rem;
+    font-size: 1.5rem;
 }
 
 /* ---------- Pills / Tags ---------- */
+.pill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+}
 
 
 /* 1. Base Pill State */
@@ -504,19 +543,23 @@ section:first-child {
 }
 
 .hero h1 {
-    font-size: 3rem;
+    font-size: clamp(2rem, 5vw, 3.5rem);
     margin-bottom: 16px;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     position: relative;
     z-index: 1;
+    line-height: 1.2;
+    overflow-wrap: break-word;
 }
 
 .hero p {
     margin-bottom: 24px;
-    font-size: 1.15rem;
+    font-size: clamp(1rem, 2vw, 1.25rem);
     opacity: 0.95;
     position: relative;
     z-index: 1;
+    max-width: 600px;
+    overflow-wrap: break-word;
 }
 
 .hero .btn {
@@ -566,13 +609,49 @@ section:first-child {
         padding: 14px 20px;
     }
 
+    .mobile-menu-btn {
+        display: block;
+        z-index: 1001;
+    }
+
     nav {
-        gap: 4px;
+        display: none;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: rgba(15, 23, 42, 0.98);
+        backdrop-filter: blur(20px);
+        padding: 100px 32px;
+        z-index: 1000;
+        gap: 20px;
+        animation: menuFadeIn 0.3s ease-out;
+    }
+
+    nav.active {
+        display: flex;
+    }
+
+    @keyframes menuFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     nav a {
-        padding: 6px 10px;
-        font-size: 0.85rem;
+        padding: 16px 20px;
+        font-size: 1.25rem;
+        width: 100%;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     main {

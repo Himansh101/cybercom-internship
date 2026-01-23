@@ -12,6 +12,97 @@
     }
 }
 
+@media (max-width: 768px) {
+
+    /* Hide table headers on mobile */
+    table thead {
+        display: none;
+    }
+
+    table,
+    tbody,
+    tr,
+    td {
+        display: block;
+        width: 100%;
+    }
+
+    tr {
+        margin-bottom: 24px;
+        border: 1px solid var(--color-gray-200);
+        border-radius: var(--radius-lg);
+        background: var(--bg-primary);
+        padding: 16px;
+        position: relative;
+    }
+
+    td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--color-gray-100);
+        text-align: right;
+    }
+
+    td:last-child {
+        border-bottom: none;
+    }
+
+    /* Column Labels */
+    td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        color: var(--color-gray-500);
+        text-align: left;
+        flex-shrink: 0;
+        margin-right: 15px;
+    }
+
+    .product-name-text {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--color-gray-900);
+        word-break: break-word;
+        /* Prevent overflow */
+        max-width: 60%;
+        /* Allow space for label */
+    }
+
+    .cart-img-cell {
+        width: 100% !important;
+        justify-content: center;
+        border-bottom: 2px solid var(--color-gray-100);
+        padding-bottom: 16px;
+    }
+
+    .cart-img-cell::before {
+        display: none;
+    }
+
+    .cart-img-wrapper {
+        width: 120px;
+        height: 120px;
+    }
+
+    .qty-cell {
+        width: 100% !important;
+    }
+
+    table th:nth-child(2),
+    table td:nth-child(2) {
+        width: 100% !important;
+    }
+
+    .product-name-text {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--color-gray-900);
+    }
+}
+
 /* Styling the image cell */
 .cart-img-cell {
     width: 100px;
@@ -481,14 +572,21 @@ textarea {
 .payment-card {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Pushes stripe logo to the right */
-    width: 80%;
+    justify-content: space-between;
+    /* Pushes stripe logo to the right */
+    width: 100%;
     padding: 16px;
     border: 1px solid #e2e8f0;
     border-radius: 10px;
     margin-bottom: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
+}
+
+@media (min-width: 769px) {
+    .payment-card {
+        width: 80%;
+    }
 }
 
 .payment-card:has(input:checked) {
@@ -539,4 +637,3 @@ textarea {
         gap: 0 !important;
     }
 }
-

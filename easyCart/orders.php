@@ -6,20 +6,20 @@ session_start();
 include 'data.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // 1. Capture user details (Name, Email, etc.)
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $address = $_POST['address'];
-    $shipping = $_POST['shipping_method'];
-    
-    // 2. Here you would normally save the order to a database
-    // ... database logic ...
+  // 1. Capture user details (Name, Email, etc.)
+  $name = $_POST['name'];
+  $email = $_POST['email'];
+  $address = $_POST['address'];
+  $shipping = $_POST['shipping_method'];
 
-    // 3. SUCCESS: Clear the cart session
-    unset($_SESSION['cart']); 
-    
-    // 4. Set a success message to show the user
-    $_SESSION['success_message'] = "Thank you, $name! Your order has been placed successfully.";
+  // 2. Here you would normally save the order to a database
+  // ... database logic ...
+
+  // 3. SUCCESS: Clear the cart session
+  unset($_SESSION['cart']);
+
+  // 4. Set a success message to show the user
+  $_SESSION['success_message'] = "Thank you, $name! Your order has been placed successfully.";
 }
 ?>
 
@@ -48,6 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <a href="orders.php" class="active">My Orders</a>
       <a href="login.php">Login</a>
     </nav>
+    <button class="mobile-menu-btn" id="mobile-menu-btn">
+      <i class="ri-menu-line"></i>
+    </button>
   </header>
 
   <main>
@@ -137,6 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <p>© 2026 EasyCart. Internship Project</p>
     </div>
   </footer>
+  <script src="js/main.js"></script>
 </body>
 
 </html>

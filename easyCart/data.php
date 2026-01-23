@@ -293,7 +293,7 @@ $products = [
             'images/mechanicalKeyboard.png'
         ],
         'description' => 'Tactile feedback for faster typing and gaming.',
-        'is_featured' => false,
+        'is_featured' => true,
         'in_stock' => false
     ],
     122 => [

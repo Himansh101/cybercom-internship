@@ -113,6 +113,9 @@ function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $s
       <a href="orders.php">My Orders</a>
       <a href="login.php">Login</a>
     </nav>
+    <button class="mobile-menu-btn" id="mobile-menu-btn">
+      <i class="ri-menu-line"></i>
+    </button>
   </header>
 
   <main>
@@ -260,6 +263,7 @@ function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $s
       <p>© 2026 EasyCart. All rights reserved. | Internship Project</p>
     </div>
   </footer>
+  <script src="js/main.js"></script>
 </body>
 
 </html>

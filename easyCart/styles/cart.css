@@ -478,6 +478,60 @@ textarea {
     color: #1e293b;
 }
 
+.payment-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Pushes stripe logo to the right */
+    width: 80%;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.payment-card:has(input:checked) {
+    border-color: #6366f1;
+    background: #f5f3ff;
+}
+
+.payment-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.payment-info i {
+    font-size: 1.5rem;
+    color: #6366f1;
+}
+
+.method-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.method-title {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.method-desc {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.stripe-badges {
+    opacity: 0.7;
+    filter: grayscale(100%);
+}
+
+.payment-card:has(input:checked) .stripe-badges {
+    opacity: 1;
+    filter: grayscale(0%);
+}
+
 @media (max-width: 600px) {
     .checkout .form-row {
         grid-template-columns: 1fr !important;
@@ -485,3 +539,4 @@ textarea {
         gap: 0 !important;
     }
 }
+

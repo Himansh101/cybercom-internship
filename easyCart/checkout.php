@@ -155,6 +155,35 @@ if ($method === 'fast') {
               <span id="summary-total">₹<?php echo number_format($subtotal + $shipping); ?></span>
             </div>
           </div>
+          <div class="payment-section mt-18">
+            <h3>Payment Method</h3>
+            <div class="payment-options">
+              <label class="payment-card">
+                <input type="radio" name="payment" value="cod" checked>
+                <div class="payment-info">
+                  <i class="ri-truck-line"></i>
+                  <div class="method-details">
+                    <span class="method-title">Cash on Delivery</span>
+                    <span class="method-desc">Pay when your package arrives</span>
+                  </div>
+                </div>
+              </label>
+
+              <label class="payment-card">
+                <input type="radio" name="payment" value="stripe">
+                <div class="payment-info">
+                  <i class="ri-bank-card-line"></i>
+                  <div class="method-details">
+                    <span class="method-title">Stripe (Credit/Debit Card)</span>
+                    <span class="method-desc">Secure payment via Stripe</span>
+                  </div>
+                </div>
+                <div class="stripe-badges">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" style="height: 15px;">
+                </div>
+              </label>
+            </div>
+          </div>
           <button class="btn btn-success" type="submit">Place Order</button>
         </aside>
       </div>

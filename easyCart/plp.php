@@ -1,6 +1,25 @@
 <?php
-session_start(); 
+session_start();
+
+// Check if user is logged in
+if (!isset($_SESSION['user'])) {
+    header("Location: login.php");
+    exit();
+}
+
 include 'data.php';
+
+// Check if user is logged in
+$isLoggedIn = isset($_SESSION['user']);
+$user = $_SESSION['user'] ?? null;
+
+// Calculate total cart quantity
+$cartQuantity = 0;
+if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
+    foreach ($_SESSION['cart'] as $quantity) {
+        $cartQuantity += $quantity;
+    }
+}
 
 /** 1. Initialize variables from GET parameters */
 $selectedCats   = $_GET['categories'] ?? [];
@@ -11,73 +30,86 @@ $searchQuery    = isset($_GET['search']) ? trim($_GET['search']) : '';
 $minPrice = (isset($_GET['min_price']) && $_GET['min_price'] !== '') ? (int)$_GET['min_price'] : 0;
 $maxPrice = (isset($_GET['max_price']) && $_GET['max_price'] !== '') ? (int)$_GET['max_price'] : 1000000;
 $sortBy   = $_GET['sort'] ?? 'newest';
+$currentPage = (isset($_GET['page']) && $_GET['page'] > 0) ? (int)$_GET['page'] : 1;
+$productsPerPage = 9;
 
-/* 2. Sorting logic (Prioritizes In-Stock items) */
+/* 2. Sorting & Filtering Logic */
+$filteredProducts = [];
 if (isset($products) && is_array($products)) {
-    // We use uasort because we need to look at the 'values' (like price and in_stock)
-    // To handle the 'newest' sort (which is based on the keys), we pass the keys in.
-    
-    $productKeys = array_keys($products); // Get IDs to use for 'newest' sorting
+    // 2a. Filtering
+    foreach ($products as $id => $product) {
+        $catMatch    = (empty($selectedCats) || in_array($product['cat_id'], $selectedCats));
+        $brandMatch  = (empty($selectedBrands) || in_array($product['brand_id'], $selectedBrands));
+        $searchMatch = empty($searchQuery) || (stripos($product['name'], $searchQuery) !== false);
+        $priceMatch  = ($product['price'] >= $minPrice && $product['price'] <= $maxPrice);
+        $status      = ($product['in_stock']) ? 'instock' : 'outofstock';
+        $stockMatch  = (empty($selectedStock) || in_array($status, $selectedStock));
 
-    uasort($products, function($a, $b) use ($sortBy, $products) {
+        if ($catMatch && $brandMatch && $searchMatch && $priceMatch && $stockMatch) {
+            $filteredProducts[$id] = $product;
+        }
+    }
+
+    // 2b. Sorting
+    uasort($filteredProducts, function ($a, $b) use ($sortBy, $filteredProducts) {
         // Step 1: Priority - Stock Status
         if ($a['in_stock'] !== $b['in_stock']) {
-            return $b['in_stock'] <=> $a['in_stock']; // True (1) comes before False (0)
+            return $b['in_stock'] <=> $a['in_stock']; // In stock first
         }
 
         // Step 2: Tie-breaker - User Selection
-        if ($sortBy === 'price_low') {
-            return $a['price'] <=> $b['price'];
-        } elseif ($sortBy === 'price_high') {
-            return $b['price'] <=> $a['price'];
-        } elseif ($sortBy === 'name_asc') {
-            return strcasecmp($a['name'], $b['name']);
-        } elseif ($sortBy === 'name_desc') {
-            return strcasecmp($b['name'], $a['name']);
-        } else {
-            // 'newest' logic: Since we can't easily see the ID key here, 
-            // we find the keys manually.
-            $keyA = array_search($a, $products);
-            $keyB = array_search($b, $products);
-            return $keyA <=> $keyB; // Lower ID (newer) comes first
+        switch ($sortBy) {
+            case 'price_low':
+                return $a['price'] <=> $b['price'];
+            case 'price_high':
+                return $b['price'] <=> $a['price'];
+            case 'name_asc':
+                return strcasecmp($a['name'], $b['name']);
+            case 'name_desc':
+                return strcasecmp($b['name'], $a['name']);
+            case 'newest':
+            default:
+                // Efficient 'newest' sort using array keys (descending if they were added in order)
+                // For this demo, let's assume higher ID means newer, so reverse ID comparison
+                $idA = array_search($a, $filteredProducts);
+                $idB = array_search($b, $filteredProducts);
+                return $idB <=> $idA;
         }
     });
 }
 
-/* 3. Filtered Render Function */
-function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $selBrands, $search, $minP, $maxP, $selStock)
+// 2c. Pagination Calculation
+$totalVisible = count($filteredProducts);
+$totalPages = ceil($totalVisible / $productsPerPage);
+$startItem = $totalVisible > 0 ? ($currentPage - 1) * $productsPerPage + 1 : 0;
+$endItem = min($currentPage * $productsPerPage, $totalVisible);
+$offset = ($currentPage - 1) * $productsPerPage;
+$paginatedProducts = array_slice($filteredProducts, $offset, $productsPerPage, true);
+
+/* 3. Render Helper Function */
+function renderProductGrid($paginatedProducts, $brands, $categories)
 {
     echo '<div class="grid">';
-    $count = 0;
 
-    if (!is_array($products)) {
-        echo "<p>Error: Product data not found.</p></div>";
-        return;
-    }
-
-    foreach ($products as $id => $product) {
-        // Filter Logic
-        $catMatch    = (empty($selCats) || in_array($product['cat_id'], $selCats));
-        $brandMatch  = (empty($selBrands) || in_array($product['brand_id'], $selBrands));
-        $searchMatch = empty($search) || (stripos($product['name'], $search) !== false);
-        $priceMatch  = ($product['price'] >= $minP && $product['price'] <= $maxP);
-        
-        $status      = ($product['in_stock']) ? 'instock' : 'outofstock';
-        $stockMatch  = (empty($selStock) || in_array($status, $selStock));
-
-        if ($catMatch && $brandMatch && $searchMatch && $priceMatch && $stockMatch) {
-            $count++;
+    if (empty($paginatedProducts)) {
+        echo '<div class="no-results" style="grid-column: 1/-1; text-align: center; padding: 60px;">
+                <i class="ri-search-2-line" style="font-size: 3rem; color: #cbd5e1;"></i>
+                <p>No products match your current filters.</p>
+                <a href="plp.php" style="color: #6366f1;">Clear all filters</a>
+              </div>';
+    } else {
+        foreach ($paginatedProducts as $id => $product) {
             $catName   = $categories[$product['cat_id']] ?? 'Uncategorized';
             $brandName = $brands[$product['brand_id']]['name'] ?? 'Generic';
             $isOut     = !$product['in_stock'];
-            ?>
+?>
             <div class="card product-card <?php echo $isOut ? 'is-out-of-stock' : ''; ?>">
-                <div class="product-image-wrapper" style="position: relative;">
+                <div class="product-image-wrapper">
                     <?php if ($isOut): ?>
                         <div class="stock-badge">Out of Stock</div>
                     <?php endif; ?>
                     <img src="<?php echo $product['image']; ?>" alt="<?php echo htmlspecialchars($product['name']); ?>"
-                         style="<?php echo $isOut ? 'filter: grayscale(1); opacity: 0.6;' : ''; ?>">
+                        style="<?php echo $isOut ? 'filter: grayscale(1); opacity: 0.6;' : ''; ?>">
                 </div>
                 <div class="card-content">
                     <div class="card-meta-row">
@@ -98,16 +130,8 @@ function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $s
                     <?php endif; ?>
                 </div>
             </div>
-            <?php
+<?php
         }
-    }
-
-    if ($count === 0) {
-        echo '<div class="no-results" style="grid-column: 1/-1; text-align: center; padding: 60px;">
-                <i class="ri-search-2-line" style="font-size: 3rem; color: #cbd5e1;"></i>
-                <p>No products match your current filters.</p>
-                <a href="plp.php" style="color: #6366f1;">Clear all filters</a>
-              </div>';
     }
     echo '</div>';
 }
@@ -115,6 +139,7 @@ function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $s
 
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -122,6 +147,9 @@ function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $s
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="stylesheet" href="./styles/styles.css">
     <link rel="stylesheet" href="./styles/plp.css">
+    <script src="./js/plp.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/auth.js" defer></script>
 </head>
 
 <body class="page-site plp">
@@ -130,9 +158,16 @@ function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $s
         <nav>
             <a href="index.php">Home</a>
             <a href="plp.php" class="active">Products</a>
-            <a href="cart.php">Cart</a>
+            <a href="cart.php">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
             <a href="orders.php">My Orders</a>
-            <a href="login.php">Login</a>
+            <?php if ($isLoggedIn): ?>
+                <span class="user-greeting" style="color: #6366f1; font-weight: 600; font-size: 0.9rem; border-left: 1px solid #e2e8f0; padding-left: 15px; margin-left: 5px;">
+                    Hi, <?php echo htmlspecialchars(explode(' ', $user['name'])[0]); ?>
+                </span>
+                <a href="logout.php">Logout</a>
+            <?php else: ?>
+                <a href="login.php">Login</a>
+            <?php endif; ?>
         </nav>
         <button class="mobile-menu-btn" id="mobile-menu-btn">
             <i class="ri-menu-line"></i>
@@ -140,17 +175,18 @@ function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $s
     </header>
 
     <main>
-        <form action="plp.php" method="GET">
+        <form id="filter-form" action="plp.php" method="GET">
+            <input type="hidden" name="page" value="<?php echo $currentPage; ?>">
             <div class="shop-container">
                 <aside class="sidebar-filters">
                     <div class="filter-scroll-area">
                         <div class="filter-group">
                             <h4>Price Range</h4>
                             <div style="display: flex; gap: 8px; align-items: center;">
-                                <input type="number" name="min_price" placeholder="Min"
+                                <input type="number" name="min_price" class="js-filter-input" placeholder="Min"
                                     value="<?php echo $minPrice > 0 ? $minPrice : ''; ?>"
                                     style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
-                                <input type="number" name="max_price" placeholder="Max"
+                                <input type="number" name="max_price" class="js-filter-input" placeholder="Max"
                                     value="<?php echo $maxPrice < 1000000 ? $maxPrice : ''; ?>"
                                     style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
                             </div>
@@ -159,12 +195,12 @@ function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $s
                         <div class="filter-group">
                             <h4>Availability</h4>
                             <label class="filter-option">
-                                <input type="checkbox" name="stock_status[]" value="instock"
+                                <input type="checkbox" name="stock_status[]" class="js-filter-input" value="instock"
                                     <?php echo in_array('instock', $selectedStock) ? 'checked' : ''; ?>>
                                 In Stock
                             </label>
                             <label class="filter-option">
-                                <input type="checkbox" name="stock_status[]" value="outofstock"
+                                <input type="checkbox" name="stock_status[]" class="js-filter-input" value="outofstock"
                                     <?php echo in_array('outofstock', $selectedStock) ? 'checked' : ''; ?>>
                                 Out of Stock
                             </label>
@@ -174,7 +210,7 @@ function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $s
                             <h4>Categories</h4>
                             <?php foreach ($categories as $id => $name): ?>
                                 <label class="filter-option">
-                                    <input type="checkbox" name="categories[]" value="<?php echo $id; ?>"
+                                    <input type="checkbox" name="categories[]" class="js-filter-input" value="<?php echo $id; ?>"
                                         <?php echo in_array((string)$id, $selectedCats) ? 'checked' : ''; ?>>
                                     <?php echo $name; ?>
                                 </label>
@@ -185,15 +221,14 @@ function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $s
                             <h4>Brands</h4>
                             <?php foreach ($brands as $id => $bData): ?>
                                 <label class="filter-option">
-                                    <input type="checkbox" name="brands[]" value="<?php echo $id; ?>"
+                                    <input type="checkbox" name="brands[]" class="js-filter-input" value="<?php echo $id; ?>"
                                         <?php echo in_array((string)$id, $selectedBrands) ? 'checked' : ''; ?>>
                                     <?php echo $bData['name']; ?>
                                 </label>
                             <?php endforeach; ?>
                         </div>
                     </div>
-
-                    <div class="filter-actions">
+                    <div class="filter-actions" style="padding: 16px; border-top: 1px solid #e2e8f0;">
                         <button type="submit" class="btn-apply">Apply Filters</button>
                         <a href="plp.php" class="btn-reset">Reset All</a>
                     </div>
@@ -211,18 +246,11 @@ function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $s
                             <h1>Our Collection</h1>
                             <span class="product-count">
                                 <?php
-                                $totalVisible = 0;
-                                foreach ($products as $p) {
-                                    $cMatch = (empty($selectedCats) || in_array($p['cat_id'], $selectedCats));
-                                    $bMatch = (empty($selectedBrands) || in_array($p['brand_id'], $selectedBrands));
-                                    $sMatch = empty($searchQuery) || (stripos($p['name'], $searchQuery) !== false);
-                                    $pMatch = ($p['price'] >= $minPrice && $p['price'] <= $maxPrice);
-                                    $st = ($p['in_stock']) ? 'instock' : 'outofstock';
-                                    $stMatch = (empty($selectedStock) || in_array($st, $selectedStock));
-
-                                    if ($cMatch && $bMatch && $sMatch && $pMatch && $stMatch) $totalVisible++;
+                                if ($totalVisible > 0) {
+                                    echo "Showing {$startItem}-{$endItem} of {$totalVisible} Items";
+                                } else {
+                                    echo "0 Items Found";
                                 }
-                                echo $totalVisible . " Items Found";
                                 ?>
                             </span>
                         </div>
@@ -241,7 +269,58 @@ function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $s
                         </div>
                     </div>
 
-                    <?php renderSidebarFilteredGrid($products, $brands, $categories, $selectedCats, $selectedBrands, $searchQuery, $minPrice, $maxPrice, $selectedStock); ?>
+                    <?php renderProductGrid($paginatedProducts, $brands, $categories); ?>
+
+                    <?php if ($totalPages > 1): ?>
+                        <div class="pagination">
+                            <?php
+                            $queryParams = $_GET;
+                            unset($queryParams['page']);
+                            $queryString = http_build_query($queryParams);
+                            if (!empty($queryString)) {
+                                $queryString .= '&';
+                            }
+
+                            if ($currentPage > 1): ?>
+                                <a href="?<?php echo $queryString; ?>page=<?php echo $currentPage - 1; ?>" class="pagination-btn pagination-prev">
+                                    <i class="ri-arrow-left-line"></i> Previous
+                                </a>
+                            <?php endif; ?>
+
+                            <div class="pagination-numbers">
+                                <?php
+                                $startPage = max(1, $currentPage - 2);
+                                $endPage = min($totalPages, $currentPage + 2);
+
+                                if ($startPage > 1): ?>
+                                    <a href="?<?php echo $queryString; ?>page=1" class="pagination-btn">1</a>
+                                    <?php if ($startPage > 2): ?>
+                                        <span class="pagination-dots">...</span>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+
+                                <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+                                    <a href="?<?php echo $queryString; ?>page=<?php echo $i; ?>"
+                                        class="pagination-btn <?php echo $i === $currentPage ? 'active' : ''; ?>">
+                                        <?php echo $i; ?>
+                                    </a>
+                                <?php endfor; ?>
+
+                                <?php if ($endPage < $totalPages): ?>
+                                    <?php if ($endPage < $totalPages - 1): ?>
+                                        <span class="pagination-dots">...</span>
+                                    <?php endif; ?>
+                                    <a href="?<?php echo $queryString; ?>page=<?php echo $totalPages; ?>" class="pagination-btn"><?php echo $totalPages; ?></a>
+                                <?php endif; ?>
+                            </div>
+
+                            <?php if ($currentPage < $totalPages): ?>
+                                <a href="?<?php echo $queryString; ?>page=<?php echo $currentPage + 1; ?>" class="pagination-btn pagination-next">
+                                    Next <i class="ri-arrow-right-line"></i>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
                 </section>
             </div>
         </form>
@@ -286,4 +365,5 @@ function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $s
         </div>
     </footer>
 </body>
+
 </html>

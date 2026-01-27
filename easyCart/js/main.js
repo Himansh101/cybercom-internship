@@ -1,31 +1,69 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Mobile Menu Toggle Logic
+    // --- 1. Mobile Menu Toggle Logic ---
     const menuBtn = document.getElementById('mobile-menu-btn');
     const nav = document.querySelector('nav');
 
     if (menuBtn && nav) {
-        menuBtn.addEventListener('click', () => {
-            nav.classList.toggle('active');
+        const icon = menuBtn.querySelector('i');
 
-            // Switch icon between menu and close
-            const icon = menuBtn.querySelector('i');
-            if (nav.classList.contains('active')) {
+        const toggleMenu = (isOpen) => {
+            nav.classList.toggle('active', isOpen);
+            if (isOpen) {
                 icon.classList.replace('ri-menu-line', 'ri-close-line');
-                document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
+                document.body.style.overflow = 'hidden';
             } else {
                 icon.classList.replace('ri-close-line', 'ri-menu-line');
                 document.body.style.overflow = '';
             }
+        };
+
+        menuBtn.addEventListener('click', () => {
+            const isOpening = !nav.classList.contains('active');
+            toggleMenu(isOpening);
         });
 
-        // Close menu when clicking a link
+        // Close menu when clicking a link (useful for one-page sections)
         nav.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                nav.classList.remove('active');
-                const icon = menuBtn.querySelector('i');
-                icon.classList.replace('ri-close-line', 'ri-menu-line');
-                document.body.style.overflow = '';
-            });
+            link.addEventListener('click', () => toggleMenu(false));
+        });
+    }
+
+    // --- 2. Cart Delete Confirmation (Event Delegation) ---
+    const cartTable = document.querySelector('table');
+
+    if (cartTable) {
+        cartTable.addEventListener('click', function(e) {
+            // Target the button or the icon inside the button
+            const deleteBtn = e.target.closest('.js-delete-confirm');
+            
+            if (deleteBtn) {
+                e.preventDefault();
+                const productName = deleteBtn.getAttribute('data-name');
+                const form = deleteBtn.closest('form');
+
+                Swal.fire({
+                    title: 'Remove Item?',
+                    text: `Are you sure you want to remove "${productName}" from your cart?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#e11d48', 
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Yes, remove it!',
+                    cancelButtonText: 'Cancel',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Create the hidden input so PHP recognizes the 'remove' action
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = 'remove';
+                        hiddenInput.value = 'true';
+                        form.appendChild(hiddenInput);
+                        
+                        form.submit();
+                    }
+                });
+            }
         });
     }
 });

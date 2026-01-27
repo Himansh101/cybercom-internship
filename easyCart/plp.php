@@ -12,9 +12,7 @@ $minPrice = (isset($_GET['min_price']) && $_GET['min_price'] !== '') ? (int)$_GE
 $maxPrice = (isset($_GET['max_price']) && $_GET['max_price'] !== '') ? (int)$_GET['max_price'] : 1000000;
 $sortBy   = $_GET['sort'] ?? 'newest';
 
-/**
- * 2. Sorting logic (Prioritizes In-Stock items + User Choice)
- */
+/* 2. Sorting logic (Prioritizes In-Stock items) */
 if (isset($products) && is_array($products)) {
     // We use uasort because we need to look at the 'values' (like price and in_stock)
     // To handle the 'newest' sort (which is based on the keys), we pass the keys in.
@@ -41,13 +39,12 @@ if (isset($products) && is_array($products)) {
             // we find the keys manually.
             $keyA = array_search($a, $products);
             $keyB = array_search($b, $products);
-            return $keyA <=> $keyB; // Higher ID (newer) comes first
+            return $keyA <=> $keyB; // Lower ID (newer) comes first
         }
     });
 }
-/**
- * 3. Filtered Render Function
- */
+
+/* 3. Filtered Render Function */
 function renderSidebarFilteredGrid($products, $brands, $categories, $selCats, $selBrands, $search, $minP, $maxP, $selStock)
 {
     echo '<div class="grid">';

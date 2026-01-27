@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
         $_SESSION['cart'] = [];
     }
 
-    // Optional: Check if user is trying to add more than available stock
+    // Check if user is trying to add more than available stock
     $newQty = ($SESSION['cart'][$id] ?? 0) + 1;
     
     if ($newQty <= $availableStock) {

@@ -567,26 +567,6 @@ section:first-child {
     z-index: 1;
 }
 
-/* ---------- Footer ---------- */
-
-
-
-
-
-
-/* ---------- Product Detail Page (PDP) ---------- */
-
-
-
-
-/* ---------- Cart Page ---------- */
-
-
-/* ---------- Checkout Page ---------- */
-
-
-
-
 /* ---------- Forms ---------- */
 .error-message {
     color: #ef4444;
@@ -594,14 +574,6 @@ section:first-child {
     margin-top: 4px;
     display: none;
 }
-
-/* .form-group:has(input:invalid:not(:placeholder-shown)) .error-message,
-.form-group:has(input:not(:placeholder-shown)):invalid .error-message {
-} */
-
-
-
-
 
 /* ---------- Responsive Design ---------- */
 @media (max-width: 768px) {
@@ -905,6 +877,7 @@ section:first-child {
     }
 }
 
+/* ---------- Footer ----------  */
 footer {
     background: #1e293b;
     /* Dark slate background */

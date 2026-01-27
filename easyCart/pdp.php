@@ -70,6 +70,7 @@ $brandName    = $brands[$product['brand_id']]['name'] ?? 'Generic';
     <link rel="stylesheet" href="./styles/styles.css">
     <link rel="stylesheet" href="./styles/pdp.css">
     <script src="js/pdp.js" defer></script>
+    <script src="./js/main.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/auth.js" defer></script>
 </head>

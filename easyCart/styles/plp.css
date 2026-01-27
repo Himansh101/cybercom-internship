@@ -50,6 +50,9 @@
     padding-bottom: 8px;
 }
 
+.price-inputs{
+    display: flex;
+}
 .filter-option {
     display: flex;
     align-items: center;
@@ -70,6 +73,23 @@
     height: 18px;
     accent-color: #6366f1;
     cursor: pointer;
+}
+
+.filter-group input[type="number"] {
+    width: 80%;
+    padding: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+}
+
+.filter-actions {
+    padding: 16px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 0 0 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .btn-apply {
@@ -319,6 +339,32 @@
     filter: grayscale(1);
 }
 
+.no-results {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 60px;
+}
+
+.no-results i {
+    font-size: 3rem;
+    color: #cbd5e1;
+}
+
+.no-results p {
+    margin: 20px 0 10px;
+    color: #64748b;
+}
+
+.no-results a {
+    color: #6366f1;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.no-results a:hover {
+    text-decoration: underline;
+}
+
 /* --- 6. Pagination --- */
 .pagination {
     display: flex;
@@ -374,7 +420,7 @@
         grid-template-columns: 240px 1fr;
         gap: 24px;
     }
-    
+
     .grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -386,12 +432,12 @@
         grid-template-columns: 1fr;
         gap: 30px;
     }
-    
+
     .sidebar-filters {
         position: static;
         max-height: none;
     }
-    
+
     .shop-content-header {
         flex-direction: column;
         align-items: flex-start;
@@ -402,7 +448,7 @@
         width: 100%;
         justify-content: space-between;
     }
-    
+
     .grid {
         grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     }
@@ -413,11 +459,11 @@
     .grid {
         grid-template-columns: 1fr;
     }
-    
+
     .content-search-bar {
         flex-direction: column;
     }
-    
+
     .content-search-bar button {
         padding: 12px;
     }

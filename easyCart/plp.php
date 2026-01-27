@@ -148,8 +148,9 @@ function renderProductGrid($paginatedProducts, $brands, $categories)
     <link rel="stylesheet" href="./styles/styles.css">
     <link rel="stylesheet" href="./styles/plp.css">
     <script src="./js/plp.js" defer></script>
+    <script src="./js/auth.js" defer></script>
+    <script src="./js/main.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="js/auth.js" defer></script>
 </head>
 
 <body class="page-site plp">
@@ -181,57 +182,67 @@ function renderProductGrid($paginatedProducts, $brands, $categories)
                 <aside class="sidebar-filters">
                     <div class="filter-scroll-area">
                         <div class="filter-group">
-                            <h4>Price Range</h4>
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <input type="number" name="min_price" class="js-filter-input" placeholder="Min"
-                                    value="<?php echo $minPrice > 0 ? $minPrice : ''; ?>"
-                                    style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
-                                <input type="number" name="max_price" class="js-filter-input" placeholder="Max"
-                                    value="<?php echo $maxPrice < 1000000 ? $maxPrice : ''; ?>"
-                                    style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                            <h4><i class="ri-money-dollar-circle-line"></i> Price Range</h4>
+                            <div class="price-inputs">
+                                <div class="price-input-wrapper">
+                                    <span class="currency">₹</span>
+                                    <input type="number" name="min_price" class="js-filter-input" placeholder="Min"
+                                        value="<?php echo $minPrice > 0 ? $minPrice : ''; ?>">
+                                </div>
+                                <div class="price-separator">-</div>
+                                <div class="price-input-wrapper">
+                                    <span class="currency">₹</span>
+                                    <input type="number" name="max_price" class="js-filter-input" placeholder="Max"
+                                        value="<?php echo $maxPrice < 1000000 ? $maxPrice : ''; ?>">
+                                </div>
                             </div>
                         </div>
 
                         <div class="filter-group">
-                            <h4>Availability</h4>
-                            <label class="filter-option">
-                                <input type="checkbox" name="stock_status[]" class="js-filter-input" value="instock"
-                                    <?php echo in_array('instock', $selectedStock) ? 'checked' : ''; ?>>
-                                In Stock
-                            </label>
-                            <label class="filter-option">
-                                <input type="checkbox" name="stock_status[]" class="js-filter-input" value="outofstock"
-                                    <?php echo in_array('outofstock', $selectedStock) ? 'checked' : ''; ?>>
-                                Out of Stock
-                            </label>
+                            <h4><i class="ri-checkbox-circle-line"></i> Availability</h4>
+                            <div class="filter-options-list">
+                                <label class="filter-option">
+                                    <input type="checkbox" name="stock_status[]" class="js-filter-input" value="instock"
+                                        <?php echo in_array('instock', $selectedStock) ? 'checked' : ''; ?>>
+                                    In Stock
+                                </label>
+                                <label class="filter-option">
+                                    <input type="checkbox" name="stock_status[]" class="js-filter-input" value="outofstock"
+                                        <?php echo in_array('outofstock', $selectedStock) ? 'checked' : ''; ?>>
+                                    Out of Stock
+                                </label>
+                            </div>
                         </div>
 
                         <div class="filter-group">
-                            <h4>Categories</h4>
-                            <?php foreach ($categories as $id => $name): ?>
-                                <label class="filter-option">
-                                    <input type="checkbox" name="categories[]" class="js-filter-input" value="<?php echo $id; ?>"
-                                        <?php echo in_array((string)$id, $selectedCats) ? 'checked' : ''; ?>>
-                                    <?php echo $name; ?>
-                                </label>
-                            <?php endforeach; ?>
+                            <h4><i class="ri-grid-line"></i> Categories</h4>
+                            <div class="filter-options-list">
+                                <?php foreach ($categories as $id => $name): ?>
+                                    <label class="filter-option">
+                                        <input type="checkbox" name="categories[]" class="js-filter-input" value="<?php echo $id; ?>"
+                                            <?php echo in_array((string)$id, $selectedCats) ? 'checked' : ''; ?>>
+                                        <?php echo $name; ?>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
 
                         <div class="filter-group">
-                            <h4>Brands</h4>
-                            <?php foreach ($brands as $id => $bData): ?>
-                                <label class="filter-option">
-                                    <input type="checkbox" name="brands[]" class="js-filter-input" value="<?php echo $id; ?>"
-                                        <?php echo in_array((string)$id, $selectedBrands) ? 'checked' : ''; ?>>
-                                    <?php echo $bData['name']; ?>
-                                </label>
-                            <?php endforeach; ?>
+                            <h4><i class="ri-government-line"></i> Brands</h4>
+                            <div class="filter-options-list">
+                                <?php foreach ($brands as $id => $bData): ?>
+                                    <label class="filter-option">
+                                        <input type="checkbox" name="brands[]" class="js-filter-input" value="<?php echo $id; ?>"
+                                            <?php echo in_array((string)$id, $selectedBrands) ? 'checked' : ''; ?>>
+                                        <?php echo $bData['name']; ?>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
-                    </div>
-                    <div class="filter-actions" style="padding: 16px; border-top: 1px solid #e2e8f0;">
-                        <button type="submit" class="btn-apply">Apply Filters</button>
-                        <a href="plp.php" class="btn-reset">Reset All</a>
-                    </div>
+                        <div class="filter-actions" style="padding: 16px; border-top: 1px solid #e2e8f0;">
+                            <button type="submit" class="btn-apply">Apply Filters</button>
+                            <a href="plp.php" class="btn-reset">Reset All</a>
+                        </div>
                 </aside>
 
                 <section>

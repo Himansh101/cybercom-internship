@@ -1,9 +1,25 @@
 <?php
-include 'data.php';
-
-
 session_start();
+
+// Check if user is logged in
+if (!isset($_SESSION['user'])) {
+    header("Location: login.php");
+    exit();
+}
+
 include 'data.php';
+
+// Check if user is logged in
+$isLoggedIn = isset($_SESSION['user']);
+$user = $_SESSION['user'] ?? null;
+
+// Calculate total cart quantity
+$cartQuantity = 0;
+if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
+    foreach ($_SESSION['cart'] as $quantity) {
+        $cartQuantity += $quantity;
+    }
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // 1. Capture user details (Name, Email, etc.)
@@ -11,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $email = $_POST['email'];
   $address = $_POST['address'];
   $shipping = $_POST['shipping_method'];
+  $coupon_code = $_POST['coupon_code'] ?? '';
 
   // 2. Here you would normally save the order to a database
   // ... database logic ...
@@ -19,7 +36,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   unset($_SESSION['cart']);
 
   // 4. Set a success message to show the user
-  $_SESSION['success_message'] = "Thank you, $name! Your order has been placed successfully.";
+  $coupon_text = '';
+  if (!empty($coupon_code)) {
+    $coupon_code_upper = strtoupper($coupon_code);
+    switch ($coupon_code_upper) {
+      case 'SAVE5':
+        $coupon_text = " (5% discount applied)";
+        break;
+      case 'SAVE10':
+        $coupon_text = " (10% discount applied)";
+        break;
+      case 'SAVE15':
+        $coupon_text = " (15% discount applied)";
+        break;
+      case 'SAVE20':
+        $coupon_text = " (20% discount applied)";
+        break;
+    }
+  }
+  $_SESSION['success_message'] = "Thank you, $name! Your order has been placed successfully$coupon_text.";
 }
 ?>
 
@@ -35,6 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
   <link rel="stylesheet" href="./styles/styles.css">
   <link rel="stylesheet" href="./styles/orders.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="js/auth.js" defer></script>
 
 </head>
 
@@ -44,9 +81,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <nav>
       <a href="index.php">Home</a>
       <a href="plp.php">Products</a>
-      <a href="cart.php">Cart</a>
+      <a href="cart.php">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
       <a href="orders.php" class="active">My Orders</a>
-      <a href="login.php">Login</a>
+      <?php if ($isLoggedIn): ?>
+        <span class="user-greeting" style="color: #6366f1; font-weight: 600; font-size: 0.9rem; border-left: 1px solid #e2e8f0; padding-left: 15px; margin-left: 5px;">
+          Hi, <?php echo htmlspecialchars(explode(' ', $user['name'])[0]); ?>
+        </span>
+        <a href="logout.php">Logout</a>
+      <?php else: ?>
+        <a href="login.php">Login</a>
+      <?php endif; ?>
     </nav>
     <button class="mobile-menu-btn" id="mobile-menu-btn">
       <i class="ri-menu-line"></i>

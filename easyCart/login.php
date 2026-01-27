@@ -6,13 +6,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $email = $_POST['email'];
   $password = $_POST['password'];
   
-  // Phase 2 Logic: Simulate a successful login for any non-empty input
-  // In Phase 3, you will check these against a MySQL database
-  if (!empty($email) && !empty($password)) {
-    $_SESSION['user_email'] = $email;
-    header("Location: index.php");
-    exit();
-  } else {
+  // Load users from JSON file
+  $users = json_decode(file_get_contents('users.json'), true);
+  $userFound = false;
+
+  foreach ($users as $user) {
+    if ($user['email'] === $email) {
+      if (password_verify($password, $user['password'])) {
+        // Successful login - store user data in session
+        $_SESSION['user'] = [
+          'id' => $user['id'],
+          'name' => $user['name'],
+          'email' => $user['email'],
+          'mobile' => $user['mobile']
+        ];
+        header("Location: index.php");
+        exit();
+      } else {
+        $error = "Invalid email or password.";
+      }
+      $userFound = true;
+      break;
+    }
+  }
+
+  if (!$userFound) {
     $error = "Invalid email or password.";
   }
 }
@@ -32,6 +50,7 @@ $signup_success = isset($_GET['registered']) && $_GET['registered'] === 'true';
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="stylesheet" href="./styles/styles.css">
     <link rel="stylesheet" href="./styles/auth.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/auth.js" defer></script>
 </head>
 
@@ -54,8 +73,11 @@ $signup_success = isset($_GET['registered']) && $_GET['registered'] === 'true';
     <form action="login.php" method="POST" id="loginForm" novalidate>
       <div class="form-group">
         <label for="email">Email</label>
-        <input id="email" name="email" type="email" placeholder="you@example.com" required>
-        <span class="error-message" id="email-error">Please enter a valid email address.</span>
+        <input id="email" name="email" type="email" placeholder="you@example.com"
+               pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+               title="Please enter a valid email address with a domain extension (e.g., .com, .org, .net)"
+               required>
+        <span class="error-message" id="email-error">Please enter a valid email address with domain extension.</span>
       </div>
 
       <div class="form-group">

@@ -1,0 +1,26 @@
+[
+    {
+        "id": "user_test123",
+        "name": "Test User",
+        "email": "test@example.com",
+        "mobile": "9876543210",
+        "password": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC\/.og\/at2.uheWG\/igi",
+        "created_at": "2026-01-27 12:00:00"
+    },
+    {
+        "id": "user_6978a9ac3a2d69.92311162",
+        "name": "John Doe",
+        "email": "john@gmail",
+        "mobile": "9874563210",
+        "password": "$2y$10$9mTzWeatSf2LwdqSZAXu8OE2TXmfZ\/LoAoZvfzj2T3ABnDah6y6l6",
+        "created_at": "2026-01-27 13:03:56"
+    },
+    {
+        "id": "user_6978aaeb6696c9.68739966",
+        "name": "Alen Doe",
+        "email": "alex@gmail.com",
+        "mobile": "9874563210",
+        "password": "$2y$10$2GgVM8Dr00zr\/HIIfkEli.pwZSXZXI1Mdon0g5IJHnaGTmSaGoZke",
+        "created_at": "2026-01-27 13:09:15"
+    }
+]

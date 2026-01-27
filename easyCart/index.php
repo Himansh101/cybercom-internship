@@ -1,6 +1,19 @@
 <?php
 include 'data.php';
 
+// Check if user is logged in
+session_start();
+$isLoggedIn = isset($_SESSION['user']);
+$user = $_SESSION['user'] ?? null;
+
+// Calculate total cart quantity
+$cartQuantity = 0;
+if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
+    foreach ($_SESSION['cart'] as $quantity) {
+        $cartQuantity += $quantity;
+    }
+}
+
 // 1. Initialize search query to avoid "Undefined variable" error
 $searchQuery = isset($_GET['search']) ? $_GET['search'] : '';
 
@@ -21,6 +34,8 @@ $featuredProducts = array_filter($products, function ($p) {
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="stylesheet" href="./styles/styles.css">
     <link rel="stylesheet" href="./styles/plp.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/auth.js" defer></script>
 </head>
 
 <body class="page-site">
@@ -28,10 +43,17 @@ $featuredProducts = array_filter($products, function ($p) {
         <div class="logo">EasyCart</div>
         <nav>
             <a href="index.php" class="active">Home</a>
-            <a href="plp.php">Products</a>
-            <a href="cart.php">Cart</a>
-            <a href="orders.php">My Orders</a>
-            <a href="login.php">Login</a>
+            <?php if ($isLoggedIn): ?>
+                <a href="plp.php">Products</a>
+                <a href="cart.php">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
+                <a href="orders.php">My Orders</a>
+                <span class="user-greeting" style="color: #6366f1; font-weight: 600; font-size: 0.9rem; border-left: 1px solid #e2e8f0; padding-left: 15px; margin-left: 5px;">
+                    Hi, <?php echo htmlspecialchars(explode(' ', $user['name'])[0]); ?>
+                </span>
+                <a href="logout.php">Logout</a>
+            <?php else: ?>
+                <a href="login.php">Login</a>
+            <?php endif; ?>
         </nav>
         <button class="mobile-menu-btn" id="mobile-menu-btn">
             <i class="ri-menu-line"></i>
@@ -118,10 +140,14 @@ $featuredProducts = array_filter($products, function ($p) {
                 <h4>Quick Links</h4>
                 <ul>
                     <li><a href="index.php">Home</a></li>
-                    <li><a href="plp.php">Shop Products</a></li>
-                    <li><a href="cart.php">My Cart</a></li>
-                    <li><a href="orders.php">Track Orders</a></li>
-                    <li><a href="login.php">Login / Register</a></li>
+                    <?php if ($isLoggedIn): ?>
+                        <li><a href="plp.php">Shop Products</a></li>
+                        <li><a href="cart.php">My Cart</a></li>
+                        <li><a href="orders.php">Track Orders</a></li>
+                        <li><a href="logout.php">Logout</a></li>
+                    <?php else: ?>
+                        <li><a href="login.php">Login / Register</a></li>
+                    <?php endif; ?>
                 </ul>
             </div>
 

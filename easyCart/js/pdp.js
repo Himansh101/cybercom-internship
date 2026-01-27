@@ -23,4 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize opacity transition
         mainImg.style.transition = 'opacity 0.2s ease';
     }
+    
+
 });

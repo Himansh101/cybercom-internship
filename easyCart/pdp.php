@@ -1,6 +1,25 @@
 <?php
 session_start();
+
+// Check if user is logged in
+if (!isset($_SESSION['user'])) {
+    header("Location: login.php");
+    exit();
+}
+
 include 'data.php';
+
+// Check if user is logged in
+$isLoggedIn = isset($_SESSION['user']);
+$user = $_SESSION['user'] ?? null;
+
+// Calculate total cart quantity
+$cartQuantity = 0;
+if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
+    foreach ($_SESSION['cart'] as $quantity) {
+        $cartQuantity += $quantity;
+    }
+}
 
 // 1. Get the product ID from the URL
 $productId = $_GET['id'] ?? null;
@@ -51,6 +70,8 @@ $brandName    = $brands[$product['brand_id']]['name'] ?? 'Generic';
     <link rel="stylesheet" href="./styles/styles.css">
     <link rel="stylesheet" href="./styles/pdp.css">
     <script src="js/pdp.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/auth.js" defer></script>
 </head>
 
 <body class="page-site pdp">
@@ -59,9 +80,16 @@ $brandName    = $brands[$product['brand_id']]['name'] ?? 'Generic';
         <nav>
             <a href="index.php">Home</a>
             <a href="plp.php">Products</a>
-            <a href="cart.php">Cart</a>
+            <a href="cart.php">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
             <a href="orders.php">My Orders</a>
-            <a href="login.php">Login</a>
+            <?php if ($isLoggedIn): ?>
+                <span class="user-greeting" style="color: #6366f1; font-weight: 600; font-size: 0.9rem; border-left: 1px solid #e2e8f0; padding-left: 15px; margin-left: 5px;">
+                    Hi, <?php echo htmlspecialchars(explode(' ', $user['name'])[0]); ?>
+                </span>
+                <a href="logout.php">Logout</a>
+            <?php else: ?>
+                <a href="login.php">Login</a>
+            <?php endif; ?>
         </nav>
         <button class="mobile-menu-btn" id="mobile-menu-btn"><i class="ri-menu-line"></i></button>
     </header>

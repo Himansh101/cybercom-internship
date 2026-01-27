@@ -1,6 +1,25 @@
 <?php
 session_start();
+
+// Check if user is logged in
+if (!isset($_SESSION['user'])) {
+    header("Location: login.php");
+    exit();
+}
+
 include 'data.php';
+
+// Check if user is logged in
+$isLoggedIn = isset($_SESSION['user']);
+$user = $_SESSION['user'] ?? null;
+
+// Calculate total cart quantity
+$cartQuantity = 0;
+if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
+    foreach ($_SESSION['cart'] as $quantity) {
+        $cartQuantity += $quantity;
+    }
+}
 
 // Redirect to product page if cart is empty to prevent checking out nothing
 if (empty($_SESSION['cart'])) {
@@ -16,13 +35,70 @@ foreach ($_SESSION['cart'] as $id => $quantity) {
   }
 }
 
-// 2. Determine Shipping Cost based on button click or radio selection
-$shipping = 90; // Default
+// 2. Apply Coupon Discount (if valid)
+$discount = 0;
+$coupon_code = $_POST['coupon_code'] ?? '';
+$discount_percentage = 0;
+$discount_message = '';
+
+if (!empty($coupon_code)) {
+    $coupon_code_upper = strtoupper($coupon_code);
+    switch ($coupon_code_upper) {
+        case 'SAVE5':
+            $discount_percentage = 5;
+            $discount = $subtotal * 0.05;
+            $discount_message = '5% discount applied!';
+            break;
+        case 'SAVE10':
+            $discount_percentage = 10;
+            $discount = $subtotal * 0.10;
+            $discount_message = '10% discount applied!';
+            break;
+        case 'SAVE15':
+            $discount_percentage = 15;
+            $discount = $subtotal * 0.15;
+            $discount_message = '15% discount applied!';
+            break;
+        case 'SAVE20':
+            $discount_percentage = 20;
+            $discount = $subtotal * 0.20;
+            $discount_message = '20% discount applied!';
+            break;
+        default:
+            $discount_message = 'Invalid coupon code';
+            break;
+    }
+}
+
+$discounted_subtotal = $subtotal - $discount;
+
+// 3. Determine Shipping Cost based on button click or radio selection
+$shipping = 40; // Default Standard Shipping
 $method = $_POST['shipping_method'] ?? 'standard';
 
-if ($method === 'fast') {
-  $shipping = 150;
+function calculateShipping($method, $discounted_subtotal) {
+    switch ($method) {
+        case 'standard':
+            return 40; // Flat $40
+        case 'express':
+            return min(80, $discounted_subtotal * 0.10); // Flat $80 OR 10% of discounted subtotal (whichever is lower)
+        case 'white_glove':
+            return min(150, $discounted_subtotal * 0.05); // Flat $150 OR 5% of discounted subtotal (whichever is lower)
+        case 'freight':
+            return max(200, $discounted_subtotal * 0.03); // 3% of discounted subtotal, Minimum $200
+        default:
+            return 40;
+    }
 }
+
+$shipping = calculateShipping($method, $discounted_subtotal);
+
+// 4. Calculate GST (18% on Discounted Subtotal)
+$gst_rate = 0.18;
+$gst = $discounted_subtotal * $gst_rate;
+
+// 5. Calculate Final Total
+$final_total = $discounted_subtotal + $shipping + $gst;
 ?>
 
 <!doctype html>
@@ -38,6 +114,8 @@ if ($method === 'fast') {
   <link rel="stylesheet" href="./styles/styles.css">
   <link rel="stylesheet" href="./styles/cart.css">
   <script src="js/checkout.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="js/auth.js" defer></script>
 </head>
 
 <body class="page-site checkout">
@@ -46,9 +124,16 @@ if ($method === 'fast') {
     <nav>
       <a href="index.php">Home</a>
       <a href="plp.php">Products</a>
-      <a href="cart.php">Cart</a>
+      <a href="cart.php">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
       <a href="orders.php">My Orders</a>
-      <a href="login.php">Login</a>
+      <?php if ($isLoggedIn): ?>
+        <span class="user-greeting" style="color: #6366f1; font-weight: 600; font-size: 0.9rem; border-left: 1px solid #e2e8f0; padding-left: 15px; margin-left: 5px;">
+          Hi, <?php echo htmlspecialchars(explode(' ', $user['name'])[0]); ?>
+        </span>
+        <a href="logout.php">Logout</a>
+      <?php else: ?>
+        <a href="login.php">Login</a>
+      <?php endif; ?>
     </nav>
     <button class="mobile-menu-btn" id="mobile-menu-btn">
       <i class="ri-menu-line"></i>
@@ -112,19 +197,37 @@ if ($method === 'fast') {
               <label class="shipping-card">
                 <input type="radio" name="shipping_method" value="standard" <?php echo ($method === 'standard') ? 'checked' : ''; ?>>
                 <div class="shipping-info">
-                  <span class="method-title">Standard Delivery</span>
+                  <span class="method-title">Standard Shipping</span>
                   <span class="method-desc">3-5 Business Days</span>
                 </div>
-                <span class="method-price">₹90</span>
+                <span class="method-price">₹<?php echo number_format(40); ?></span>
               </label>
 
               <label class="shipping-card">
-                <input type="radio" name="shipping_method" value="fast" <?php echo ($method === 'fast') ? 'checked' : ''; ?>>
+                <input type="radio" name="shipping_method" value="express" <?php echo ($method === 'express') ? 'checked' : ''; ?>>
                 <div class="shipping-info">
-                  <span class="method-title">Fast Delivery</span>
+                  <span class="method-title">Express Shipping</span>
                   <span class="method-desc">1-2 Business Days</span>
                 </div>
-                <span class="method-price">₹150</span>
+                <span class="method-price">₹<?php echo number_format(min(80, $subtotal * 0.10)); ?></span>
+              </label>
+
+              <label class="shipping-card">
+                <input type="radio" name="shipping_method" value="white_glove" <?php echo ($method === 'white_glove') ? 'checked' : ''; ?>>
+                <div class="shipping-info">
+                  <span class="method-title">White Glove Delivery</span>
+                  <span class="method-desc">Premium In-Home Setup</span>
+                </div>
+                <span class="method-price">₹<?php echo number_format(min(150, $subtotal * 0.05)); ?></span>
+              </label>
+
+              <label class="shipping-card">
+                <input type="radio" name="shipping_method" value="freight" <?php echo ($method === 'freight') ? 'checked' : ''; ?>>
+                <div class="shipping-info">
+                  <span class="method-title">Freight Shipping</span>
+                  <span class="method-desc">Heavy/Bulky Items</span>
+                </div>
+                <span class="method-price">₹<?php echo number_format(max(200, $subtotal * 0.03)); ?></span>
               </label>
             </div>
           </div>
@@ -149,13 +252,32 @@ if ($method === 'fast') {
             <?php endforeach; ?>
           </div>
 
+          <div class="coupon-section">
+            <div class="coupon-header">
+              <h3>Have a Coupon?</h3>
+            </div>
+            <div class="coupon-input-group">
+              <input type="text" id="coupon_code" name="coupon_code" value="<?php echo htmlspecialchars($coupon_code); ?>" placeholder="Enter coupon code (e.g., SAVE5, SAVE10, SAVE15, SAVE20)">
+              <button type="button" id="apply_coupon" class="btn btn-secondary">Apply</button>
+            </div>
+            <?php if (!empty($discount_message)): ?>
+              <div class="coupon-message" style="margin-top: 8px; font-size: 14px; color: <?php echo ($discount > 0) ? '#10b981' : '#ef4444'; ?>;">
+                <?php echo htmlspecialchars($discount_message); ?>
+              </div>
+            <?php endif; ?>
+          </div>
+
           <div class="summary-totals">
             <div class="row"><span>Subtotal</span><span>₹<?php echo number_format($subtotal); ?></span></div>
+            <?php if ($discount > 0): ?>
+              <div class="row discount-row"><span>Discount (<?php echo $discount_percentage; ?>%)</span><span>-₹<?php echo number_format($discount); ?></span></div>
+            <?php endif; ?>
             <div class="row"><span>Shipping</span><span id="summary-shipping">₹<?php echo number_format($shipping); ?></span></div>
+            <div class="row"><span>GST (18%)</span><span id="summary-tax">₹<?php echo number_format($gst); ?></span></div>
             <hr>
             <div class="row total">
               <span>Total</span>
-              <span id="summary-total">₹<?php echo number_format($subtotal + $shipping); ?></span>
+              <span id="summary-total">₹<?php echo number_format($final_total); ?></span>
             </div>
           </div>
           <div class="payment-section mt-18">

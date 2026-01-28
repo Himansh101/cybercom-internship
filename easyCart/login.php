@@ -5,9 +5,14 @@ session_start();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $email = $_POST['email'];
   $password = $_POST['password'];
-  
+
   // Load users from JSON file
-  $users = json_decode(file_get_contents('users.json'), true);
+  $users = [];
+  if (file_exists('users.json')) {
+    $json_data = file_get_contents('users.json');
+    $users = json_decode($json_data, true) ?? [];
+  }
+
   $userFound = false;
 
   foreach ($users as $user) {
@@ -40,18 +45,18 @@ $signup_success = isset($_GET['registered']) && $_GET['registered'] === 'true';
 ?>
 <!doctype html>
 <html lang="en">
-  
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EasyCart | Login</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
-    <link rel="stylesheet" href="./styles/styles.css">
-    <link rel="stylesheet" href="./styles/auth.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="js/auth.js" defer></script>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EasyCart | Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/styles.css">
+  <link rel="stylesheet" href="./styles/auth.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="js/auth.js" defer></script>
 </head>
 
 <body class="page-auth page-login">
@@ -74,9 +79,9 @@ $signup_success = isset($_GET['registered']) && $_GET['registered'] === 'true';
       <div class="form-group">
         <label for="email">Email</label>
         <input id="email" name="email" type="email" placeholder="you@example.com"
-               pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-               title="Please enter a valid email address with a domain extension (e.g., .com, .org, .net)"
-               required>
+          pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+          title="Please enter a valid email address with a domain extension (e.g., .com, .org, .net)"
+          required>
         <span class="error-message" id="email-error">Please enter a valid email address with domain extension.</span>
       </div>
 

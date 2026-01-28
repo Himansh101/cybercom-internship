@@ -317,6 +317,132 @@ $products = [
         'is_featured' => true,
         'in_stock' => true
     ],
+    123 => [
+        'cat_id' => 'cat_01',
+        'brand_id' => 'br_01',
+        'name' => 'Mechanical Keyboard',
+        'stock_count' => 14,
+        'price' => 4500,
+        'image' => 'images/mechanicalKeyboard.png',
+        'images' => [
+            'images/mechanicalKeyboard.png'
+        ],
+        'description' => 'Tactile feedback for faster typing and gaming.',
+        'is_featured' => true,
+        'in_stock' => true
+    ],
+    124 => [
+        'cat_id' => 'cat_01',
+        'brand_id' => 'br_01',
+        'name' => 'Mechanical Keyboard',
+        'stock_count' => 14,
+        'price' => 4500,
+        'image' => 'images/mechanicalKeyboard.png',
+        'images' => [
+            'images/mechanicalKeyboard.png'
+        ],
+        'description' => 'Tactile feedback for faster typing and gaming.',
+        'is_featured' => true,
+        'in_stock' => true
+    ],
+    125 => [
+        'cat_id' => 'cat_01',
+        'brand_id' => 'br_01',
+        'name' => 'Mechanical Keyboard',
+        'stock_count' => 14,
+        'price' => 4500,
+        'image' => 'images/mechanicalKeyboard.png',
+        'images' => [
+            'images/mechanicalKeyboard.png'
+        ],
+        'description' => 'Tactile feedback for faster typing and gaming.',
+        'is_featured' => true,
+        'in_stock' => true
+    ],
+    126 => [
+        'cat_id' => 'cat_01',
+        'brand_id' => 'br_01',
+        'name' => 'Mechanical Keyboard',
+        'stock_count' => 14,
+        'price' => 4500,
+        'image' => 'images/mechanicalKeyboard.png',
+        'images' => [
+            'images/mechanicalKeyboard.png'
+        ],
+        'description' => 'Tactile feedback for faster typing and gaming.',
+        'is_featured' => true,
+        'in_stock' => true
+    ],
+    127 => [
+        'cat_id' => 'cat_01',
+        'brand_id' => 'br_01',
+        'name' => 'Mechanical Keyboard',
+        'stock_count' => 14,
+        'price' => 4500,
+        'image' => 'images/mechanicalKeyboard.png',
+        'images' => [
+            'images/mechanicalKeyboard.png'
+        ],
+        'description' => 'Tactile feedback for faster typing and gaming.',
+        'is_featured' => true,
+        'in_stock' => true
+    ],
+    128 => [
+        'cat_id' => 'cat_01',
+        'brand_id' => 'br_01',
+        'name' => 'Mechanical Keyboard',
+        'stock_count' => 14,
+        'price' => 4500,
+        'image' => 'images/mechanicalKeyboard.png',
+        'images' => [
+            'images/mechanicalKeyboard.png'
+        ],
+        'description' => 'Tactile feedback for faster typing and gaming.',
+        'is_featured' => true,
+        'in_stock' => true
+    ],
+    129 => [
+        'cat_id' => 'cat_01',
+        'brand_id' => 'br_01',
+        'name' => 'Mechanical Keyboard',
+        'stock_count' => 14,
+        'price' => 4500,
+        'image' => 'images/mechanicalKeyboard.png',
+        'images' => [
+            'images/mechanicalKeyboard.png'
+        ],
+        'description' => 'Tactile feedback for faster typing and gaming.',
+        'is_featured' => true,
+        'in_stock' => true
+    ],
+    130 => [
+        'cat_id' => 'cat_01',
+        'brand_id' => 'br_01',
+        'name' => 'Mechanical Keyboard',
+        'stock_count' => 14,
+        'price' => 4500,
+        'image' => 'images/mechanicalKeyboard.png',
+        'images' => [
+            'images/mechanicalKeyboard.png'
+        ],
+        'description' => 'Tactile feedback for faster typing and gaming.',
+        'is_featured' => true,
+        'in_stock' => true
+    ],
+    131 => [
+        'cat_id' => 'cat_01',
+        'brand_id' => 'br_01',
+        'name' => 'Mechanical Keyboard',
+        'stock_count' => 14,
+        'price' => 4500,
+        'image' => 'images/mechanicalKeyboard.png',
+        'images' => [
+            'images/mechanicalKeyboard.png'
+        ],
+        'description' => 'Tactile feedback for faster typing and gaming.',
+        'is_featured' => true,
+        'in_stock' => true
+    ],
     122 => [
         'cat_id' => 'cat_01',
         'brand_id' => 'br_01',

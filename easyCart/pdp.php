@@ -35,33 +35,13 @@ $product = $products[$productId];
 // 3. Check current quantity in cart
 $currentQtyInCart = $_SESSION['cart'][$productId] ?? 0;
 
-// 4. Handle "Add to Cart"
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
-    $id = $_POST['product_id'];
-    $availableStock = $products[$id]['stock_count'] ?? 0;
-
-    if (!isset($_SESSION['cart'])) {
-        $_SESSION['cart'] = [];
-    }
-
-    // Check if user is trying to add more than available stock
-    $newQty = ($SESSION['cart'][$id] ?? 0) + 1;
-    
-    if ($newQty <= $availableStock) {
-        $_SESSION['cart'][$id] = $newQty;
-        header("Location: cart.php");
-        exit();
-    } else {
-        $error = "Sorry, no more stock available!";
-    }
-}
-
 // Lookup Logic
 $categoryName = $categories[$product['cat_id']] ?? 'Uncategorized';
 $brandName    = $brands[$product['brand_id']]['name'] ?? 'Generic';
 ?>
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -81,7 +61,7 @@ $brandName    = $brands[$product['brand_id']]['name'] ?? 'Generic';
         <nav>
             <a href="index.php">Home</a>
             <a href="plp.php">Products</a>
-            <a href="cart.php">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
+            <a href="cart.php" id="cart-nav-link">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
             <a href="orders.php">My Orders</a>
             <?php if ($isLoggedIn): ?>
                 <span class="user-greeting" style="color: #6366f1; font-weight: 600; font-size: 0.9rem; border-left: 1px solid #e2e8f0; padding-left: 15px; margin-left: 5px;">
@@ -163,11 +143,12 @@ $brandName    = $brands[$product['brand_id']]['name'] ?? 'Generic';
                         <p style="color: #e11d48; margin-bottom: 10px; font-weight: 600;"><?php echo $error; ?></p>
                     <?php endif; ?>
 
-                    <form method="POST">
+                    <form id="add-to-cart-form" method="POST">
                         <input type="hidden" name="product_id" value="<?php echo $productId; ?>">
-                        <button type="submit" name="add_to_cart" class="btn btn-success" 
-                                <?php echo (!$product['in_stock'] || $product['stock_count'] <= 0) ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''; ?>>
-                            <i class="ri-shopping-cart-line"></i> 
+                        <input type="hidden" name="action" value="add">
+                        <button type="submit" id="add-to-cart-btn" class="btn btn-success"
+                            <?php echo (!$product['in_stock'] || $product['stock_count'] <= 0) ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''; ?>>
+                            <i class="ri-shopping-cart-line"></i>
                             <?php echo ($product['in_stock'] && $product['stock_count'] > 0) ? 'Add to Cart' : 'Out of Stock'; ?>
                         </button>
                     </form>
@@ -175,7 +156,7 @@ $brandName    = $brands[$product['brand_id']]['name'] ?? 'Generic';
             </div>
         </div>
     </main>
-    
+
     <footer>
         <div class="footer-container">
             <div class="footer-col">
@@ -215,4 +196,5 @@ $brandName    = $brands[$product['brand_id']]['name'] ?? 'Generic';
         </div>
     </footer>
 </body>
+
 </html>

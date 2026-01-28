@@ -159,7 +159,7 @@ function renderProductGrid($paginatedProducts, $brands, $categories)
         <nav>
             <a href="index.php">Home</a>
             <a href="plp.php" class="active">Products</a>
-            <a href="cart.php">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
+            <a href="cart.php" id="cart-nav-link">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
             <a href="orders.php">My Orders</a>
             <?php if ($isLoggedIn): ?>
                 <span class="user-greeting" style="color: #6366f1; font-weight: 600; font-size: 0.9rem; border-left: 1px solid #e2e8f0; padding-left: 15px; margin-left: 5px;">
@@ -300,8 +300,14 @@ function renderProductGrid($paginatedProducts, $brands, $categories)
 
                             <div class="pagination-numbers">
                                 <?php
-                                $startPage = max(1, $currentPage - 2);
-                                $endPage = min($totalPages, $currentPage + 2);
+                                $maxVisible = 1;
+                                $startPage = max(1, $currentPage - floor($maxVisible / 2));
+                                $endPage = $startPage + $maxVisible - 1;
+
+                                if ($endPage > $totalPages) {
+                                    $endPage = $totalPages;
+                                    $startPage = max(1, $endPage - $maxVisible + 1);
+                                }
 
                                 if ($startPage > 1): ?>
                                     <a href="?<?php echo $queryString; ?>page=1" class="pagination-btn">1</a>
@@ -312,7 +318,7 @@ function renderProductGrid($paginatedProducts, $brands, $categories)
 
                                 <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
                                     <a href="?<?php echo $queryString; ?>page=<?php echo $i; ?>"
-                                        class="pagination-btn <?php echo $i === $currentPage ? 'active' : ''; ?>">
+                                        class="pagination-btn <?php echo ($i == $currentPage) ? 'active' : ''; ?>">
                                         <?php echo $i; ?>
                                     </a>
                                 <?php endfor; ?>

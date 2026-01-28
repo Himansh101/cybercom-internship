@@ -13,63 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const couponInput = document.getElementById('coupon_code');
     const applyCouponBtn = document.getElementById('apply_coupon');
 
-    let currentDiscount = 0;
-    let currentSubtotal = originalSubtotal;
 
-    function calculateShipping(method, subtotal) {
-        switch (method) {
-            case 'standard':
-                return 40; // Flat $40
-            case 'express':
-                return Math.min(80, subtotal * 0.10); // Flat $80 OR 10% of subtotal (whichever is lower)
-            case 'white_glove':
-                return Math.min(150, subtotal * 0.05); // Flat $150 OR 5% of subtotal (whichever is lower)
-            case 'freight':
-                return Math.max(200, subtotal * 0.03); // 3% of subtotal, Minimum $200
-            default:
-                return 40;
-        }
-    }
 
-    function applyCoupon(couponCode) {
-        const code = couponCode.toUpperCase();
-        switch (code) {
-            case 'SAVE5':
-                currentDiscount = originalSubtotal * 0.05;
-                currentSubtotal = originalSubtotal - currentDiscount;
-                showCouponMessage('5% discount applied!', 'success');
-                showDiscountRow(true, '5%');
-                return true;
-            case 'SAVE10':
-                currentDiscount = originalSubtotal * 0.10;
-                currentSubtotal = originalSubtotal - currentDiscount;
-                showCouponMessage('10% discount applied!', 'success');
-                showDiscountRow(true, '10%');
-                return true;
-            case 'SAVE15':
-                currentDiscount = originalSubtotal * 0.15;
-                currentSubtotal = originalSubtotal - currentDiscount;
-                showCouponMessage('15% discount applied!', 'success');
-                showDiscountRow(true, '15%');
-                return true;
-            case 'SAVE20':
-                currentDiscount = originalSubtotal * 0.20;
-                currentSubtotal = originalSubtotal - currentDiscount;
-                showCouponMessage('20% discount applied!', 'success');
-                showDiscountRow(true, '20%');
-                return true;
-            default:
-                if (couponCode.trim() !== '') {
-                    showCouponMessage('Invalid coupon code', 'error');
-                }
-                return false;
-        }
-    }
+
 
     function removeCoupon() {
-        currentDiscount = 0;
-        currentSubtotal = originalSubtotal;
         showDiscountRow(false);
+
         hideCouponMessage();
     }
 
@@ -123,33 +73,109 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function validateField(input) {
         const errorSpan = document.getElementById(input.id + '-error');
-        if (!errorSpan) return;
+        if (!errorSpan) return true; // If no error span, we don't validate it this way (e.g. coupon_code)
 
-        if (!input.checkValidity()) {
+        let errorMessage = "";
+        const val = input.value.trim();
+
+        // Required Check
+        if (input.required && val === "") {
+            errorMessage = "This field is required.";
+        } else {
+            // Field Specific Checks
+            switch (input.id) {
+                case 'name':
+                    if (val.length < 3) {
+                        errorMessage = "Name must be at least 3 characters long.";
+                    } else if (!/^[a-zA-Z\s]+$/.test(val)) {
+                        errorMessage = "Name should only contain letters and spaces.";
+                    }
+                    break;
+                case 'mobile':
+                    if (!/^(\+91)[6-9][0-9]{9}$/.test(val)) {
+                        errorMessage = "Please enter a valid Indian mobile number starting with +91.";
+                    }
+                    break;
+                case 'email':
+                    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                    if (!emailRegex.test(val)) {
+                        errorMessage = "Please enter a valid email address.";
+                    }
+                    break;
+                case 'address':
+                    if (val.length < 10) {
+                        errorMessage = "Please provide a more detailed address (at least 10 chars).";
+                    }
+                    break;
+                case 'city':
+                    if (val.length < 2) {
+                        errorMessage = "Please enter a valid city name.";
+                    }
+                    break;
+                case 'pincode':
+                    if (!/^[1-9][0-9]{5}$/.test(val)) {
+                        errorMessage = "Please enter a valid 6-digit Indian Pincode.";
+                    }
+                    break;
+            }
+        }
+
+        if (errorMessage) {
+            input.setCustomValidity(errorMessage);
+            errorSpan.textContent = errorMessage;
             errorSpan.style.display = 'block';
             input.style.borderColor = '#ef4444';
         } else {
+            input.setCustomValidity("");
             errorSpan.style.display = 'none';
             input.style.borderColor = '';
         }
+
+        return !errorMessage;
     }
 
     function updateSummary() {
         const selectedMethod = document.querySelector('input[name="shipping_method"]:checked').value;
-        const shippingCost = calculateShipping(selectedMethod, currentSubtotal);
-        const gst = currentSubtotal * 0.18; // 18% GST on discounted subtotal
-        const total = currentSubtotal + shippingCost + gst;
+        const couponCode = couponInput ? couponInput.value.trim() : '';
 
-        // Update the summary display with formatted numbers
-        shippingDisplay.textContent = `₹${shippingCost.toLocaleString()}`;
-        taxDisplay.textContent = `₹${gst.toLocaleString()}`;
-        totalDisplay.textContent = `₹${total.toLocaleString()}`;
+        const formData = new FormData();
+        formData.append('action', 'calculate_shipping');
+        formData.append('shipping_method', selectedMethod);
+        formData.append('subtotal', originalSubtotal);
+        formData.append('coupon_code', couponCode);
 
-        // Update discount display if discount row exists
-        const discountDisplay = document.getElementById('summary-discount');
-        if (discountDisplay) {
-            discountDisplay.textContent = `-₹${currentDiscount.toLocaleString()}`;
-        }
+        fetch('cart_handler.php', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update the summary display with data from backend
+                    shippingDisplay.textContent = `₹${data.shipping_formatted}`;
+                    taxDisplay.textContent = `₹${data.gst_formatted}`;
+                    totalDisplay.textContent = `₹${data.total_formatted}`;
+
+                    // Handle Coupon Feedback
+                    if (data.coupon_message) {
+                        showCouponMessage(data.coupon_message, data.coupon_valid ? 'success' : 'error');
+                    } else if (couponCode === '') {
+                        hideCouponMessage();
+                    }
+
+                    // Handle Discount Row Visibility
+                    if (data.coupon_valid) {
+                        showDiscountRow(true, data.discount_pct + '%');
+                        const discountDisplay = document.getElementById('summary-discount');
+                        if (discountDisplay) {
+                            discountDisplay.textContent = `-₹${data.discount_formatted}`;
+                        }
+                    } else {
+                        showDiscountRow(false);
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
     }
 
     inputs.forEach(input => {
@@ -171,13 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Coupon functionality
     if (applyCouponBtn && couponInput) {
         applyCouponBtn.addEventListener('click', () => {
-            const couponCode = couponInput.value.trim();
-            if (couponCode === '') {
-                removeCoupon();
-                hideCouponMessage();
-            } else {
-                applyCoupon(couponCode);
-            }
             updateSummary();
         });
 
@@ -198,15 +217,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     form.addEventListener('submit', (e) => {
-        let isValid = true;
+        let isFormValid = true;
         inputs.forEach(input => {
-            validateField(input);
-            if (!input.checkValidity()) {
-                isValid = false;
+            if (!validateField(input)) {
+                isFormValid = false;
             }
         });
 
-        if (!isValid) {
+        if (!isFormValid) {
             e.preventDefault();
             const firstError = form.querySelector('.error-message[style*="display: block"]');
             if (firstError) {
@@ -215,6 +233,41 @@ document.addEventListener('DOMContentLoaded', () => {
                     block: 'center'
                 });
             }
+        } else {
+            // Place order via AJAX
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            formData.append('action', 'place_order');
+
+            // Show loading state
+            Swal.fire({
+                title: 'Placing Order...',
+                text: 'Please wait while we process your order.',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch('cart_handler.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Redirect to orders page
+                        window.location.href = 'orders.php';
+                    } else {
+                        Swal.fire('Error', data.message || 'Failed to place order', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'An unexpected error occurred.', 'error');
+                });
         }
     });
 });

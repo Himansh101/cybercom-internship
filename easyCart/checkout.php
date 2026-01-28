@@ -3,11 +3,13 @@ session_start();
 
 // Check if user is logged in
 if (!isset($_SESSION['user'])) {
-    header("Location: login.php");
-    exit();
+  header("Location: login.php");
+  exit();
 }
 
 include 'data.php';
+
+include 'coupon_utils.php';
 
 // Check if user is logged in
 $isLoggedIn = isset($_SESSION['user']);
@@ -16,9 +18,9 @@ $user = $_SESSION['user'] ?? null;
 // Calculate total cart quantity
 $cartQuantity = 0;
 if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
-    foreach ($_SESSION['cart'] as $quantity) {
-        $cartQuantity += $quantity;
-    }
+  foreach ($_SESSION['cart'] as $quantity) {
+    $cartQuantity += $quantity;
+  }
 }
 
 // Redirect to product page if cart is empty to prevent checking out nothing
@@ -36,39 +38,12 @@ foreach ($_SESSION['cart'] as $id => $quantity) {
 }
 
 // 2. Apply Coupon Discount (if valid)
-$discount = 0;
 $coupon_code = $_POST['coupon_code'] ?? '';
-$discount_percentage = 0;
-$discount_message = '';
+$coupon_data = get_coupon_data($coupon_code, $subtotal);
 
-if (!empty($coupon_code)) {
-    $coupon_code_upper = strtoupper($coupon_code);
-    switch ($coupon_code_upper) {
-        case 'SAVE5':
-            $discount_percentage = 5;
-            $discount = $subtotal * 0.05;
-            $discount_message = '5% discount applied!';
-            break;
-        case 'SAVE10':
-            $discount_percentage = 10;
-            $discount = $subtotal * 0.10;
-            $discount_message = '10% discount applied!';
-            break;
-        case 'SAVE15':
-            $discount_percentage = 15;
-            $discount = $subtotal * 0.15;
-            $discount_message = '15% discount applied!';
-            break;
-        case 'SAVE20':
-            $discount_percentage = 20;
-            $discount = $subtotal * 0.20;
-            $discount_message = '20% discount applied!';
-            break;
-        default:
-            $discount_message = 'Invalid coupon code';
-            break;
-    }
-}
+$discount = $coupon_data['discount_amount'];
+$discount_percentage = $coupon_data['discount_pct'];
+$discount_message = $coupon_data['message'];
 
 $discounted_subtotal = $subtotal - $discount;
 
@@ -76,19 +51,20 @@ $discounted_subtotal = $subtotal - $discount;
 $shipping = 40; // Default Standard Shipping
 $method = $_POST['shipping_method'] ?? 'standard';
 
-function calculateShipping($method, $discounted_subtotal) {
-    switch ($method) {
-        case 'standard':
-            return 40; // Flat $40
-        case 'express':
-            return min(80, $discounted_subtotal * 0.10); // Flat $80 OR 10% of discounted subtotal (whichever is lower)
-        case 'white_glove':
-            return min(150, $discounted_subtotal * 0.05); // Flat $150 OR 5% of discounted subtotal (whichever is lower)
-        case 'freight':
-            return max(200, $discounted_subtotal * 0.03); // 3% of discounted subtotal, Minimum $200
-        default:
-            return 40;
-    }
+function calculateShipping($method, $discounted_subtotal)
+{
+  switch ($method) {
+    case 'standard':
+      return 40; // Flat $40
+    case 'express':
+      return min(80, $discounted_subtotal * 0.10); // Flat $80 OR 10% of discounted subtotal (whichever is lower)
+    case 'white_glove':
+      return min(150, $discounted_subtotal * 0.05); // Flat $150 OR 5% of discounted subtotal (whichever is lower)
+    case 'freight':
+      return max(200, $discounted_subtotal * 0.03); // 3% of discounted subtotal, Minimum $200
+    default:
+      return 40;
+  }
 }
 
 $shipping = calculateShipping($method, $discounted_subtotal);
@@ -124,7 +100,7 @@ $final_total = $discounted_subtotal + $shipping + $gst;
     <nav>
       <a href="index.php">Home</a>
       <a href="plp.php">Products</a>
-      <a href="cart.php">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
+      <a href="cart.php" id="cart-nav-link">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
       <a href="orders.php">My Orders</a>
       <?php if ($isLoggedIn): ?>
         <span class="user-greeting" style="color: #6366f1; font-weight: 600; font-size: 0.9rem; border-left: 1px solid #e2e8f0; padding-left: 15px; margin-left: 5px;">
@@ -200,7 +176,6 @@ $final_total = $discounted_subtotal + $shipping + $gst;
                   <span class="method-title">Standard Shipping</span>
                   <span class="method-desc">3-5 Business Days</span>
                 </div>
-                <span class="method-price">₹<?php echo number_format(40); ?></span>
               </label>
 
               <label class="shipping-card">
@@ -209,7 +184,6 @@ $final_total = $discounted_subtotal + $shipping + $gst;
                   <span class="method-title">Express Shipping</span>
                   <span class="method-desc">1-2 Business Days</span>
                 </div>
-                <span class="method-price">₹<?php echo number_format(min(80, $subtotal * 0.10)); ?></span>
               </label>
 
               <label class="shipping-card">
@@ -218,7 +192,6 @@ $final_total = $discounted_subtotal + $shipping + $gst;
                   <span class="method-title">White Glove Delivery</span>
                   <span class="method-desc">Premium In-Home Setup</span>
                 </div>
-                <span class="method-price">₹<?php echo number_format(min(150, $subtotal * 0.05)); ?></span>
               </label>
 
               <label class="shipping-card">
@@ -227,7 +200,6 @@ $final_total = $discounted_subtotal + $shipping + $gst;
                   <span class="method-title">Freight Shipping</span>
                   <span class="method-desc">Heavy/Bulky Items</span>
                 </div>
-                <span class="method-price">₹<?php echo number_format(max(200, $subtotal * 0.03)); ?></span>
               </label>
             </div>
           </div>

@@ -20,7 +20,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $error = "Password must contain at least one number!";
   } else {
     // Check if user already exists
-    $users = json_decode(file_get_contents('users.json'), true);
+    $users = [];
+    if (file_exists('users.json')) {
+      $json_data = file_get_contents('users.json');
+      $users = json_decode($json_data, true) ?? [];
+    }
+
     $userExists = false;
 
     foreach ($users as $user) {
@@ -65,7 +70,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
   <link rel="stylesheet" href="./styles/styles.css">
-  <link rel="stylesheet" href="./styles/auth.css">    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>  <script src="js/auth.js" defer></script>
+  <link rel="stylesheet" href="./styles/auth.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="js/auth.js" defer></script>
 </head>
 
 <body class="page-auth page-signup">
@@ -88,9 +95,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="form-group">
         <label for="email">Email</label>
         <input id="email" name="email" type="email" placeholder="you@example.com"
-               pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-               title="Please enter a valid email address with a domain extension (e.g., .com, .org, .net)"
-               required>
+          pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+          title="Please enter a valid email address with a domain extension (e.g., .com, .org, .net)"
+          required>
         <span class="error-message" id="email-error">Please enter a valid email address with domain extension.</span>
       </div>
 
@@ -103,17 +110,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="form-group">
         <label for="password">Password</label>
         <input id="password" name="password" type="password" placeholder="••••••••"
-               minlength="8"
-               title="Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number."
-               required>
+          minlength="8"
+          title="Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number."
+          required>
         <span class="error-message" id="password-error">Password must be at least 8 characters with uppercase, lowercase, and number.</span>
       </div>
 
       <div class="form-group">
         <label for="confirm">Confirm Password</label>
         <input id="confirm" name="confirm_password" type="password" placeholder="Repeat password"
-               title="Please re-enter your password to confirm."
-               required>
+          title="Please re-enter your password to confirm."
+          required>
         <span class="error-message" id="confirm-error">Passwords do not match.</span>
       </div>
 

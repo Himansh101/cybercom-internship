@@ -25,73 +25,89 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Common Validation Function
     function validateField(input) {
         const errorSpan = document.getElementById(input.id + '-error');
-        if (!errorSpan) return;
+        if (!errorSpan) return true;
 
-        // Custom check for password confirmation (only for signup)
-        if (input.id === 'confirm') {
-            const password = document.getElementById('password');
-            if (password.value !== input.value) {
-                input.setCustomValidity("Passwords don't match");
-            } else {
-                input.setCustomValidity("");
+        let errorMessage = "";
+        const val = input.value.trim();
+
+        // Required Check
+        if (input.required && val === "") {
+            errorMessage = "This field is required.";
+        } else {
+            // Field Specific Checks
+            switch (input.id) {
+                case 'name':
+                    if (val.length < 3) {
+                        errorMessage = "Name must be at least 3 characters long.";
+                    } else if (!/^[a-zA-Z\s]+$/.test(val)) {
+                        errorMessage = "Name should only contain letters and spaces.";
+                    }
+                    break;
+                case 'email':
+                    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                    if (!emailRegex.test(val)) {
+                        errorMessage = "Please enter a valid email address (e.g., alex@example.com).";
+                    }
+                    break;
+                case 'mobile':
+                    if (!/^[6-9][0-9]{9}$/.test(val)) {
+                        errorMessage = "Please enter a valid 10-digit Indian mobile number.";
+                    }
+                    break;
+                case 'password':
+                    if (input.form.id === 'signupForm') {
+                        if (val.length < 8) {
+                            errorMessage = "Password must be at least 8 characters long.";
+                        } else if (!/[a-z]/.test(val)) {
+                            errorMessage = "Password must contain at least one lowercase letter.";
+                        } else if (!/[A-Z]/.test(val)) {
+                            errorMessage = "Password must contain at least one uppercase letter.";
+                        } else if (!/[0-9]/.test(val)) {
+                            errorMessage = "Password must contain at least one number.";
+                        }
+                    } else {
+                        // Login form basic length check
+                        if (val.length < 1) {
+                            errorMessage = "Password is required.";
+                        }
+                    }
+                    break;
+                case 'confirm':
+                    const password = document.getElementById('password');
+                    if (password && password.value !== val) {
+                        errorMessage = "Passwords do not match.";
+                    }
+                    break;
             }
         }
 
-        // Custom email validation for signup and login
-        if (input.id === 'email' && (input.form.id === 'signupForm' || input.form.id === 'loginForm')) {
-            const email = input.value;
-            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-            if (email && !emailRegex.test(email)) {
-                input.setCustomValidity("Please enter a valid email address with a domain extension (e.g., .com, .org, .net)");
-            } else {
-                input.setCustomValidity("");
-            }
-        }
-
-        // Custom password validation for signup
-        if (input.id === 'password' && input.form.id === 'signupForm') {
-            const password = input.value;
-            let isValid = true;
-            let errorMessage = "";
-
-            if (password.length < 8) {
-                isValid = false;
-                errorMessage = "Password must be at least 8 characters long.";
-            } else if (!/(?=.*[a-z])/.test(password)) {
-                isValid = false;
-                errorMessage = "Password must contain at least one lowercase letter.";
-            } else if (!/(?=.*[A-Z])/.test(password)) {
-                isValid = false;
-                errorMessage = "Password must contain at least one uppercase letter.";
-            } else if (!/(?=.*[0-9])/.test(password)) {
-                isValid = false;
-                errorMessage = "Password must contain at least one number.";
-            }
-
-            if (!isValid) {
-                input.setCustomValidity(errorMessage);
-            } else {
-                input.setCustomValidity("");
-            }
-        }
-
-        if (!input.checkValidity()) {
+        if (errorMessage) {
+            input.setCustomValidity(errorMessage);
+            errorSpan.textContent = errorMessage;
             errorSpan.style.display = 'block';
             input.style.borderColor = '#ef4444';
         } else {
+            input.setCustomValidity("");
             errorSpan.style.display = 'none';
             input.style.borderColor = '';
         }
+
+        return !errorMessage;
     }
 
     // 2. Identify which form is present
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
-    const currentForm = loginForm || signupForm;
 
-    if (currentForm) {
-        const inputs = currentForm.querySelectorAll('input');
+    if (loginForm) {
+        setupValidation(loginForm);
+    }
+    if (signupForm) {
+        setupValidation(signupForm);
+    }
+
+    function setupValidation(form) {
+        const inputs = form.querySelectorAll('input');
 
         inputs.forEach(input => {
             input.addEventListener('blur', () => {
@@ -105,17 +121,21 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        currentForm.addEventListener('submit', (e) => {
-            let isValid = true;
+        form.addEventListener('submit', (e) => {
+            let isFormValid = true;
             inputs.forEach(input => {
-                validateField(input);
-                if (!input.checkValidity()) {
-                    isValid = false;
+                if (!validateField(input)) {
+                    isFormValid = false;
                 }
             });
 
-            if (!isValid) {
+            if (!isFormValid) {
                 e.preventDefault();
+                // Find first error and scroll to it
+                const firstError = form.querySelector('.error-message[style*="display: block"]');
+                if (firstError) {
+                    firstError.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
             }
         });
     }

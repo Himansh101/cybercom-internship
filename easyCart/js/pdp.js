@@ -23,6 +23,56 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize opacity transition
         mainImg.style.transition = 'opacity 0.2s ease';
     }
-    
 
+    // --- Add to Cart AJAX ---
+    const addToCartForm = document.getElementById('add-to-cart-form');
+    if (addToCartForm) {
+        addToCartForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const submitBtn = document.getElementById('add-to-cart-btn');
+
+            // Disable button during request
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Adding...';
+
+            fetch('cart_handler.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: data.message,
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        // Update header badge
+                        if (typeof updateCartBadge === 'function') {
+                            updateCartBadge(data.cart_count);
+                        }
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: data.message,
+                            icon: 'error'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Something went wrong!', 'error');
+                })
+                .finally(() => {
+                    // Restore button state
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="ri-shopping-cart-line"></i> Add to Cart';
+                });
+        });
+    }
 });

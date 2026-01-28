@@ -28,42 +28,59 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 2. Cart Delete Confirmation (Event Delegation) ---
-    const cartTable = document.querySelector('table');
+    // --- 2. Cart Delete Confirmation (Now handled specifically in cart.js for AJAX) ---
 
-    if (cartTable) {
-        cartTable.addEventListener('click', function(e) {
-            // Target the button or the icon inside the button
-            const deleteBtn = e.target.closest('.js-delete-confirm');
-            
-            if (deleteBtn) {
-                e.preventDefault();
-                const productName = deleteBtn.getAttribute('data-name');
-                const form = deleteBtn.closest('form');
-
-                Swal.fire({
-                    title: 'Remove Item?',
-                    text: `Are you sure you want to remove "${productName}" from your cart?`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#e11d48', 
-                    cancelButtonColor: '#64748b',
-                    confirmButtonText: 'Yes, remove it!',
-                    cancelButtonText: 'Cancel',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Create the hidden input so PHP recognizes the 'remove' action
-                        const hiddenInput = document.createElement('input');
-                        hiddenInput.type = 'hidden';
-                        hiddenInput.name = 'remove';
-                        hiddenInput.value = 'true';
-                        form.appendChild(hiddenInput);
-                        
-                        form.submit();
-                    }
-                });
-            }
-        });
-    }
 });
+
+/**
+ * Update the cart badge globally across pages
+ * @param {number} count - Total items in cart
+ */
+function updateCartBadge(count) {
+    // 1. Target by ID (most reliable)
+    let cartLinks = [];
+    const idLink = document.getElementById('cart-nav-link');
+    if (idLink) cartLinks.push(idLink);
+
+    // 2. Fallback: Find all links to cart.php (footer, etc.)
+    const allLinks = document.querySelectorAll('a[href*="cart.php"]');
+    allLinks.forEach(link => {
+        if (!cartLinks.includes(link)) cartLinks.push(link);
+    });
+
+    cartLinks.forEach(link => {
+        let badge = link.querySelector('.cart-badge');
+
+        if (count > 0) {
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = 'cart-badge';
+                link.appendChild(badge);
+            }
+
+            // If count changed, add a little "bump" animation
+            if (badge.textContent !== String(count)) {
+                badge.textContent = count;
+                badge.style.animation = 'none';
+                badge.offsetHeight; // trigger reflow
+                badge.style.animation = 'badgeUpdateBump 0.4s ease-out';
+            }
+        } else if (badge) {
+            badge.remove();
+        }
+    });
+}
+
+// Add the bump animation to the document if not already present
+if (!document.getElementById('cart-badge-anim')) {
+    const style = document.createElement('style');
+    style.id = 'cart-badge-anim';
+    style.innerHTML = `
+        @keyframes badgeUpdateBump {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.4); }
+            100% { transform: scale(1); }
+        }
+    `;
+    document.head.appendChild(style);
+}

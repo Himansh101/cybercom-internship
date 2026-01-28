@@ -3,8 +3,8 @@ session_start();
 
 // Check if user is logged in
 if (!isset($_SESSION['user'])) {
-    header("Location: login.php");
-    exit();
+  header("Location: login.php");
+  exit();
 }
 
 include 'data.php';
@@ -13,45 +13,16 @@ include 'data.php';
 $isLoggedIn = isset($_SESSION['user']);
 $user = $_SESSION['user'] ?? null;
 
-// --- HANDLE QUANTITY UPDATES & REMOVAL ---
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  if (isset($_POST['product_id'])) {
-    $id = $_POST['product_id'];
-    $maxStock = $products[$id]['stock_count'] ?? 0;
-
-    if (isset($_POST['action'])) {
-      if ($_POST['action'] === 'plus') {
-        if ($_SESSION['cart'][$id] < $maxStock) {
-          $_SESSION['cart'][$id] += 1;
-        } else {
-          // Set error message in session to persist after redirect
-          $_SESSION['stock_error'] = "Cannot add more. Only $maxStock units available for " . $products[$id]['name'];
-        }
-      } elseif ($_POST['action'] === 'minus') {
-        $_SESSION['cart'][$id] -= 1;
-        if ($_SESSION['cart'][$id] < 1) {
-          unset($_SESSION['cart'][$id]);
-        }
-      }
-    }
-
-    if (isset($_POST['remove'])) {
-      unset($_SESSION['cart'][$id]);
-    }
-  }
-  header("Location: cart.php");
-  exit();
-}
-
 $subtotal = 0;
+
 $shipping_fee = 40; // Standard Shipping flat rate
 
 // Calculate total cart quantity
 $cartQuantity = 0;
 if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
-    foreach ($_SESSION['cart'] as $quantity) {
-        $cartQuantity += $quantity;
-    }
+  foreach ($_SESSION['cart'] as $quantity) {
+    $cartQuantity += $quantity;
+  }
 }
 ?>
 <!doctype html>
@@ -67,6 +38,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="js/main.js" defer></script>
   <script src="js/auth.js" defer></script>
+  <script src="js/cart.js" defer></script>
 </head>
 
 <body class="page-site cart">
@@ -75,7 +47,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     <nav>
       <a href="index.php">Home</a>
       <a href="plp.php">Products</a>
-      <a href="cart.php" class="active">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
+      <a href="cart.php" class="active" id="cart-nav-link">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
       <a href="orders.php">My Orders</a>
       <?php if ($isLoggedIn): ?>
         <span class="user-greeting" style="color: #6366f1; font-weight: 600; font-size: 0.9rem; border-left: 1px solid #e2e8f0; padding-left: 15px; margin-left: 5px;">
@@ -95,7 +67,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     <?php if (isset($_SESSION['stock_error'])): ?>
       <div class="stock-alert" style="background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 8px; margin: 20px 0; border: 1px solid #fecaca;">
         <i class="ri-error-warning-line"></i> <?php echo $_SESSION['stock_error'];
-        unset($_SESSION['stock_error']); ?>
+                                              unset($_SESSION['stock_error']); ?>
       </div>
     <?php endif; ?>
 
@@ -124,7 +96,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
                   $maxStock = $product['stock_count'] ?? 0;
                   $isMaxed = ($quantity >= $maxStock);
                 ?>
-                  <tr>
+                  <tr data-id="<?php echo $id; ?>">
                     <td class="cart-img-cell" data-label="Image">
                       <div class="cart-img-wrapper">
                         <img src="<?php echo $product['image']; ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
@@ -132,27 +104,30 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
                     </td>
                     <td data-label="Product">
                       <span class="product-name-text"><?php echo htmlspecialchars($product['name']); ?></span>
-                      <?php if ($isMaxed): ?>
-                        <small style="display:block; color: #e11d48; font-size: 0.7rem; margin-top: 4px;">Max stock: <?php echo $maxStock; ?></small>
-                      <?php endif; ?>
+                      <div class="stock-warning">
+                        <?php if ($isMaxed): ?>
+                          <small style="display:block; color: #e11d48; font-size: 0.7rem; margin-top: 4px;">Max stock: <?php echo $maxStock; ?></small>
+                        <?php endif; ?>
+                      </div>
                     </td>
                     <td class="price-cell" data-label="Price">₹<?php echo number_format($product['price']); ?></td>
                     <td class="qty-cell" data-label="Quantity">
-                      <form method="POST" class="qty-control">
-                        <input type="hidden" name="product_id" value="<?php echo $id; ?>">
-                        <button type="submit" name="action" value="minus" class="btn-qty minus">-</button>
-                        <input type="number" value="<?php echo $quantity; ?>" readonly>
-                        <button type="submit" name="action" value="plus" class="btn-qty plus"
+                      <div class="qty-control">
+                        <button type="button" class="btn-qty minus js-qty-btn" data-action="minus" data-id="<?php echo $id; ?>">-</button>
+                        <input type="number" class="js-qty-input" value="<?php echo $quantity; ?>" readonly>
+                        <button type="button" class="btn-qty plus js-qty-btn" data-action="plus" data-id="<?php echo $id; ?>"
                           <?php echo $isMaxed ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''; ?>>+</button>
-                      </form>
+                      </div>
                     </td>
-                    <td class="subtotal" data-label="Subtotal">₹<?php echo number_format($item_total); ?></td>
+                    <td class="subtotal js-item-subtotal" data-label="Subtotal">₹<?php echo number_format($item_total); ?></td>
                     <td class="action-cell">
-                      <form method="POST" class="remove-form">
+                      <form class="remove-form">
                         <input type="hidden" name="product_id" value="<?php echo $id; ?>">
+
                         <button type="button"
                           class="btn-remove js-delete-confirm"
-                          data-name="<?php echo htmlspecialchars($product['name']); ?>">
+                          data-name="<?php echo htmlspecialchars($product['name']); ?>"
+                          data-id="<?php echo $id; ?>">
                           <i class="ri-delete-bin-line"></i>
                         </button>
                       </form>
@@ -172,12 +147,12 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
       <aside class="summary">
         <h2>Price Summary</h2>
         <div class="summary-details">
-          <div class="row"><span>Subtotal</span><span>₹<?php echo number_format($subtotal); ?></span></div>
-          <div class="row"><span>Shipping</span><span>₹<?php echo number_format($subtotal > 0 ? $shipping_fee : 0); ?></span></div>
+          <div class="row"><span>Subtotal</span><span id="cart-subtotal">₹<?php echo number_format($subtotal); ?></span></div>
+          <div class="row"><span>Shipping</span><span id="cart-shipping">₹<?php echo number_format($subtotal > 0 ? $shipping_fee : 0); ?></span></div>
           <hr class="summary-divider">
-          <div class="row total"><span>Total Amount</span><span>₹<?php echo number_format($subtotal > 0 ? ($subtotal + $shipping_fee) : 0); ?></span></div>
+          <div class="row total"><span>Total Amount</span><span id="cart-total">₹<?php echo number_format($subtotal > 0 ? ($subtotal + $shipping_fee) : 0); ?></span></div>
         </div>
-        <a href="<?php echo ($subtotal > 0) ? 'checkout.php' : '#'; ?>" class="btn <?php echo ($subtotal > 0) ? 'btn-primary' : 'btn-disabled'; ?> mt-18 w-full">Proceed to Checkout</a>
+        <a id="checkout-link" href="<?php echo ($subtotal > 0) ? 'checkout.php' : '#'; ?>" class="btn <?php echo ($subtotal > 0) ? 'btn-primary' : 'btn-disabled'; ?> mt-18 w-full">Proceed to Checkout</a>
       </aside>
     </div>
   </main>

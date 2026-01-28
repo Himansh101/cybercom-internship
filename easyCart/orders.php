@@ -41,20 +41,14 @@ if ($orderSuccessMessage) {
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
   <link rel="stylesheet" href="./styles/styles.css">
   <link rel="stylesheet" href="./styles/orders.css">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
   <script src="js/auth.js" defer></script>
+  <script src="js/main.js" defer></script>
 
-  <?php if ($orderSuccessMessage): ?>
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        Swal.fire({
-          title: 'Success!',
-          text: <?php echo json_encode($orderSuccessMessage); ?>,
-          icon: 'success',
-          confirmButtonColor: '#10b981'
-        });
-      });
-    </script>
+  <?php if (!empty($orderSuccessMessage)): ?>
+    <div id="order-success-data"
+      data-message="<?php echo htmlspecialchars($orderSuccessMessage, ENT_QUOTES); ?>">
+    </div>
   <?php endif; ?>
 </head>
 

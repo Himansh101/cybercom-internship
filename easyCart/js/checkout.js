@@ -135,7 +135,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateSummary() {
-        const selectedMethod = document.querySelector('input[name="shipping_method"]:checked').value;
+        const selectedRadio = document.querySelector('input[name="shipping_method"]:checked');
+        if (!selectedRadio) return;
+
+        const selectedMethod = selectedRadio.value;
         const couponCode = couponInput ? couponInput.value.trim() : '';
 
         const formData = new FormData();
@@ -270,4 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         }
     });
+
+    // Auto-sync summary on page load via AJAX
+    updateSummary();
 });

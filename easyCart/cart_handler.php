@@ -1,7 +1,8 @@
 <?php
 session_start();
-include 'data.php';
-include 'coupon_utils.php';
+include 'data/data.php';
+include 'utils/coupon_utils.php';
+include 'utils/shipping_utils.php';
 
 header('Content-Type: application/json');
 
@@ -74,7 +75,8 @@ switch ($action) {
         break;
 
     case 'calculate_shipping':
-        $method = $_POST['shipping_method'] ?? 'standard';
+        $method = $_POST['shipping_method'] ?? $_SESSION['shipping_method'] ?? 'standard';
+        $_SESSION['shipping_method'] = $method; // Persist in session
         $subtotal = (float)($_POST['subtotal'] ?? 0);
         $coupon_code = $_POST['coupon_code'] ?? '';
 
@@ -88,21 +90,7 @@ switch ($action) {
         $discounted_subtotal = $subtotal - $discount;
 
         // Shipping Calculation
-        $shipping = 40;
-        switch ($method) {
-            case 'standard':
-                $shipping = 40;
-                break;
-            case 'express':
-                $shipping = min(80, $discounted_subtotal * 0.10);
-                break;
-            case 'white_glove':
-                $shipping = min(150, $discounted_subtotal * 0.05);
-                break;
-            case 'freight':
-                $shipping = max(200, $discounted_subtotal * 0.03);
-                break;
-        }
+        $shipping = calculate_shipping_cost($method, $discounted_subtotal);
 
         $gst = $discounted_subtotal * 0.18;
         $final_total = $discounted_subtotal + $shipping + $gst;
@@ -124,11 +112,62 @@ switch ($action) {
         break;
 
     case 'place_order':
-        // 1. Clear the cart
+        // --- BACKEND VALIDATION START ---
+        $errors = [];
+
+        // 1. Validate Cart
+        if (empty($_SESSION['cart'])) {
+            $errors[] = "Your cart is empty.";
+        }
+
+        // 2. Validate Name
+        $name = trim($_POST['name'] ?? '');
+        if (strlen($name) < 3 || !preg_match("/^[a-zA-Z\s]+$/", $name)) {
+            $errors[] = "Invalid name. Must be at least 3 characters and contain only letters.";
+        }
+
+        // 3. Validate Mobile (+91 followed by 10 digits starting with 6-9)
+        $mobile = trim($_POST['mobile'] ?? '');
+        if (!preg_match("/^(\+91)[6-9][0-9]{9}$/", $mobile)) {
+            $errors[] = "Invalid mobile number. Must start with +91 and contain 10 digits.";
+        }
+
+        // 4. Validate Email
+        $email = trim($_POST['email'] ?? '');
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Invalid email address.";
+        }
+
+        // 5. Validate Address
+        $address = trim($_POST['address'] ?? '');
+        if (strlen($address) < 10) {
+            $errors[] = "Address is too short. Please provide at least 10 characters.";
+        }
+
+        // 6. Validate City
+        $city = trim($_POST['city'] ?? '');
+        if (strlen($city) < 2) {
+            $errors[] = "Invalid city name.";
+        }
+
+        // 7. Validate Pincode (6 digits)
+        $pincode = trim($_POST['pincode'] ?? '');
+        if (!preg_match("/^[1-9][0-9]{5}$/", $pincode)) {
+            $errors[] = "Invalid Pincode. Must be a 6-digit number.";
+        }
+
+        // Return errors if any
+        if (!empty($errors)) {
+            echo json_encode(['status' => 'error', 'message' => implode("\n", $errors)]);
+            exit();
+        }
+        // --- BACKEND VALIDATION END ---
+
+        // 1. Clear the cart and shipping method
         unset($_SESSION['cart']);
+        unset($_SESSION['shipping_method']);
 
         // 2. Set success message
-        $name = $_POST['name'] ?? 'Guest';
         $coupon_code = $_POST['coupon_code'] ?? '';
         $coupon_text = '';
         if (!empty($coupon_code)) {

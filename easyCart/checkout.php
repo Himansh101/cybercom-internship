@@ -7,9 +7,10 @@ if (!isset($_SESSION['user'])) {
   exit();
 }
 
-include 'data.php';
+include 'data/data.php';
 
-include 'coupon_utils.php';
+include 'utils/coupon_utils.php';
+include 'utils/shipping_utils.php';
 
 // Check if user is logged in
 $isLoggedIn = isset($_SESSION['user']);
@@ -48,26 +49,9 @@ $discount_message = $coupon_data['message'];
 $discounted_subtotal = $subtotal - $discount;
 
 // 3. Determine Shipping Cost based on button click or radio selection
-$shipping = 40; // Default Standard Shipping
-$method = $_POST['shipping_method'] ?? 'standard';
-
-function calculateShipping($method, $discounted_subtotal)
-{
-  switch ($method) {
-    case 'standard':
-      return 40; // Flat $40
-    case 'express':
-      return min(80, $discounted_subtotal * 0.10); // Flat $80 OR 10% of discounted subtotal (whichever is lower)
-    case 'white_glove':
-      return min(150, $discounted_subtotal * 0.05); // Flat $150 OR 5% of discounted subtotal (whichever is lower)
-    case 'freight':
-      return max(200, $discounted_subtotal * 0.03); // 3% of discounted subtotal, Minimum $200
-    default:
-      return 40;
-  }
-}
-
-$shipping = calculateShipping($method, $discounted_subtotal);
+$method = $_POST['shipping_method'] ?? $_SESSION['shipping_method'] ?? 'standard';
+$_SESSION['shipping_method'] = $method; // Ensure it's persisted
+$shipping = calculate_shipping_cost($method, $discounted_subtotal);
 
 // 4. Calculate GST (18% on Discounted Subtotal)
 $gst_rate = 0.18;
@@ -89,9 +73,9 @@ $final_total = $discounted_subtotal + $shipping + $gst;
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
   <link rel="stylesheet" href="./styles/styles.css">
   <link rel="stylesheet" href="./styles/cart.css">
-  <script src="js/checkout.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="js/auth.js" defer></script>
+  <script src="js/checkout.js" defer></script>
 </head>
 
 <body class="page-site checkout">

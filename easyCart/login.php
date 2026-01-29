@@ -3,40 +3,46 @@ session_start();
 
 // Handle Form Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $email = $_POST['email'];
-  $password = $_POST['password'];
+  $email = trim($_POST['email'] ?? '');
+  $password = $_POST['password'] ?? '';
 
-  // Load users from JSON file
-  $users = [];
-  if (file_exists('users.json')) {
-    $json_data = file_get_contents('users.json');
-    $users = json_decode($json_data, true) ?? [];
-  }
-
-  $userFound = false;
-
-  foreach ($users as $user) {
-    if ($user['email'] === $email) {
-      if (password_verify($password, $user['password'])) {
-        // Successful login - store user data in session
-        $_SESSION['user'] = [
-          'id' => $user['id'],
-          'name' => $user['name'],
-          'email' => $user['email'],
-          'mobile' => $user['mobile']
-        ];
-        header("Location: index.php");
-        exit();
-      } else {
-        $error = "Invalid email or password.";
-      }
-      $userFound = true;
-      break;
+  if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $error = "Please enter a valid email address.";
+  } elseif (empty($password)) {
+    $error = "Password cannot be empty.";
+  } else {
+    // Load users from JSON file
+    $users = [];
+    if (file_exists('users.json')) {
+      $json_data = file_get_contents('users.json');
+      $users = json_decode($json_data, true) ?? [];
     }
-  }
 
-  if (!$userFound) {
-    $error = "Invalid email or password.";
+    $userFound = false;
+
+    foreach ($users as $user) {
+      if ($user['email'] === $email) {
+        if (password_verify($password, $user['password'])) {
+          // Successful login - store user data in session
+          $_SESSION['user'] = [
+            'id' => $user['id'],
+            'name' => $user['name'],
+            'email' => $user['email'],
+            'mobile' => $user['mobile']
+          ];
+          header("Location: index.php");
+          exit();
+        } else {
+          $error = "Invalid email or password.";
+        }
+        $userFound = true;
+        break;
+      }
+    }
+
+    if (!$userFound) {
+      $error = "Invalid email or password.";
+    }
   }
 }
 

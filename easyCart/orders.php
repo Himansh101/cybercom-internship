@@ -7,7 +7,7 @@ if (!isset($_SESSION['user'])) {
   exit();
 }
 
-include 'data.php';
+include 'data/data.php';
 
 // Check if user is logged in
 $isLoggedIn = isset($_SESSION['user']);

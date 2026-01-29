@@ -8,7 +8,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $confirm = $_POST['confirm_password'];
 
   // Basic validation
-  if ($password !== $confirm) {
+  if (strlen($fullName) < 3 || !preg_match("/^[a-zA-Z\s]+$/", $fullName)) {
+    $error = "Invalid name. Must be at least 3 characters and contain only letters.";
+  } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $error = "Invalid email address.";
+  } elseif (!preg_match("/^[6-9][0-9]{9}$/", $mobile)) {
+    $error = "Invalid mobile number. Must be 10 digits starting with 6-9.";
+  } elseif ($password !== $confirm) {
     $error = "Passwords do not match!";
   } elseif (strlen($password) < 8) {
     $error = "Password must be at least 8 characters long!";

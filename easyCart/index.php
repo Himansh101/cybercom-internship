@@ -1,5 +1,5 @@
 <?php
-include 'data.php';
+include 'data/data.php';
 
 // Check if user is logged in
 session_start();

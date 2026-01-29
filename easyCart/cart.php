@@ -2,10 +2,6 @@
 session_start();
 
 // Check if user is logged in
-if (!isset($_SESSION['user'])) {
-  header("Location: login.php");
-  exit();
-}
 
 include 'data/data.php';
 
@@ -150,7 +146,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
           <hr class="summary-divider">
           <div class="row total"><span>Total Amount</span><span id="cart-total">₹<?php echo number_format($subtotal > 0 ? ($subtotal + $shipping_fee) : 0); ?></span></div>
         </div>
-        <a id="checkout-link" href="<?php echo ($subtotal > 0) ? 'checkout.php' : '#'; ?>" class="btn <?php echo ($subtotal > 0) ? 'btn-primary' : 'btn-disabled'; ?> mt-18 w-full">Proceed to Checkout</a>
+        <a id="checkout-link" href="<?php echo ($subtotal > 0) ? ($isLoggedIn ? 'checkout.php' : 'login.php') : '#'; ?>" class="btn <?php echo ($subtotal > 0) ? 'btn-primary' : 'btn-disabled'; ?> mt-18 w-full">Proceed to Checkout</a>
       </aside>
     </div>
   </main>

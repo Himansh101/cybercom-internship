@@ -8,6 +8,32 @@ document.addEventListener('DOMContentLoaded', () => {
         if (qtyBtn) {
             const id = qtyBtn.getAttribute('data-id');
             const qtyAction = qtyBtn.getAttribute('data-action');
+
+            if (qtyAction === 'minus') {
+                const input = qtyBtn.parentNode.querySelector('input');
+                const currentQty = parseInt(input.value);
+
+                if (currentQty <= 1) {
+                    // separation for clean removal
+                    // For now, use SweetAlert confirmation for consistency with the delete button.
+
+                    Swal.fire({
+                        title: 'Remove Item?',
+                        text: 'Decrease quantity to 0 will remove the item.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#e11d48',
+                        cancelButtonColor: '#64748b',
+                        confirmButtonText: 'Yes, remove it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            removeItem(id);
+                        }
+                    });
+                    return;
+                }
+            }
+
             updateQuantity(id, qtyAction);
         }
     });
@@ -60,6 +86,11 @@ function updateQuantity(id, qtyAction) {
                 } else {
                     updateCartUI(data);
                 }
+
+                // Sync to LocalStorage
+                if (typeof saveCartToLocal === 'function' && data.cart_data) {
+                    saveCartToLocal(data.cart_data);
+                }
             } else {
                 Swal.fire('Error', data.message, 'error');
             }
@@ -82,6 +113,11 @@ function removeItem(id) {
                 const row = document.querySelector(`tr[data-id="${id}"]`);
                 if (row) {
                     fadeOutAndRemove(row, data);
+                }
+
+                // Sync to LocalStorage
+                if (typeof saveCartToLocal === 'function' && data.cart_data) {
+                    saveCartToLocal(data.cart_data);
                 }
             }
         })

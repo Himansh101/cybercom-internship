@@ -242,6 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const formData = new FormData(form);
             formData.append('action', 'place_order');
+            formData.append('is_ajax', '1');
 
             // Show loading state
             Swal.fire({
@@ -261,6 +262,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
+                        // Clear guest persistence
+                        localStorage.removeItem('guest_cart');
+
                         // Redirect to orders page
                         window.location.href = 'orders.php';
                     } else {

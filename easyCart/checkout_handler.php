@@ -12,6 +12,15 @@ if (!isset($_SESSION['user'])) {
 
 $action = $_POST['action'] ?? '';
 
+// DEBUG: Log request data
+// file_put_contents('debug_checkout.log', print_r($_POST, true), FILE_APPEND);
+
+// Ensure is_ajax is detected
+if (isset($_POST['is_ajax'])) {
+    // Force JSON header
+    header('Content-Type: application/json');
+}
+
 switch ($action) {
     case 'calculate_shipping':
         $method = $_POST['shipping_method'] ?? $_SESSION['shipping_method'] ?? 'standard';
@@ -113,6 +122,22 @@ switch ($action) {
         unset($_SESSION['cart']);
         unset($_SESSION['shipping_method']);
         unset($_SESSION['coupon_code']);
+
+        // Sync empty cart to users.json for logged-in users
+        if (isset($_SESSION['user']['id'])) {
+            $userId = $_SESSION['user']['id'];
+            $file = 'users.json';
+            if (file_exists($file)) {
+                $users = json_decode(file_get_contents($file), true) ?? [];
+                foreach ($users as &$u) {
+                    if ($u['id'] === $userId) {
+                        $u['cart'] = []; // Clear persistent cart
+                        break;
+                    }
+                }
+                file_put_contents($file, json_encode($users, JSON_PRETTY_PRINT));
+            }
+        }
 
         // 2. Set success message
         $coupon_code = $_POST['coupon_code'] ?? '';

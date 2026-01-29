@@ -39,7 +39,7 @@ foreach ($_SESSION['cart'] as $id => $quantity) {
 }
 
 // 2. Apply Coupon Discount (if valid)
-$coupon_code = $_POST['coupon_code'] ?? '';
+$coupon_code = $_POST['coupon_code'] ?? $_SESSION['coupon_code'] ?? '';
 $coupon_data = get_coupon_data($coupon_code, $subtotal);
 
 $discount = $coupon_data['discount_amount'];
@@ -103,7 +103,20 @@ $final_total = $discounted_subtotal + $shipping + $gst;
   <main>
     <a href="cart.php" class="back-btn"><i class="ri-arrow-left-line"></i> Back to Cart</a>
 
-    <form action="orders.php" id="checkout-form" method="POST" data-subtotal="<?php echo $subtotal; ?>">
+    <?php if (isset($_SESSION['checkout_errors'])): ?>
+      <div class="error-summary" style="background: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <h4 style="margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px;"><i class="ri-error-warning-fill"></i> Please fix the following errors:</h4>
+        <ul style="margin: 0; padding-left: 20px;">
+          <?php foreach (explode("\n", $_SESSION['checkout_errors']) as $err): ?>
+            <li><?php echo htmlspecialchars($err); ?></li>
+          <?php endforeach; ?>
+        </ul>
+      </div>
+      <?php unset($_SESSION['checkout_errors']); ?>
+    <?php endif; ?>
+
+    <form action="checkout_handler.php" id="checkout-form" method="POST" data-subtotal="<?php echo $subtotal; ?>">
+      <input type="hidden" name="action" value="place_order">
       <div class="checkout-layout">
 
         <section class="checkout-details">

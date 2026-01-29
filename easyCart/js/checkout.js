@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('subtotal', originalSubtotal);
         formData.append('coupon_code', couponCode);
 
-        fetch('cart_handler.php', {
+        fetch('checkout_handler.php', {
             method: 'POST',
             body: formData
         })
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            fetch('cart_handler.php', {
+            fetch('checkout_handler.php', {
                 method: 'POST',
                 body: formData
             })

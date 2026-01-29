@@ -56,6 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (typeof updateCartBadge === 'function') {
                             updateCartBadge(data.cart_count);
                         }
+
+                        // Sync to LocalStorage
+                        if (typeof saveCartToLocal === 'function' && data.cart_data) {
+                            saveCartToLocal(data.cart_data);
+                        }
                     } else {
                         Swal.fire({
                             title: 'Error!',

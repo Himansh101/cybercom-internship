@@ -41,9 +41,9 @@ $featuredProducts = array_filter($products, function ($p) {
         <div class="logo">EasyCart</div>
         <nav>
             <a href="index.php" class="active">Home</a>
+            <a href="plp.php">Products</a>
+            <a href="cart.php" id="cart-nav-link">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
             <?php if ($isLoggedIn): ?>
-                <a href="plp.php">Products</a>
-                <a href="cart.php" id="cart-nav-link">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
                 <a href="orders.php">My Orders</a>
                 <span class="user-greeting" style="color: #6366f1; font-weight: 600; font-size: 0.9rem; border-left: 1px solid #e2e8f0; padding-left: 15px; margin-left: 5px;">
                     Hi, <?php echo htmlspecialchars(explode(' ', $user['name'])[0]); ?>

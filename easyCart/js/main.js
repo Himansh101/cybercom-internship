@@ -28,69 +28,119 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-        const successData = document.getElementById('order-success-data');
+    const successData = document.getElementById('order-success-data');
 
-        if (successData) {
-            const message = successData.dataset.message;
+    if (successData) {
+        const message = successData.dataset.message;
 
-            Swal.fire({
-                title: 'Success!',
-                text: message,
-                icon: 'success',
-                confirmButtonColor: '#10b981'
-            });
-        }
-    });
-
-    /**
-     * Update the cart badge globally across pages
-     * @param {number} count - Total items in cart
-     */
-    function updateCartBadge(count) {
-        // 1. Target by ID (most reliable)
-        let cartLinks = [];
-        const idLink = document.getElementById('cart-nav-link');
-        if (idLink) cartLinks.push(idLink);
-
-        // 2. Fallback: Find all links to cart.php (footer, etc.)
-        const allLinks = document.querySelectorAll('a[href*="cart.php"]');
-        allLinks.forEach(link => {
-            if (!cartLinks.includes(link)) cartLinks.push(link);
-        });
-
-        cartLinks.forEach(link => {
-            let badge = link.querySelector('.cart-badge');
-
-            if (count > 0) {
-                if (!badge) {
-                    badge = document.createElement('span');
-                    badge.className = 'cart-badge';
-                    link.appendChild(badge);
-                }
-
-                // If count changed, add a little "bump" animation
-                if (badge.textContent !== String(count)) {
-                    badge.textContent = count;
-                    badge.style.animation = 'none';
-                    badge.offsetHeight; // trigger reflow
-                    badge.style.animation = 'badgeUpdateBump 0.4s ease-out';
-                }
-            } else if (badge) {
-                badge.remove();
-            }
+        Swal.fire({
+            title: 'Success!',
+            text: message,
+            icon: 'success',
+            confirmButtonColor: '#10b981'
         });
     }
+});
 
-    // Add the bump animation to the document if not already present
-    if (!document.getElementById('cart-badge-anim')) {
-        const style = document.createElement('style');
-        style.id = 'cart-badge-anim';
-        style.innerHTML = `
+/**
+ * Update the cart badge globally across pages
+ * @param {number} count - Total items in cart
+ */
+function updateCartBadge(count) {
+    // 1. Target by ID (most reliable)
+    let cartLinks = [];
+    const idLink = document.getElementById('cart-nav-link');
+    if (idLink) cartLinks.push(idLink);
+
+    // 2. Fallback: Find all links to cart.php (footer, etc.)
+    const allLinks = document.querySelectorAll('a[href*="cart.php"]');
+    allLinks.forEach(link => {
+        if (!cartLinks.includes(link)) cartLinks.push(link);
+    });
+
+    cartLinks.forEach(link => {
+        let badge = link.querySelector('.cart-badge');
+
+        if (count > 0) {
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = 'cart-badge';
+                link.appendChild(badge);
+            }
+
+            // If count changed, add a little "bump" animation
+            if (badge.textContent !== String(count)) {
+                badge.textContent = count;
+                badge.style.animation = 'none';
+                badge.offsetHeight; // trigger reflow
+                badge.style.animation = 'badgeUpdateBump 0.4s ease-out';
+            }
+        } else if (badge) {
+            badge.remove();
+        }
+    });
+}
+
+// Add the bump animation to the document if not already present
+if (!document.getElementById('cart-badge-anim')) {
+    const style = document.createElement('style');
+    style.id = 'cart-badge-anim';
+    style.innerHTML = `
         @keyframes badgeUpdateBump {
             0% { transform: scale(1); }
             50% { transform: scale(1.4); }
             100% { transform: scale(1); }
         }
     `;
-        document.head.appendChild(style);
+    document.head.appendChild(style);
+}
+
+// --- LocalStorage Persistence for Guests ---
+window.saveCartToLocal = function (cartData) {
+    if (!cartData) cartData = {};
+    localStorage.setItem('guest_cart', JSON.stringify(cartData));
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Check on load
+    const localCartJson = localStorage.getItem('guest_cart');
+    if (localCartJson) {
+        try {
+            const localCart = JSON.parse(localCartJson);
+            const hasLocal = Object.keys(localCart).length > 0;
+
+            // Check if server thinks cart is empty
+            const badge = document.querySelector('.cart-badge');
+            // If badge exists and has number > 0, server has items
+            const serverCount = badge ? parseInt(badge.textContent) : 0;
+            const hasServer = serverCount > 0;
+
+            if (hasLocal && !hasServer) {
+                // Server empty, Local has items -> RESTORE
+                console.log('Restoring guest cart from LocalStorage...');
+
+                const formData = new FormData();
+                formData.append('action', 'restore');
+                // send associative array
+                for (const [pid, qty] of Object.entries(localCart)) {
+                    formData.append(`cart_data[${pid}]`, qty);
+                }
+
+                fetch('cart_handler.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            console.log('Cart restored successfully');
+                            location.reload();
+                        }
+                    })
+                    .catch(e => console.error('Restore failed', e));
+            }
+        } catch (e) {
+            console.error('Error parsing guest_cart', e);
+        }
     }
+});

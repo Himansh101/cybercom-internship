@@ -1,12 +1,6 @@
 <?php
 session_start();
 
-// Check if user is logged in
-if (!isset($_SESSION['user'])) {
-    header("Location: login.php");
-    exit();
-}
-
 include 'data/data.php';
 
 // Check if user is logged in

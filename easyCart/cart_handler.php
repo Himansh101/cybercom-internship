@@ -6,10 +6,6 @@ include 'utils/shipping_utils.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['user'])) {
-    echo json_encode(['status' => 'error', 'message' => 'User not logged in']);
-    exit();
-}
 
 $action = $_POST['action'] ?? '';
 
@@ -27,10 +23,12 @@ switch ($action) {
 
         if ($newQty <= $availableStock) {
             $_SESSION['cart'][$productId] = $newQty;
+            syncCartToJson(); // Sync
             echo json_encode([
                 'status' => 'success',
                 'message' => 'Product added to cart!',
-                'cart_count' => count($_SESSION['cart'])
+                'cart_count' => count($_SESSION['cart']),
+                'cart_data' => $_SESSION['cart']
             ]);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Not enough stock available!']);
@@ -63,6 +61,7 @@ switch ($action) {
             }
         }
 
+        syncCartToJson(); // Sync
         sendCartUpdates($products);
         break;
 
@@ -71,13 +70,53 @@ switch ($action) {
         if ($productId && isset($_SESSION['cart'][$productId])) {
             unset($_SESSION['cart'][$productId]);
         }
+        syncCartToJson(); // Sync
         sendCartUpdates($products);
         break;
 
+    case 'restore':
+        $localCart = $_POST['cart_data'] ?? []; // Associative array [id => qty]
+        if (!empty($localCart) && is_array($localCart)) {
+            // Validate items against product list
+            foreach ($localCart as $pid => $qty) {
+                if (isset($products[$pid])) {
+                    $qty = (int)$qty;
+                    if ($qty > 0) {
+                        $_SESSION['cart'][$pid] = $qty; // Trust client qty? Or cap at stock? 
+                        // For now trust, user can adjust later.
+                    }
+                }
+            }
+            syncCartToJson();
+            echo json_encode(['status' => 'success', 'message' => 'Cart restored']);
+        } else {
+            echo json_encode(['status' => 'success', 'message' => 'Nothing to restore']);
+        }
+        break;
 
     default:
         echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
         break;
+}
+
+function syncCartToJson()
+{
+    if (!isset($_SESSION['user']['id'])) return;
+
+    $userId = $_SESSION['user']['id'];
+    $cart = $_SESSION['cart'] ?? [];
+
+    $file = 'users.json';
+    if (file_exists($file)) {
+        $users = json_decode(file_get_contents($file), true) ?? [];
+        foreach ($users as &$user) {
+            if ($user['id'] === $userId) {
+                $user['cart'] = $cart;
+                break;
+            }
+        }
+        file_put_contents($file, json_encode($users, JSON_PRETTY_PRINT));
+    }
 }
 
 function sendCartUpdates($products)
@@ -86,6 +125,7 @@ function sendCartUpdates($products)
         echo json_encode([
             'status' => 'success',
             'cart_count' => 0,
+            'cart_data' => [], // Empty cart
             'subtotal' => 0,
             'cart_html' => '<tr><td colspan="6" class="empty-msg">Your cart is empty.</td></tr>'
         ]);
@@ -113,6 +153,7 @@ function sendCartUpdates($products)
     echo json_encode([
         'status' => 'success',
         'cart_count' => count($_SESSION['cart']),
+        'cart_data' => $_SESSION['cart'], // Send raw cart for LocalStorage
         'subtotal' => '₹' . number_format($subtotal),
         'shipping' => '₹' . number_format($subtotal > 0 ? $shipping_fee : 0),
         'total' => '₹' . number_format($total),

@@ -30,6 +30,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'email' => $user['email'],
             'mobile' => $user['mobile']
           ];
+
+          // Restore cart if exists
+          if (isset($user['cart']) && is_array($user['cart'])) {
+            $_SESSION['cart'] = $user['cart'];
+          }
           header("Location: index.php");
           exit();
         } else {

@@ -112,7 +112,7 @@ function sendCartUpdates($products)
 
     echo json_encode([
         'status' => 'success',
-        'cart_count' => array_sum($_SESSION['cart']),
+        'cart_count' => count($_SESSION['cart']),
         'subtotal' => '₹' . number_format($subtotal),
         'shipping' => '₹' . number_format($subtotal > 0 ? $shipping_fee : 0),
         'total' => '₹' . number_format($total),

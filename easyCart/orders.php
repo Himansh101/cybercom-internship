@@ -13,12 +13,10 @@ include 'data/data.php';
 $isLoggedIn = isset($_SESSION['user']);
 $user = $_SESSION['user'] ?? null;
 
-// 1. Calculate total cart quantity for header
+// 1. Calculate total cart quantity for header (Distinct Items)
 $cartQuantity = 0;
 if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
-  foreach ($_SESSION['cart'] as $quantity) {
-    $cartQuantity += $quantity;
-  }
+  $cartQuantity = count($_SESSION['cart']);
 }
 
 // 2. SUCCESS MESSAGE: Check for session message from checkout

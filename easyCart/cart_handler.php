@@ -30,7 +30,7 @@ switch ($action) {
             echo json_encode([
                 'status' => 'success',
                 'message' => 'Product added to cart!',
-                'cart_count' => array_sum($_SESSION['cart'] ?? [])
+                'cart_count' => count($_SESSION['cart'])
             ]);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Not enough stock available!']);
@@ -82,11 +82,17 @@ switch ($action) {
 
 function sendCartUpdates($products)
 {
-    if (!isset($_SESSION['cart'])) {
-        echo json_encode(['status' => 'error', 'message' => 'Cart is empty', 'cart_count' => 0]);
-        exit();
+    if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
+        echo json_encode([
+            'status' => 'success',
+            'cart_count' => 0,
+            'subtotal' => 0,
+            'cart_html' => '<tr><td colspan="6" class="empty-msg">Your cart is empty.</td></tr>'
+        ]);
+        return;
     }
 
+    $cartCount = count($_SESSION['cart']);
     $subtotal = 0;
     $items = [];
     foreach ($_SESSION['cart'] as $id => $quantity) {

@@ -6,12 +6,10 @@ session_start();
 $isLoggedIn = isset($_SESSION['user']);
 $user = $_SESSION['user'] ?? null;
 
-// Calculate total cart quantity
+// Calculate total cart quantity (Distinct Items)
 $cartQuantity = 0;
 if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
-    foreach ($_SESSION['cart'] as $quantity) {
-        $cartQuantity += $quantity;
-    }
+    $cartQuantity = count($_SESSION['cart']);
 }
 
 // 1. Initialize search query to avoid "Undefined variable" error

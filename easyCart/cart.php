@@ -17,12 +17,10 @@ $subtotal = 0;
 
 $shipping_fee = 40; // Standard Shipping flat rate
 
-// Calculate total cart quantity
+// Calculate total cart quantity (Distinct Items)
 $cartQuantity = 0;
 if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
-  foreach ($_SESSION['cart'] as $quantity) {
-    $cartQuantity += $quantity;
-  }
+  $cartQuantity = count($_SESSION['cart']);
 }
 ?>
 <!doctype html>
@@ -73,7 +71,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 
     <div class="cart-layout">
       <section>
-        <h1 class="mb-12">Shopping Cart</h1>
+        <h1 class="mb-12">Shopping Cart <span style="font-size: 1rem; color: #64748b; font-weight: normal; margin-left: 10px;">(<?php echo count($_SESSION['cart'] ?? []); ?> items)</span></h1>
         <div class="table-responsive">
           <table>
             <thead>

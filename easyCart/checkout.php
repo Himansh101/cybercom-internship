@@ -16,12 +16,10 @@ include 'utils/shipping_utils.php';
 $isLoggedIn = isset($_SESSION['user']);
 $user = $_SESSION['user'] ?? null;
 
-// Calculate total cart quantity
+// Calculate total cart quantity (Distinct Items)
 $cartQuantity = 0;
 if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
-  foreach ($_SESSION['cart'] as $quantity) {
-    $cartQuantity += $quantity;
-  }
+  $cartQuantity = count($_SESSION['cart']);
 }
 
 // Redirect to product page if cart is empty to prevent checking out nothing

@@ -138,7 +138,6 @@ if (empty($cart)) {
 $phone = $user['phone'] ?? 'Not Available';
 echo "Phone: $phone<br>";
 
-
 //Real world scenario
 
 // Cart example

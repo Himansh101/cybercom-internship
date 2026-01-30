@@ -101,6 +101,11 @@ switch ($action) {
         ]);
         break;
 
+    case 'remove_coupon':
+        unset($_SESSION['coupon_code']);
+        echo json_encode(['status' => 'success', 'message' => 'Coupon removed']);
+        break;
+
     case 'place_order':
         // --- BACKEND VALIDATION START ---
         $errors = [];

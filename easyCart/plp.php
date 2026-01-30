@@ -355,7 +355,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
                     </div>
 
                     <div id="product-grid-container" style="position: relative;">
-                        <div id="loading-overlay" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); z-index: 10; align-items: center; justify-content: center; border-radius: 12px;">
+                        <div id="loading-overlay">
                             <i class="ri-loader-4-line ri-spin" style="font-size: 3rem; color: #6366f1;"></i>
                         </div>
                         <?php echo renderProductGrid($paginatedProducts, $brands, $categories); ?>

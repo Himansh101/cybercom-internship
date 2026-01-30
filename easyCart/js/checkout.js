@@ -144,7 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData();
         formData.append('action', 'calculate_shipping');
         formData.append('shipping_method', selectedMethod);
-        formData.append('subtotal', originalSubtotal);
         formData.append('coupon_code', couponCode);
 
         fetch('checkout_handler.php', {
@@ -154,6 +153,11 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
+                    // Update shipping method availability
+                    if (data.allowed_methods) {
+                        updateShippingAvailability(data.allowed_methods, data.shipping_info_message, data.selected_method);
+                    }
+
                     // Update the summary display with data from backend
                     shippingDisplay.textContent = `₹${data.shipping_formatted}`;
                     taxDisplay.textContent = `₹${data.gst_formatted}`;
@@ -179,6 +183,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             })
             .catch(error => console.error('Error:', error));
+    }
+
+    function updateShippingAvailability(allowedMethods, infoMessage, selectedMethod) {
+        const allMethods = ['standard', 'express', 'white_glove', 'freight'];
+
+        // Update each shipping option
+        allMethods.forEach(method => {
+            const radio = document.querySelector(`input[name="shipping_method"][value="${method}"]`);
+            const label = radio ? radio.closest('.shipping-card') : null;
+
+            if (radio && label) {
+                const isAllowed = allowedMethods.includes(method);
+
+                // Enable/disable radio button
+                radio.disabled = !isAllowed;
+
+                // Add/remove disabled class from label
+                if (isAllowed) {
+                    label.classList.remove('disabled');
+                } else {
+                    label.classList.add('disabled');
+                }
+            }
+        });
+
+        // Auto-select the method returned from backend if current selection is invalid
+        if (selectedMethod) {
+            const methodRadio = document.querySelector(`input[name="shipping_method"][value="${selectedMethod}"]`);
+            if (methodRadio && !methodRadio.disabled) {
+                methodRadio.checked = true;
+            }
+        }
+
+        // Update informational message
+        const shippingHeader = document.querySelector('.shipping-header p');
+        if (shippingHeader && infoMessage) {
+            shippingHeader.innerHTML = `<i class="ri-information-line"></i> ${infoMessage}`;
+        }
     }
 
     inputs.forEach(input => {

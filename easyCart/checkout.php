@@ -28,12 +28,34 @@ if (empty($_SESSION['cart'])) {
   exit();
 }
 
-// 1. Calculate Subtotal first
+// 1. Calculate Subtotal first and determine allowed shipping methods
 $subtotal = 0;
+$hasFreightItem = false; // Track if cart has any freight items
+
 foreach ($_SESSION['cart'] as $id => $quantity) {
   if (isset($products[$id])) {
     $subtotal += $products[$id]['price'] * $quantity;
+
+    // Check if this product requires freight shipping
+    if (isset($products[$id]['item_shipping_type']) && $products[$id]['item_shipping_type'] === 'freight') {
+      $hasFreightItem = true;
+    }
   }
+}
+
+// Determine allowed shipping methods based on cart contents and subtotal
+// Priority 1: If ANY item has freight shipping type -> only freight and white_glove
+// Priority 2: Else if subtotal > 300 -> only freight and white_glove
+// Default: Otherwise -> only standard and express
+if ($hasFreightItem) {
+  // Cart contains at least one freight item
+  $allowedShippingMethods = ['white_glove', 'freight'];
+} elseif ($subtotal > 300) {
+  // High-value cart (>300) without freight items
+  $allowedShippingMethods = ['white_glove', 'freight'];
+} else {
+  // Standard cart
+  $allowedShippingMethods = ['standard', 'express'];
 }
 
 // 2. Apply Coupon Discount (if valid)
@@ -48,6 +70,12 @@ $discounted_subtotal = $subtotal - $discount;
 
 // 3. Determine Shipping Cost based on button click or radio selection
 $method = $_POST['shipping_method'] ?? $_SESSION['shipping_method'] ?? 'standard';
+
+// Validate that selected method is allowed for current cart
+if (!in_array($method, $allowedShippingMethods)) {
+  $method = $allowedShippingMethods[0]; // Fallback to first allowed method
+}
+
 $_SESSION['shipping_method'] = $method; // Ensure it's persisted
 $shipping = calculate_shipping_cost($method, $discounted_subtotal);
 
@@ -162,35 +190,56 @@ $final_total = $discounted_subtotal + $shipping + $gst;
           <div class="shipping-section mt-12">
             <div class="shipping-header">
               <h3>Shipping Method</h3>
+              <?php if ($hasFreightItem): ?>
+                <p style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">
+                  <i class="ri-information-line"></i> Your cart contains freight items. Only premium shipping options are available.
+                </p>
+              <?php elseif ($subtotal > 300): ?>
+                <p style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">
+                  <i class="ri-information-line"></i> High-value cart (>₹300). Only premium shipping options are available.
+                </p>
+              <?php else: ?>
+                <p style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">
+                  <i class="ri-information-line"></i> Standard shipping options available for your cart.
+                </p>
+              <?php endif; ?>
             </div>
 
             <div class="shipping-options">
-              <label class="shipping-card">
-                <input type="radio" name="shipping_method" value="standard" <?php echo ($method === 'standard') ? 'checked' : ''; ?>>
+              <label class="shipping-card <?php echo !in_array('standard', $allowedShippingMethods) ? 'disabled' : ''; ?>">
+                <input type="radio" name="shipping_method" value="standard"
+                  <?php echo ($method === 'standard') ? 'checked' : ''; ?>
+                  <?php echo !in_array('standard', $allowedShippingMethods) ? 'disabled' : ''; ?>>
                 <div class="shipping-info">
                   <span class="method-title">Standard Shipping</span>
                   <span class="method-desc">3-5 Business Days</span>
                 </div>
               </label>
 
-              <label class="shipping-card">
-                <input type="radio" name="shipping_method" value="express" <?php echo ($method === 'express') ? 'checked' : ''; ?>>
+              <label class="shipping-card <?php echo !in_array('express', $allowedShippingMethods) ? 'disabled' : ''; ?>">
+                <input type="radio" name="shipping_method" value="express"
+                  <?php echo ($method === 'express') ? 'checked' : ''; ?>
+                  <?php echo !in_array('express', $allowedShippingMethods) ? 'disabled' : ''; ?>>
                 <div class="shipping-info">
                   <span class="method-title">Express Shipping</span>
                   <span class="method-desc">1-2 Business Days</span>
                 </div>
               </label>
 
-              <label class="shipping-card">
-                <input type="radio" name="shipping_method" value="white_glove" <?php echo ($method === 'white_glove') ? 'checked' : ''; ?>>
+              <label class="shipping-card <?php echo !in_array('white_glove', $allowedShippingMethods) ? 'disabled' : ''; ?>">
+                <input type="radio" name="shipping_method" value="white_glove"
+                  <?php echo ($method === 'white_glove') ? 'checked' : ''; ?>
+                  <?php echo !in_array('white_glove', $allowedShippingMethods) ? 'disabled' : ''; ?>>
                 <div class="shipping-info">
                   <span class="method-title">White Glove Delivery</span>
                   <span class="method-desc">Premium In-Home Setup</span>
                 </div>
               </label>
 
-              <label class="shipping-card">
-                <input type="radio" name="shipping_method" value="freight" <?php echo ($method === 'freight') ? 'checked' : ''; ?>>
+              <label class="shipping-card <?php echo !in_array('freight', $allowedShippingMethods) ? 'disabled' : ''; ?>">
+                <input type="radio" name="shipping_method" value="freight"
+                  <?php echo ($method === 'freight') ? 'checked' : ''; ?>
+                  <?php echo !in_array('freight', $allowedShippingMethods) ? 'disabled' : ''; ?>>
                 <div class="shipping-info">
                   <span class="method-title">Freight Shipping</span>
                   <span class="method-desc">Heavy/Bulky Items</span>
@@ -239,8 +288,8 @@ $final_total = $discounted_subtotal + $shipping + $gst;
             <?php if ($discount > 0): ?>
               <div class="row discount-row"><span>Discount (<?php echo $discount_percentage; ?>%)</span><span>-₹<?php echo number_format($discount); ?></span></div>
             <?php endif; ?>
-            <div class="row"><span>Shipping</span><span id="summary-shipping">₹<?php echo number_format($shipping); ?></span></div>
             <div class="row"><span>GST (18%)</span><span id="summary-tax">₹<?php echo number_format($gst); ?></span></div>
+            <div class="row"><span>Shipping</span><span id="summary-shipping">₹<?php echo number_format($shipping); ?></span></div>
             <hr>
             <div class="row total">
               <span>Total</span>

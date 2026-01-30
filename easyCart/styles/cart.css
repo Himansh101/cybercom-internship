@@ -546,6 +546,21 @@ textarea {
     accent-color: #6366f1;
 }
 
+.shipping-card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f8fafc;
+}
+
+.shipping-card.disabled:hover {
+    border-color: #e2e8f0;
+    background: #f8fafc;
+}
+
+.shipping-card.disabled input[type="radio"] {
+    cursor: not-allowed;
+}
+
 .shipping-header {
     display: flex;
     justify-content: space-between;

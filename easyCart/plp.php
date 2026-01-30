@@ -100,6 +100,11 @@ function renderProductGrid($paginatedProducts, $brands, $categories)
                     <?php if ($isOut): ?>
                         <div class="stock-badge">Out of Stock</div>
                     <?php endif; ?>
+                    <?php if (isset($product['item_shipping_type'])): ?>
+                        <div class="shipping-badge <?php echo $product['item_shipping_type']; ?>">
+                            <?php echo ucfirst($product['item_shipping_type']); ?>
+                        </div>
+                    <?php endif; ?>
                     <img src="<?php echo $product['image']; ?>" alt="<?php echo htmlspecialchars($product['name']); ?>"
                         style="<?php echo $isOut ? 'filter: grayscale(1); opacity: 0.6;' : ''; ?>">
                 </div>

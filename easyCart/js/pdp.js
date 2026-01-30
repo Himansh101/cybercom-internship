@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <form id="add-to-cart-form" method="POST">
                     <input type="hidden" name="product_id" value="${productId}">
                     <input type="hidden" name="action" value="add">
-                    <button type="submit" id="add-to-cart-btn" class="btn btn-success" style="width: 100%; justify-content: center; display: flex; align-items: center; gap: 8px;">
+                    <button type="submit" id="add-to-cart-btn" class="btn btn-success pdp-add-to-cart-btn">
                         <i class="ri-shopping-cart-line"></i> Add to Cart
                     </button>
                 </form>
@@ -138,20 +138,19 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // Show Quantity Controls
             actionContainer.innerHTML = `
-                <div class="pdp-qty-control" style="display: flex; align-items: center; gap: 15px; background: #f8fafc; padding: 10px 20px; border-radius: 12px; border: 1px solid #e2e8f0; width: fit-content;">
-                    <button type="button" class="btn-qty minus js-pdp-qty-btn" data-action="minus" data-id="${productId}" style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #cbd5e1; background: white; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                <div class="pdp-qty-control">
+                    <button type="button" class="btn-qty minus js-pdp-qty-btn pdp-qty-btn" data-action="minus" data-id="${productId}">
                         <i class="ri-subtract-line"></i>
                     </button>
-                    <span class="js-pdp-qty-value" style="font-size: 1.2rem; font-weight: 700; min-width: 30px; text-align: center; color: #1e293b;">
+                    <span class="js-pdp-qty-value pdp-qty-value">
                         ${itemData.quantity}
                     </span>
-                    <button type="button" class="btn-qty plus js-pdp-qty-btn" data-action="plus" data-id="${productId}" 
-                        style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #cbd5e1; background: white; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; ${itemData.is_maxed ? 'opacity: 0.5; cursor: not-allowed;' : ''}"
+                    <button type="button" class="btn-qty plus js-pdp-qty-btn pdp-qty-btn" data-action="plus" data-id="${productId}" 
                         ${itemData.is_maxed ? 'disabled' : ''}>
                         <i class="ri-add-line"></i>
                     </button>
                 </div>
-                <div class="pdp-stock-warning" style="margin-top: 8px; font-size: 0.8rem; color: #e11d48; font-weight: 500;">
+                <div class="pdp-stock-warning">
                     ${itemData.is_maxed ? 'Max stock reached' : ''}
                 </div>
             `;

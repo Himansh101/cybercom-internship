@@ -56,7 +56,7 @@ $brandName    = $brands[$product['brand_id']]['name'] ?? 'Generic';
             <a href="cart.php" id="cart-nav-link">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
             <a href="orders.php">My Orders</a>
             <?php if ($isLoggedIn): ?>
-                <span class="user-greeting" style="color: #6366f1; font-weight: 600; font-size: 0.9rem; border-left: 1px solid #e2e8f0; padding-left: 15px; margin-left: 5px;">
+                <span class="user-greeting">
                     Hi, <?php echo htmlspecialchars(explode(' ', $user['name'])[0]); ?>
                 </span>
                 <a href="logout.php">Logout</a>
@@ -91,40 +91,40 @@ $brandName    = $brands[$product['brand_id']]['name'] ?? 'Generic';
                 <h1><?php echo htmlspecialchars($product['name']); ?></h1>
                 <div class="price">₹<?php echo number_format($product['price']); ?></div>
 
-                <div class="meta-row" style="display: flex; gap: 12px; align-items: center; margin: 12px 0;">
-                    <span class="category-badge" style="margin: 0;"><?php echo $categoryName; ?></span>
+                <div class="pdp-meta-row">
+                    <span class="category-badge"><?php echo $categoryName; ?></span>
                     <span class="meta">Brand: <strong><?php echo $brandName; ?></strong></span>
                 </div>
 
-                <div class="stock-container" style="border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 15px 0; margin: 20px 0;">
+                <div class="pdp-stock-container">
                     <?php if ($product['in_stock'] && $product['stock_count'] > 0): ?>
                         <div class="stock-info">
-                            <span style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 50px; font-size: 0.8rem; font-weight: 600;">
+                            <span class="pdp-stock-badge in-stock">
                                 <i class="ri-checkbox-circle-fill"></i> In Stock
                             </span>
-                            <p style="margin-top: 8px; color: #475569; font-size: 0.95rem;">
+                            <p class="pdp-stock-info-text">
                                 <strong><?php echo $product['stock_count']; ?></strong> units available in warehouse
                             </p>
                         </div>
                     <?php else: ?>
                         <div class="stock-info">
-                            <span style="background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 50px; font-size: 0.8rem; font-weight: 600;">
+                            <span class="pdp-stock-badge out-of-stock">
                                 Out of Stock
                             </span>
-                            <p style="margin-top: 8px; color: #94a3b8; font-size: 0.95rem;">Currently unavailable.</p>
+                            <p class="pdp-stock-info-text">Currently unavailable.</p>
                         </div>
                     <?php endif; ?>
 
                     <?php if (isset($product['item_shipping_type'])): ?>
-                        <div class="shipping-type-info" style="margin-top: 12px;">
-                            <span class="shipping-badge-pdp <?php echo $product['item_shipping_type']; ?>" style="display: inline-block; padding: 6px 14px; border-radius: 50px; font-size: 0.85rem; font-weight: 600;">
+                        <div class="pdp-shipping-info">
+                            <span class="pdp-shipping-badge shipping-badge-pdp <?php echo $product['item_shipping_type']; ?>">
                                 <i class="ri-truck-line"></i> <?php echo ucfirst($product['item_shipping_type']); ?> Shipping
                             </span>
                         </div>
                     <?php endif; ?>
 
                     <?php if ($currentQtyInCart > 0): ?>
-                        <div class="cart-status-badge" style="background: #f0fdf4; color: #16a34a; padding: 8px 12px; border-radius: 6px; margin-top: 10px; display: inline-block; border: 1px solid #bbf7d0; font-size: 0.9rem;">
+                        <div class="pdp-cart-status">
                             <i class="ri-shopping-cart-fill"></i> You have <strong><?php echo $currentQtyInCart; ?></strong> in your cart.
                         </div>
                     <?php endif; ?>
@@ -132,33 +132,32 @@ $brandName    = $brands[$product['brand_id']]['name'] ?? 'Generic';
 
                 <p class="description"><?php echo $product['description']; ?></p>
 
-                <ul class="features-list" style="margin: 20px 0; padding-left: 20px; color: #64748b; line-height: 1.6;">
+                <ul class="pdp-features-list">
                     <li>Premium Quality from <?php echo $brandName; ?></li>
                     <li>Official Manufacturer Warranty</li>
                     <li>Fast & Secure Delivery</li>
                 </ul>
 
-                <div class="actions" id="cart-action-container" style="margin-top: 30px;">
+                <div class="pdp-actions-container" id="cart-action-container">
                     <?php if (!$product['in_stock'] || $product['stock_count'] <= 0): ?>
-                        <button class="btn btn-disabled" disabled style="opacity: 0.5; cursor: not-allowed; width: 100%;">
+                        <button class="btn btn-disabled pdp-add-to-cart-btn" disabled>
                             <i class="ri-error-warning-line"></i> Out of Stock
                         </button>
                     <?php elseif ($currentQtyInCart > 0): ?>
                         <!-- Quantity Controls if already in cart -->
-                        <div class="pdp-qty-control" style="display: flex; align-items: center; gap: 15px; background: #f8fafc; padding: 10px 20px; border-radius: 12px; border: 1px solid #e2e8f0; width: fit-content;">
-                            <button type="button" class="btn-qty minus js-pdp-qty-btn" data-action="minus" data-id="<?php echo $productId; ?>" style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #cbd5e1; background: white; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                        <div class="pdp-qty-control">
+                            <button type="button" class="btn-qty minus js-pdp-qty-btn pdp-qty-btn" data-action="minus" data-id="<?php echo $productId; ?>">
                                 <i class="ri-subtract-line"></i>
                             </button>
-                            <span class="js-pdp-qty-value" style="font-size: 1.2rem; font-weight: 700; min-width: 30px; text-align: center; color: #1e293b;">
+                            <span class="js-pdp-qty-value pdp-qty-value">
                                 <?php echo $currentQtyInCart; ?>
                             </span>
-                            <button type="button" class="btn-qty plus js-pdp-qty-btn" data-action="plus" data-id="<?php echo $productId; ?>"
-                                style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #cbd5e1; background: white; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; <?php echo $currentQtyInCart >= $product['stock_count'] ? 'opacity: 0.5; cursor: not-allowed;' : ''; ?>"
+                            <button type="button" class="btn-qty plus js-pdp-qty-btn pdp-qty-btn" data-action="plus" data-id="<?php echo $productId; ?>"
                                 <?php echo $currentQtyInCart >= $product['stock_count'] ? 'disabled' : ''; ?>>
                                 <i class="ri-add-line"></i>
                             </button>
                         </div>
-                        <div class="pdp-stock-warning" style="margin-top: 8px; font-size: 0.8rem; color: #e11d48; font-weight: 500;">
+                        <div class="pdp-stock-warning">
                             <?php if ($currentQtyInCart >= $product['stock_count']): ?>
                                 Max stock reached
                             <?php endif; ?>
@@ -168,7 +167,7 @@ $brandName    = $brands[$product['brand_id']]['name'] ?? 'Generic';
                         <form id="add-to-cart-form" method="POST">
                             <input type="hidden" name="product_id" value="<?php echo $productId; ?>">
                             <input type="hidden" name="action" value="add">
-                            <button type="submit" id="add-to-cart-btn" class="btn btn-success" style="width: 100%; justify-content: center; display: flex; align-items: center; gap: 8px;">
+                            <button type="submit" id="add-to-cart-btn" class="btn btn-success pdp-add-to-cart-btn">
                                 <i class="ri-shopping-cart-line"></i> Add to Cart
                             </button>
                         </form>

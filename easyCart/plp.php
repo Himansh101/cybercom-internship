@@ -61,8 +61,7 @@ if (isset($products) && is_array($products)) {
                 return strcasecmp($b['name'], $a['name']);
             case 'newest':
             default:
-                // Efficient 'newest' sort using array keys (descending if they were added in order)
-                // For this demo, let's assume higher ID means newer, so reverse ID comparison
+                // Efficient 'newest' sort using array keys
                 $idA = array_search($a, $filteredProducts);
                 $idB = array_search($b, $filteredProducts);
                 return $idB <=> $idA;
@@ -78,9 +77,10 @@ $endItem = min($currentPage * $productsPerPage, $totalVisible);
 $offset = ($currentPage - 1) * $productsPerPage;
 $paginatedProducts = array_slice($filteredProducts, $offset, $productsPerPage, true);
 
-/* 3. Render Helper Function */
+/* 3. Helper Functions for Rendering */
 function renderProductGrid($paginatedProducts, $brands, $categories)
 {
+    ob_start();
     echo '<div class="grid">';
 
     if (empty($paginatedProducts)) {
@@ -127,10 +127,87 @@ function renderProductGrid($paginatedProducts, $brands, $categories)
                     <?php endif; ?>
                 </div>
             </div>
-<?php
+    <?php
         }
     }
     echo '</div>';
+    return ob_get_clean();
+}
+
+function renderPagination($currentPage, $totalPages)
+{
+    if ($totalPages <= 1) return '';
+
+    ob_start();
+    $queryParams = $_GET;
+    unset($queryParams['page']);
+    $queryString = http_build_query($queryParams);
+    if (!empty($queryString)) {
+        $queryString .= '&';
+    }
+    ?>
+    <div class="pagination">
+        <?php if ($currentPage > 1): ?>
+            <a href="?<?php echo $queryString; ?>page=<?php echo $currentPage - 1; ?>" class="pagination-btn pagination-prev" data-page="<?php echo $currentPage - 1; ?>">
+                <i class="ri-arrow-left-line"></i> Previous
+            </a>
+        <?php endif; ?>
+
+        <div class="pagination-numbers">
+            <?php
+            $maxVisible = 1;
+            $startPage = max(1, $currentPage - floor($maxVisible / 2));
+            $endPage = $startPage + $maxVisible - 1;
+
+            if ($endPage > $totalPages) {
+                $endPage = $totalPages;
+                $startPage = max(1, $endPage - $maxVisible + 1);
+            }
+
+            if ($startPage > 1): ?>
+                <a href="?<?php echo $queryString; ?>page=1" class="pagination-btn" data-page="1">1</a>
+                <?php if ($startPage > 2): ?>
+                    <span class="pagination-dots">...</span>
+                <?php endif; ?>
+            <?php endif; ?>
+
+            <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+                <a href="?<?php echo $queryString; ?>page=<?php echo $i; ?>"
+                    class="pagination-btn <?php echo ($i == $currentPage) ? 'active' : ''; ?>" data-page="<?php echo $i; ?>">
+                    <?php echo $i; ?>
+                </a>
+            <?php endfor; ?>
+
+            <?php if ($endPage < $totalPages): ?>
+                <?php if ($endPage < $totalPages - 1): ?>
+                    <span class="pagination-dots">...</span>
+                <?php endif; ?>
+                <a href="?<?php echo $queryString; ?>page=<?php echo $totalPages; ?>" class="pagination-btn" data-page="<?php echo $totalPages; ?>"><?php echo $totalPages; ?></a>
+            <?php endif; ?>
+        </div>
+
+        <?php if ($currentPage < $totalPages): ?>
+            <a href="?<?php echo $queryString; ?>page=<?php echo $currentPage + 1; ?>" class="pagination-btn pagination-next" data-page="<?php echo $currentPage + 1; ?>">
+                Next <i class="ri-arrow-right-line"></i>
+            </a>
+        <?php endif; ?>
+    </div>
+<?php
+    return ob_get_clean();
+}
+
+// 4. Handle AJAX Response
+if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+    $response = [
+        'status' => 'success',
+        'grid_html' => renderProductGrid($paginatedProducts, $brands, $categories),
+        'pagination_html' => renderPagination($currentPage, $totalPages),
+        'count_text' => $totalVisible > 0 ? "Showing {$startItem}-{$endItem} of {$totalVisible} Items" : "0 Items Found",
+        'total_visible' => $totalVisible
+    ];
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit;
 }
 ?>
 
@@ -252,7 +329,7 @@ function renderProductGrid($paginatedProducts, $brands, $categories)
                     <div class="shop-content-header">
                         <div>
                             <h1>Our Collection</h1>
-                            <span class="product-count">
+                            <span class="product-count" id="product-count">
                                 <?php
                                 if ($totalVisible > 0) {
                                     echo "Showing {$startItem}-{$endItem} of {$totalVisible} Items";
@@ -277,64 +354,16 @@ function renderProductGrid($paginatedProducts, $brands, $categories)
                         </div>
                     </div>
 
-                    <?php renderProductGrid($paginatedProducts, $brands, $categories); ?>
-
-                    <?php if ($totalPages > 1): ?>
-                        <div class="pagination">
-                            <?php
-                            $queryParams = $_GET;
-                            unset($queryParams['page']);
-                            $queryString = http_build_query($queryParams);
-                            if (!empty($queryString)) {
-                                $queryString .= '&';
-                            }
-
-                            if ($currentPage > 1): ?>
-                                <a href="?<?php echo $queryString; ?>page=<?php echo $currentPage - 1; ?>" class="pagination-btn pagination-prev">
-                                    <i class="ri-arrow-left-line"></i> Previous
-                                </a>
-                            <?php endif; ?>
-
-                            <div class="pagination-numbers">
-                                <?php
-                                $maxVisible = 1;
-                                $startPage = max(1, $currentPage - floor($maxVisible / 2));
-                                $endPage = $startPage + $maxVisible - 1;
-
-                                if ($endPage > $totalPages) {
-                                    $endPage = $totalPages;
-                                    $startPage = max(1, $endPage - $maxVisible + 1);
-                                }
-
-                                if ($startPage > 1): ?>
-                                    <a href="?<?php echo $queryString; ?>page=1" class="pagination-btn">1</a>
-                                    <?php if ($startPage > 2): ?>
-                                        <span class="pagination-dots">...</span>
-                                    <?php endif; ?>
-                                <?php endif; ?>
-
-                                <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
-                                    <a href="?<?php echo $queryString; ?>page=<?php echo $i; ?>"
-                                        class="pagination-btn <?php echo ($i == $currentPage) ? 'active' : ''; ?>">
-                                        <?php echo $i; ?>
-                                    </a>
-                                <?php endfor; ?>
-
-                                <?php if ($endPage < $totalPages): ?>
-                                    <?php if ($endPage < $totalPages - 1): ?>
-                                        <span class="pagination-dots">...</span>
-                                    <?php endif; ?>
-                                    <a href="?<?php echo $queryString; ?>page=<?php echo $totalPages; ?>" class="pagination-btn"><?php echo $totalPages; ?></a>
-                                <?php endif; ?>
-                            </div>
-
-                            <?php if ($currentPage < $totalPages): ?>
-                                <a href="?<?php echo $queryString; ?>page=<?php echo $currentPage + 1; ?>" class="pagination-btn pagination-next">
-                                    Next <i class="ri-arrow-right-line"></i>
-                                </a>
-                            <?php endif; ?>
+                    <div id="product-grid-container" style="position: relative;">
+                        <div id="loading-overlay" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); z-index: 10; align-items: center; justify-content: center; border-radius: 12px;">
+                            <i class="ri-loader-4-line ri-spin" style="font-size: 3rem; color: #6366f1;"></i>
                         </div>
-                    <?php endif; ?>
+                        <?php echo renderProductGrid($paginatedProducts, $brands, $categories); ?>
+                    </div>
+
+                    <div id="pagination-container">
+                        <?php echo renderPagination($currentPage, $totalPages); ?>
+                    </div>
                 </section>
             </div>
         </form>

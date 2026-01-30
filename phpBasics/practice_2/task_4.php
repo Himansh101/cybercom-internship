@@ -90,7 +90,6 @@ foreach ($user as $key => $value) {
 
 echo "<br>";
 
-
 //break and continue
 
 // Stop loop when number is 4

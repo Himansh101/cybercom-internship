@@ -80,8 +80,15 @@ $featuredProducts = array_filter($products, function ($p) {
                     <?php foreach ($featuredProducts as $id => $product):
                         $categoryName = $categories[$product['cat_id']];
                     ?>
-                        <div class="card">
-                            <img src="<?php echo $product['image']; ?>" alt="<?php echo $product['name']; ?>">
+                        <div class="card product-card">
+                            <div class="product-image-wrapper">
+                                <?php if (isset($product['item_shipping_type'])): ?>
+                                    <div class="shipping-badge <?php echo $product['item_shipping_type']; ?>">
+                                        <?php echo ucfirst($product['item_shipping_type']); ?>
+                                    </div>
+                                <?php endif; ?>
+                                <img src="<?php echo $product['image']; ?>" alt="<?php echo $product['name']; ?>">
+                            </div>
                             <div class="category-badge"><?php echo $categoryName; ?></div>
                             <h3><?php echo $product['name']; ?></h3>
                             <div class="meta">₹<?php echo number_format($product['price']); ?> · New Arrival</div>

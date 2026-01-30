@@ -113,7 +113,7 @@ $final_total = $discounted_subtotal + $shipping + $gst;
       <a href="cart.php" id="cart-nav-link">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
       <a href="orders.php">My Orders</a>
       <?php if ($isLoggedIn): ?>
-        <span class="user-greeting" >
+        <span class="user-greeting">
           Hi, <?php echo htmlspecialchars(explode(' ', $user['name'])[0]); ?>
         </span>
         <a href="logout.php">Logout</a>
@@ -273,8 +273,12 @@ $final_total = $discounted_subtotal + $shipping + $gst;
               <h3>Have a Coupon?</h3>
             </div>
             <div class="coupon-input-group">
-              <input type="text" id="coupon_code" name="coupon_code" value="<?php echo htmlspecialchars($coupon_code); ?>" placeholder="Enter coupon code (e.g., SAVE5, SAVE10, SAVE15, SAVE20)">
-              <button type="button" id="apply_coupon" class="btn btn-secondary">Apply</button>
+              <input type="text" id="coupon_code" name="coupon_code" value="<?php echo htmlspecialchars($coupon_code); ?>" placeholder="Enter coupon code (e.g., SAVE10, SAVE20)">
+              <?php if ($discount > 0): ?>
+                <button type="button" id="apply_coupon" class="btn btn-secondary" data-state="remove">Remove</button>
+              <?php else: ?>
+                <button type="button" id="apply_coupon" class="btn btn-secondary" data-state="apply">Apply</button>
+              <?php endif; ?>
             </div>
             <?php if (!empty($discount_message)): ?>
               <div class="coupon-message" style="margin-top: 8px; font-size: 14px; color: <?php echo ($discount > 0) ? '#10b981' : '#ef4444'; ?>;">

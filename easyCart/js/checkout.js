@@ -177,8 +177,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (discountDisplay) {
                             discountDisplay.textContent = `-₹${data.discount_formatted}`;
                         }
+
+                        // Change button to Remove state
+                        if (applyCouponBtn) {
+                            applyCouponBtn.textContent = 'Remove';
+                            applyCouponBtn.dataset.state = 'remove';
+                        }
                     } else {
                         showDiscountRow(false);
+
+                        // Change button to Apply state
+                        if (applyCouponBtn) {
+                            applyCouponBtn.textContent = 'Apply';
+                            applyCouponBtn.dataset.state = 'apply';
+                        }
                     }
                 }
             })
@@ -242,7 +254,43 @@ document.addEventListener('DOMContentLoaded', () => {
     // Coupon functionality
     if (applyCouponBtn && couponInput) {
         applyCouponBtn.addEventListener('click', () => {
-            updateSummary();
+            const state = applyCouponBtn.dataset.state;
+
+            if (state === 'remove') {
+                // Handle Removal
+                const formData = new FormData();
+                formData.append('action', 'remove_coupon');
+
+                fetch('checkout_handler.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            couponInput.value = '';
+                            applyCouponBtn.textContent = 'Apply';
+                            applyCouponBtn.dataset.state = 'apply';
+
+                            removeCoupon();
+                            updateSummary();
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Coupon Removed',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 2000,
+                                timerProgressBar: true
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            } else {
+                // Handle Apply
+                updateSummary();
+            }
         });
 
         couponInput.addEventListener('keypress', (e) => {

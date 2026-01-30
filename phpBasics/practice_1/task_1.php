@@ -8,7 +8,6 @@
 // $arr = [1,2,3,5,6,7];
 // $n = null;
 
-
 /* PRACTICE: BASICS & VARIABLES (ALL LEVELS) */
 
 $greeting = "Hello the year is";

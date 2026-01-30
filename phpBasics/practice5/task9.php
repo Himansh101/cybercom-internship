@@ -113,7 +113,7 @@ class Customer extends UserOne
 $customer = new Customer("intern", 120);
 echo $customer->getDetails();
 
-//Method Overloading
+//Method Overriding
 
 class AdminOne extends User
 {

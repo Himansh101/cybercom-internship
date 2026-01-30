@@ -138,20 +138,41 @@ $brandName    = $brands[$product['brand_id']]['name'] ?? 'Generic';
                     <li>Fast & Secure Delivery</li>
                 </ul>
 
-                <div class="actions" style="margin-top: 30px;">
-                    <?php if (isset($error)): ?>
-                        <p style="color: #e11d48; margin-bottom: 10px; font-weight: 600;"><?php echo $error; ?></p>
-                    <?php endif; ?>
-
-                    <form id="add-to-cart-form" method="POST">
-                        <input type="hidden" name="product_id" value="<?php echo $productId; ?>">
-                        <input type="hidden" name="action" value="add">
-                        <button type="submit" id="add-to-cart-btn" class="btn btn-success"
-                            <?php echo (!$product['in_stock'] || $product['stock_count'] <= 0) ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''; ?>>
-                            <i class="ri-shopping-cart-line"></i>
-                            <?php echo ($product['in_stock'] && $product['stock_count'] > 0) ? 'Add to Cart' : 'Out of Stock'; ?>
+                <div class="actions" id="cart-action-container" style="margin-top: 30px;">
+                    <?php if (!$product['in_stock'] || $product['stock_count'] <= 0): ?>
+                        <button class="btn btn-disabled" disabled style="opacity: 0.5; cursor: not-allowed; width: 100%;">
+                            <i class="ri-error-warning-line"></i> Out of Stock
                         </button>
-                    </form>
+                    <?php elseif ($currentQtyInCart > 0): ?>
+                        <!-- Quantity Controls if already in cart -->
+                        <div class="pdp-qty-control" style="display: flex; align-items: center; gap: 15px; background: #f8fafc; padding: 10px 20px; border-radius: 12px; border: 1px solid #e2e8f0; width: fit-content;">
+                            <button type="button" class="btn-qty minus js-pdp-qty-btn" data-action="minus" data-id="<?php echo $productId; ?>" style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #cbd5e1; background: white; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                                <i class="ri-subtract-line"></i>
+                            </button>
+                            <span class="js-pdp-qty-value" style="font-size: 1.2rem; font-weight: 700; min-width: 30px; text-align: center; color: #1e293b;">
+                                <?php echo $currentQtyInCart; ?>
+                            </span>
+                            <button type="button" class="btn-qty plus js-pdp-qty-btn" data-action="plus" data-id="<?php echo $productId; ?>"
+                                style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid #cbd5e1; background: white; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; <?php echo $currentQtyInCart >= $product['stock_count'] ? 'opacity: 0.5; cursor: not-allowed;' : ''; ?>"
+                                <?php echo $currentQtyInCart >= $product['stock_count'] ? 'disabled' : ''; ?>>
+                                <i class="ri-add-line"></i>
+                            </button>
+                        </div>
+                        <div class="pdp-stock-warning" style="margin-top: 8px; font-size: 0.8rem; color: #e11d48; font-weight: 500;">
+                            <?php if ($currentQtyInCart >= $product['stock_count']): ?>
+                                Max stock reached
+                            <?php endif; ?>
+                        </div>
+                    <?php else: ?>
+                        <!-- Standard Add to Cart Button -->
+                        <form id="add-to-cart-form" method="POST">
+                            <input type="hidden" name="product_id" value="<?php echo $productId; ?>">
+                            <input type="hidden" name="action" value="add">
+                            <button type="submit" id="add-to-cart-btn" class="btn btn-success" style="width: 100%; justify-content: center; display: flex; align-items: center; gap: 8px;">
+                                <i class="ri-shopping-cart-line"></i> Add to Cart
+                            </button>
+                        </form>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

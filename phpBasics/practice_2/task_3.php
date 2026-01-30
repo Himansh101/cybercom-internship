@@ -165,7 +165,6 @@ if ($coupon === "SAVE10") {
 $finalTotal = $subtotal - $discount;
 echo "Final Amount: ₹" . $finalTotal . "<br>";
 
-
 // Order status using switch
 $orderStatus = "shipped";
 

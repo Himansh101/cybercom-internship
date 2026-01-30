@@ -26,6 +26,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(data => {
                     if (data.status === 'success') {
                         updatePDPActionUI(data, formData.get('product_id'));
+
+                        // Toast notification for added to cart
+                        Swal.fire({
+                            title: 'Added to Cart!',
+                            text: 'Product successfully added to your shopping cart.',
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end',
+                            timerProgressBar: true
+                        });
+
                         if (typeof updateCartBadge === 'function') updateCartBadge(data.cart_count);
                         if (typeof saveCartToLocal === 'function' && data.cart_data) saveCartToLocal(data.cart_data);
                     } else {
@@ -84,6 +97,21 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 if (data.status === 'success') {
                     updatePDPActionUI(data, id);
+
+                    // Show notification for addition
+                    if (action === 'plus') {
+                        Swal.fire({
+                            title: 'Quantity Updated!',
+                            text: 'Item quantity increased in your cart.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end',
+                            timerProgressBar: true
+                        });
+                    }
+
                     if (typeof updateCartBadge === 'function') updateCartBadge(data.cart_count);
                     if (typeof saveCartToLocal === 'function' && data.cart_data) saveCartToLocal(data.cart_data);
                 } else {

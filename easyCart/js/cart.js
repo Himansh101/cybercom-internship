@@ -85,6 +85,16 @@ function updateQuantity(id, qtyAction) {
                     }
                 } else {
                     updateCartUI(data);
+
+                    // Show success toast for update
+                    Swal.fire({
+                        title: qtyAction === 'plus' ? 'Quantity Increased' : 'Quantity Decreased',
+                        icon: 'success',
+                        timer: 1000,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end',
+                    });
                 }
 
                 // Sync to LocalStorage

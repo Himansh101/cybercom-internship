@@ -162,6 +162,15 @@ header .logo {
     background-clip: text;
 }
 
+.user-greeting{
+color: #6366f1;
+font-weight: 600;
+font-size: 0.9rem;
+border-left: 1px solid #e2e8f0;
+padding-left: 15px;
+margin-left: 5px
+}
+
 nav {
     display: flex;
     gap: 8px;

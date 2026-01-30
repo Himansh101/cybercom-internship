@@ -236,7 +236,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
             <a href="cart.php" id="cart-nav-link">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
             <a href="orders.php">My Orders</a>
             <?php if ($isLoggedIn): ?>
-                <span class="user-greeting" style="color: #6366f1; font-weight: 600; font-size: 0.9rem; border-left: 1px solid #e2e8f0; padding-left: 15px; margin-left: 5px;">
+                <span class="user-greeting">
                     Hi, <?php echo htmlspecialchars(explode(' ', $user['name'])[0]); ?>
                 </span>
                 <a href="logout.php">Logout</a>

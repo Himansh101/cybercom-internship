@@ -366,7 +366,7 @@ $products = [
         'description' => 'Tactile feedback for faster typing and gaming.',
         'is_featured' => true,
         'in_stock' => true,
-        'item_shipping_type' => 'freight'
+        'item_shipping_type' => 'express'
     ],
     125 => [
         'cat_id' => 'cat_01',

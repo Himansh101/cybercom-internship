@@ -24,12 +24,9 @@ switch ($action) {
         if ($newQty <= $availableStock) {
             $_SESSION['cart'][$productId] = $newQty;
             syncCartToJson(); // Sync
-            echo json_encode([
-                'status' => 'success',
-                'message' => 'Product added to cart!',
-                'cart_count' => count($_SESSION['cart']),
-                'cart_data' => $_SESSION['cart']
-            ]);
+
+            // Return full updates so PDP can update UI
+            sendCartUpdates($products);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Not enough stock available!']);
         }

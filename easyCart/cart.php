@@ -4,14 +4,38 @@ session_start();
 // Check if user is logged in
 
 include 'data/data.php';
+include 'utils/shipping_utils.php';
 
 // Check if user is logged in
 $isLoggedIn = isset($_SESSION['user']);
 $user = $_SESSION['user'] ?? null;
 
 $subtotal = 0;
+$hasFreightItem = false;
 
-$shipping_fee = 40; // Standard Shipping flat rate
+// Calculate subtotal and check for freight items
+if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
+  foreach ($_SESSION['cart'] as $id => $quantity) {
+    if (isset($products[$id])) {
+      $subtotal += $products[$id]['price'] * $quantity;
+
+      // Check if this product requires freight shipping
+      if (isset($products[$id]['item_shipping_type']) && $products[$id]['item_shipping_type'] === 'freight') {
+        $hasFreightItem = true;
+      }
+    }
+  }
+}
+
+// Determine default shipping method based on cart
+if ($hasFreightItem || $subtotal > 300) {
+  $defaultShippingMethod = 'white_glove';
+} else {
+  $defaultShippingMethod = 'standard';
+}
+
+// Calculate shipping cost
+$shipping_fee = calculate_shipping_cost($defaultShippingMethod, $subtotal);
 
 // Calculate total cart quantity (Distinct Items)
 $cartQuantity = 0;
@@ -86,7 +110,7 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
                   if (!isset($products[$id])) continue;
                   $product = $products[$id];
                   $item_total = $product['price'] * $quantity;
-                  $subtotal += $item_total;
+                  // Subtotal already calculated at top of file
                   $maxStock = $product['stock_count'] ?? 0;
                   $isMaxed = ($quantity >= $maxStock);
                 ?>
@@ -142,7 +166,20 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
         <h2>Price Summary</h2>
         <div class="summary-details">
           <div class="row"><span>Subtotal</span><span id="cart-subtotal">₹<?php echo number_format($subtotal); ?></span></div>
-          <div class="row"><span>Shipping</span><span id="cart-shipping">₹<?php echo number_format($subtotal > 0 ? $shipping_fee : 0); ?></span></div>
+          <div class="row">
+            <span>Shipping</span>
+            <span id="cart-shipping" data-method="<?php echo $defaultShippingMethod; ?>">
+              <?php
+              $methodNames = [
+                'standard' => 'Standard',
+                'express' => 'Express',
+                'freight' => 'Freight',
+                'white_glove' => 'White Glove'
+              ];
+              echo $methodNames[$defaultShippingMethod] . ' - ₹' . number_format($subtotal > 0 ? $shipping_fee : 0);
+              ?>
+            </span>
+          </div>
           <hr class="summary-divider">
           <div class="row total"><span>Total Amount</span><span id="cart-total">₹<?php echo number_format($subtotal > 0 ? ($subtotal + $shipping_fee) : 0); ?></span></div>
         </div>

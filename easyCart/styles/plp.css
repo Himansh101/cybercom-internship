@@ -332,6 +332,28 @@
     z-index: 2;
 }
 
+.shipping-badge {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    z-index: 2;
+    text-transform: capitalize;
+}
+
+.shipping-badge.express {
+    background: #10b981;
+    color: white;
+}
+
+.shipping-badge.freight {
+    background: #f59e0b;
+    color: white;
+}
+
 .is-out-of-stock {
     opacity: 0.75;
 }

@@ -23,9 +23,45 @@ if (isset($_POST['is_ajax'])) {
 
 switch ($action) {
     case 'calculate_shipping':
+        // Calculate subtotal and check for freight items from session cart
+        $subtotal = 0;
+        $hasFreightItem = false;
+
+        if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
+            foreach ($_SESSION['cart'] as $id => $quantity) {
+                if (isset($products[$id])) {
+                    $subtotal += $products[$id]['price'] * $quantity;
+
+                    // Check if this product requires freight shipping
+                    if (isset($products[$id]['item_shipping_type']) && $products[$id]['item_shipping_type'] === 'freight') {
+                        $hasFreightItem = true;
+                    }
+                }
+            }
+        }
+
+        // Determine allowed shipping methods based on cart contents and subtotal
+        if ($hasFreightItem) {
+            $allowedShippingMethods = ['white_glove', 'freight'];
+            $shippingInfoMessage = 'Your cart contains freight items. Only premium shipping options are available.';
+        } elseif ($subtotal > 300) {
+            $allowedShippingMethods = ['white_glove', 'freight'];
+            $shippingInfoMessage = 'High-value cart (>₹300). Only premium shipping options are available.';
+        } else {
+            $allowedShippingMethods = ['standard', 'express'];
+            $shippingInfoMessage = 'Standard shipping options available for your cart.';
+        }
+
         $method = $_POST['shipping_method'] ?? $_SESSION['shipping_method'] ?? 'standard';
+
+        // Validate that selected method is allowed
+        if (!in_array($method, $allowedShippingMethods)) {
+            // Auto-select first allowed method
+            $method = $allowedShippingMethods[0];
+        }
+
         $_SESSION['shipping_method'] = $method; // Persist in session
-        $subtotal = (float)($_POST['subtotal'] ?? 0);
+
         $coupon_code = $_POST['coupon_code'] ?? '';
         $_SESSION['coupon_code'] = $coupon_code; // Persist in session
 
@@ -46,6 +82,11 @@ switch ($action) {
 
         echo json_encode([
             'status' => 'success',
+            'subtotal_raw' => $subtotal,
+            'has_freight_item' => $hasFreightItem,
+            'allowed_methods' => $allowedShippingMethods,
+            'shipping_info_message' => $shippingInfoMessage,
+            'selected_method' => $method,
             'discount' => $discount,
             'discount_pct' => $discount_pct,
             'coupon_valid' => $coupon_valid,

@@ -115,6 +115,14 @@ $brandName    = $brands[$product['brand_id']]['name'] ?? 'Generic';
                         </div>
                     <?php endif; ?>
 
+                    <?php if (isset($product['item_shipping_type'])): ?>
+                        <div class="shipping-type-info" style="margin-top: 12px;">
+                            <span class="shipping-badge-pdp <?php echo $product['item_shipping_type']; ?>" style="display: inline-block; padding: 6px 14px; border-radius: 50px; font-size: 0.85rem; font-weight: 600;">
+                                <i class="ri-truck-line"></i> <?php echo ucfirst($product['item_shipping_type']); ?> Shipping
+                            </span>
+                        </div>
+                    <?php endif; ?>
+
                     <?php if ($currentQtyInCart > 0): ?>
                         <div class="cart-status-badge" style="background: #f0fdf4; color: #16a34a; padding: 8px 12px; border-radius: 6px; margin-top: 10px; display: inline-block; border: 1px solid #bbf7d0; font-size: 0.9rem;">
                             <i class="ri-shopping-cart-fill"></i> You have <strong><?php echo $currentQtyInCart; ?></strong> in your cart.

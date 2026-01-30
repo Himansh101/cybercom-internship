@@ -134,11 +134,19 @@ function sendCartUpdates($products)
 
     $cartCount = count($_SESSION['cart']);
     $subtotal = 0;
+    $hasFreightItem = false;
     $items = [];
+
     foreach ($_SESSION['cart'] as $id => $quantity) {
         if (isset($products[$id])) {
             $item_total = $products[$id]['price'] * $quantity;
             $subtotal += $item_total;
+
+            // Check if this product requires freight shipping
+            if (isset($products[$id]['item_shipping_type']) && $products[$id]['item_shipping_type'] === 'freight') {
+                $hasFreightItem = true;
+            }
+
             $items[$id] = [
                 'quantity' => $quantity,
                 'item_total' => '₹' . number_format($item_total),
@@ -147,15 +155,32 @@ function sendCartUpdates($products)
         }
     }
 
-    $shipping_fee = 40;
+    // Determine shipping method based on cart contents
+    if ($hasFreightItem || $subtotal > 300) {
+        $shippingMethod = 'white_glove';
+    } else {
+        $shippingMethod = 'standard';
+    }
+
+    // Calculate shipping cost using the shipping utility
+    $shipping_fee = calculate_shipping_cost($shippingMethod, $subtotal);
     $total = $subtotal > 0 ? ($subtotal + $shipping_fee) : 0;
+
+    // Method names for display
+    $methodNames = [
+        'standard' => 'Standard',
+        'express' => 'Express',
+        'freight' => 'Freight',
+        'white_glove' => 'White Glove'
+    ];
 
     echo json_encode([
         'status' => 'success',
         'cart_count' => count($_SESSION['cart']),
         'cart_data' => $_SESSION['cart'], // Send raw cart for LocalStorage
         'subtotal' => '₹' . number_format($subtotal),
-        'shipping' => '₹' . number_format($subtotal > 0 ? $shipping_fee : 0),
+        'shipping' => $methodNames[$shippingMethod] . ' - ₹' . number_format($subtotal > 0 ? $shipping_fee : 0),
+        'shipping_method' => $shippingMethod,
         'total' => '₹' . number_format($total),
         'items' => $items
     ]);

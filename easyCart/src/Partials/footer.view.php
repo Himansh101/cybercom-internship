@@ -17,12 +17,12 @@
                 <ul>
                     <li><a href="index.php">Home</a></li>
                     <?php if ($isLoggedIn): ?>
-                        <li><a href="plp.php">Shop Products</a></li>
-                        <li><a href="cart.php">My Cart</a></li>
-                        <li><a href="orders.php">Track Orders</a></li>
-                        <li><a href="logout.php">Logout</a></li>
+                        <li><a href="plp">Shop Products</a></li>
+                        <li><a href="cart">My Cart</a></li>
+                        <li><a href="orders">Track Orders</a></li>
+                        <li><a href="logout">Logout</a></li>
                     <?php else: ?>
-                        <li><a href="login.php">Login / Register</a></li>
+                        <li><a href="login">Login / Register</a></li>
                     <?php endif; ?>
                 </ul>
             </div>

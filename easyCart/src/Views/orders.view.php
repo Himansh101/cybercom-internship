@@ -54,15 +54,13 @@ require_once __DIR__ . '/../partials/header.view.php';
                     </div>
 
                     <div class="order-items-grid">
-                        <?php foreach ($order['items'] as $item): 
-                            $product = $products[$item['id']] ?? null;
-                        ?>
+                        <?php foreach ($order['items'] as $item): ?>
                             <div class="order-item-chip">
                                 <div class="item-img">
-                                    <img src="assets/<?php echo $product['image'] ?? 'images/placeholder.svg'; ?>" alt="">
+                                    <img src="assets/<?php echo $item['image']; ?>" alt="">
                                 </div>
                                 <div class="item-info">
-                                    <span class="item-name"><?php echo htmlspecialchars($product['name'] ?? 'Unknown Product'); ?></span>
+                                    <span class="item-name"><?php echo htmlspecialchars($item['name']); ?></span>
                                     <span class="item-qty">Qty: <?php echo $item['qty']; ?></span>
                                 </div>
                                 <div class="item-price">

@@ -28,37 +28,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Password must contain at least one number!";
     } else {
         // Check if user already exists
-        $users = [];
-        $file = __DIR__ . '/../../users.json';
-        if (file_exists($file)) {
-            $json_data = file_get_contents($file);
-            $users = json_decode($json_data, true) ?? [];
-        }
-
-        $userExists = false;
-        foreach ($users as $user) {
-            if ($user['email'] === $email) {
-                $userExists = true;
-                break;
-            }
-        }
-
-        if ($userExists) {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM customer_entity WHERE email = :email");
+        $stmt->execute([':email' => $email]);
+        if ($stmt->fetchColumn() > 0) {
             $error = "An account with this email already exists!";
         } else {
-            // Create new user
+            // Create new user in Database
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            $newUser = [
-                'id' => uniqid('user_', true),
-                'name' => $fullName,
-                'email' => $email,
-                'mobile' => $mobile,
-                'password' => $hashedPassword,
-                'created_at' => date('Y-m-d H:i:s')
-            ];
-
-            $users[] = $newUser;
-            file_put_contents($file, json_encode($users, JSON_PRETTY_PRINT));
+            $stmt = $pdo->prepare("INSERT INTO customer_entity (name, email, mobile, password, created_at) VALUES (:name, :email, :mobile, :password, :created)");
+            $stmt->execute([
+                ':name' => $fullName,
+                ':email' => $email,
+                ':mobile' => $mobile,
+                ':password' => $hashedPassword,
+                ':created' => date('Y-m-d H:i:s')
+            ]);
 
             // Redirect to login with success message
             header("Location: login.php?registered=true");

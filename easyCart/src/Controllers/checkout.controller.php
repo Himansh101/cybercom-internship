@@ -2,12 +2,10 @@
 require_once __DIR__ . '/../init.php';
 
 // Check if user is logged in
-if (!isset($_SESSION['user'])) {
+if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
-
-global $products;
 
 // Page meta
 $pageTitle = 'EasyCart | Checkout';
@@ -15,24 +13,43 @@ $currentPage = 'checkout';
 $extraStyles = ['cart.css'];
 $extraScripts = ['checkout.js'];
 
+// 1. Fetch Cart Items from Database
+$dbCartItems = loadCartArrayFromDb($pdo, $cartId);
+
 // Redirect to product page if cart is empty
-if (empty($_SESSION['cart'])) {
+if (empty($dbCartItems)) {
     header("Location: plp.php");
     exit();
 }
 
-// 1. Calculate Subtotal first and determine allowed shipping methods
 $subtotal = 0;
 $hasFreightItem = false;
+$checkoutItems = [];
 
-foreach ($_SESSION['cart'] as $id => $quantity) {
-    if (isset($products[$id])) {
-        $subtotal += $products[$id]['price'] * $quantity;
+foreach ($dbCartItems as $id => $quantity) {
+    $stmt = $pdo->prepare("SELECT p.*, i.image_url as image,
+        (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'shipping_type') as shipping_type
+        FROM catalog_product_entity p 
+        LEFT JOIN catalog_product_image i ON p.entity_id = i.product_id AND i.is_main_image = true
+        WHERE p.entity_id = ?");
+    $stmt->execute([$id]);
+    $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Check if this product requires freight shipping
-        if (isset($products[$id]['item_shipping_type']) && $products[$id]['item_shipping_type'] === 'freight') {
+    if ($product) {
+        $item_total = $product['price'] * $quantity;
+        $subtotal += $item_total;
+
+        if ($product['shipping_type'] === 'freight') {
             $hasFreightItem = true;
         }
+
+        $checkoutItems[$id] = [
+            'name' => $product['name'],
+            'price' => $product['price'],
+            'image' => (strpos($product['image'] ?? '', 'http') === 0) ? $product['image'] : 'assets/images/products/' . $product['image'],
+            'quantity' => $quantity,
+            'item_total' => $item_total
+        ];
     }
 }
 

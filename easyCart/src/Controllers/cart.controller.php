@@ -1,6 +1,12 @@
 <?php
 require_once __DIR__ . '/../init.php';
 
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
 // Page meta
 $pageTitle = 'EasyCart | Shopping Cart';
 $currentPage = 'cart';
@@ -10,17 +16,39 @@ $extraScripts = ['cart.js'];
 $subtotal = 0;
 $hasFreightItem = false;
 
-// Calculate subtotal and check for freight items
-global $products;
-if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
-    foreach ($_SESSION['cart'] as $id => $quantity) {
-        if (isset($products[$id])) {
-            $subtotal += $products[$id]['price'] * $quantity;
+// 1. Fetch Cart Items from Database
+$cartItemsFromDb = loadCartArrayFromDb($pdo, $cartId);
 
-            // Check if this product requires freight shipping
-            if (isset($products[$id]['item_shipping_type']) && $products[$id]['item_shipping_type'] === 'freight') {
+$cartItems = [];
+if (!empty($cartItemsFromDb)) {
+    foreach ($cartItemsFromDb as $id => $quantity) {
+        $stmt = $pdo->prepare("SELECT p.*, i.image_url as image,
+            (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'shipping_type') as shipping_type
+            FROM catalog_product_entity p 
+            LEFT JOIN catalog_product_image i ON p.entity_id = i.product_id AND i.is_main_image = true
+            WHERE p.entity_id = ?");
+        $stmt->execute([$id]);
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($product) {
+            $item_total = $product['price'] * $quantity;
+            $subtotal += $item_total;
+            if ($product['shipping_type'] === 'freight') {
                 $hasFreightItem = true;
             }
+            
+            $cartItems[$id] = [
+                'id' => $product['entity_id'],
+                'name' => $product['name'],
+                'price' => $product['price'],
+                'image' => (strpos($product['image'], 'http') === 0) ? $product['image'] : $product['image'],
+                'stock_count' => $product['stock_count'],
+                'quantity' => $quantity,
+                'item_total' => $item_total
+            ];
+        } else {
+            // Product no longer exists, remove from DB cart
+            updateCartItemDb($pdo, $cartId, $id, 0);
         }
     }
 }

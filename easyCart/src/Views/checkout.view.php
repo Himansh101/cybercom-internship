@@ -127,19 +127,15 @@ require_once __DIR__ . '/../partials/header.view.php';
         <aside class="checkout-summary">
             <h2>Order Summary</h2>
             <div class="summary-items">
-                <?php 
-                global $products;
-                foreach ($_SESSION['cart'] as $id => $quantity):
-                    $product = $products[$id];
-                ?>
+                <?php foreach ($checkoutItems as $id => $item): ?>
                     <div class="summary-product-row">
                         <div class="summary-img-wrapper">
-                            <img src="assets/<?php echo $product['image']; ?>" alt="">
-                            <?php if ($quantity > 1): ?><span class="qty-badge"><?php echo $quantity; ?></span><?php endif; ?>
+                            <img src="<?php echo $item['image']; ?>" alt="">
+                            <?php if ($item['quantity'] > 1): ?><span class="qty-badge"><?php echo $item['quantity']; ?></span><?php endif; ?>
                         </div>
                         <div class="summary-product-info">
-                            <span class="product-name"><?php echo $product['name']; ?></span>
-                            <span class="product-price">₹<?php echo number_format($product['price'] * $quantity); ?></span>
+                            <span class="product-name"><?php echo htmlspecialchars($item['name']); ?></span>
+                            <span class="product-price">₹<?php echo number_format($item['item_total']); ?></span>
                         </div>
                     </div>
                 <?php endforeach; ?>

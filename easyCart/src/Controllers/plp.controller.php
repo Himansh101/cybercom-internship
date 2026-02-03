@@ -19,62 +19,112 @@ $sortBy   = $_GET['sort'] ?? 'newest';
 $pageNumber = (isset($_GET['page']) && $_GET['page'] > 0) ? (int)$_GET['page'] : 1;
 $productsPerPage = 9;
 
-/* 2. Sorting & Filtering Logic */
-global $products;
-$filteredProducts = [];
-if (isset($products) && is_array($products)) {
-    // 2a. Filtering
-    foreach ($products as $id => $product) {
-        $catMatch    = (empty($selectedCats) || in_array($product['cat_id'], $selectedCats));
-        $brandMatch  = (empty($selectedBrands) || in_array($product['brand_id'], $selectedBrands));
-        $searchMatch = empty($searchQuery) || (stripos($product['name'], $searchQuery) !== false);
-        $priceMatch  = ($product['price'] >= $minPrice && $product['price'] <= $maxPrice);
-        $status      = ($product['in_stock']) ? 'instock' : 'outofstock';
-        $stockMatch  = (empty($selectedStock) || in_array($status, $selectedStock));
+// Fetch categories for filter
+$stmtCats = $pdo->query("SELECT entity_id, name FROM catalog_category_entity ORDER BY name");
+$categories = $stmtCats->fetchAll(PDO::FETCH_KEY_PAIR);
 
-        if ($catMatch && $brandMatch && $searchMatch && $priceMatch && $stockMatch) {
-            $filteredProducts[$id] = $product;
-        }
+// Fetch brands for filter
+$stmtBrands = $pdo->query("SELECT entity_id, name FROM catalog_brand_entity ORDER BY name");
+$brandRows = $stmtBrands->fetchAll(PDO::FETCH_ASSOC);
+$brands = [];
+foreach ($brandRows as $b) {
+    $brands[$b['entity_id']] = ['name' => $b['name']];
+}
+
+/* 2. Sorting & Filtering Logic (PostgreSQL Driven) */
+$whereClauses = ["1=1"];
+$params = [];
+
+// Filtering
+if (!empty($selectedCats)) {
+    $placeholders = implode(',', array_fill(0, count($selectedCats), '?'));
+    $whereClauses[] = "p.entity_id IN (SELECT product_id FROM catalog_category_product WHERE category_id IN ($placeholders))";
+    foreach ($selectedCats as $cat) $params[] = (int)$cat;
+}
+
+if (!empty($searchQuery)) {
+    $whereClauses[] = "p.name ILIKE ?";
+    $params[] = '%' . $searchQuery . '%';
+}
+
+if ($minPrice >= 0 && $maxPrice > 0) {
+    $whereClauses[] = "p.price BETWEEN ? AND ?";
+    $params[] = $minPrice;
+    $params[] = $maxPrice;
+}
+
+// Brand Filtering
+if (!empty($selectedBrands)) {
+    $placeholders = implode(',', array_fill(0, count($selectedBrands), '?'));
+    $whereClauses[] = "p.entity_id IN (SELECT entity_id FROM catalog_product_attribute WHERE attribute_key = 'brand_id' AND attribute_value IN ($placeholders))";
+    foreach ($selectedBrands as $brandId) $params[] = $brandId;
+}
+
+// Stock Status Filtering
+if (!empty($selectedStock)) {
+    $stockFilters = [];
+    if (in_array('instock', $selectedStock)) $stockFilters[] = '1';
+    if (in_array('outofstock', $selectedStock)) $stockFilters[] = '0';
+    
+    if (!empty($stockFilters)) {
+        $placeholders = implode(',', array_fill(0, count($stockFilters), '?'));
+        $whereClauses[] = "p.entity_id IN (SELECT entity_id FROM catalog_product_attribute WHERE attribute_key = 'in_stock' AND attribute_value IN ($placeholders))";
+        foreach ($stockFilters as $val) $params[] = $val;
     }
+}
 
-    // 2b. Sorting
-    // To handle 'newest' properly without reversing the whole list, 
-    // we capture the original keys before sorting to use them as tie-breakers.
-    $originalOrder = array_flip(array_keys($products));
+// Sorting logic with Stock Priority
+$stockPrioritySql = "(SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'in_stock') DESC";
 
-    uksort($filteredProducts, function ($idA, $idB) use ($sortBy, $originalOrder, $filteredProducts) {
-        $a = $filteredProducts[$idA];
-        $b = $filteredProducts[$idB];
+switch ($sortBy) {
+    case 'price_low': $sortSql = "p.price ASC"; break;
+    case 'price_high': $sortSql = "p.price DESC"; break;
+    case 'name_asc': $sortSql = "p.name ASC"; break;
+    case 'name_desc': $sortSql = "p.name DESC"; break;
+    case 'newest':
+    default: $sortSql = "p.created_at DESC"; break;
+}
 
-        // Step 1: Priority - Stock Status
-        if ($a['in_stock'] !== $b['in_stock']) {
-            return $b['in_stock'] <=> $a['in_stock']; // In stock (true/1) first
-        }
+// Total Count for Pagination
+$countSql = "SELECT COUNT(*) FROM catalog_product_entity p WHERE " . implode(" AND ", $whereClauses);
+$stmtCount = $pdo->prepare($countSql);
+$stmtCount->execute($params);
+$totalVisible = (int)$stmtCount->fetchColumn();
 
-        // Step 2: Tie-breaker - User Selection
-        switch ($sortBy) {
-            case 'price_low':
-                return $a['price'] <=> $b['price'];
-            case 'price_high':
-                return $b['price'] <=> $a['price'];
-            case 'name_asc':
-                return strcasecmp($a['name'], $b['name']);
-            case 'name_desc':
-                return strcasecmp($b['name'], $a['name']);
-            case 'newest':
-            default:
-                return $originalOrder[$idB] <=> $originalOrder[$idA]; // Higher index = Newer
-        }
-    });
+// Main Fetch Query
+$sql = "SELECT p.*, i.image_url as image, 
+        (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'in_stock') as in_stock,
+        (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'brand_id') as brand_id,
+        (SELECT category_id FROM catalog_category_product WHERE product_id = p.entity_id LIMIT 1) as cat_id
+        FROM catalog_product_entity p
+        LEFT JOIN catalog_product_image i ON p.entity_id = i.product_id AND i.is_main_image = true
+        WHERE " . implode(" AND ", $whereClauses) . "
+        ORDER BY $stockPrioritySql, $sortSql
+        LIMIT $productsPerPage OFFSET " . (($pageNumber - 1) * $productsPerPage);
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$productsFromDb = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Map back to expected structure for view
+$filteredProducts = [];
+foreach ($productsFromDb as $row) {
+    $filteredProducts[$row['entity_id']] = [
+        'id' => $row['entity_id'],
+        'name' => $row['name'],
+        'price' => $row['price'],
+        'image' => (strpos($row['image'], 'http') === 0) ? $row['image'] : $row['image'],
+        'in_stock' => ($row['in_stock'] === '1'),
+        'brand_id' => $row['brand_id'],
+        'cat_id' => $row['cat_id'] // Added to ensure view can look up category
+    ];
 }
 
 // 2c. Pagination Calculation
-$totalVisible = count($filteredProducts);
 $totalPages = ceil($totalVisible / $productsPerPage);
 $startItem = $totalVisible > 0 ? ($pageNumber - 1) * $productsPerPage + 1 : 0;
 $endItem = min($pageNumber * $productsPerPage, $totalVisible);
-$offset = ($pageNumber - 1) * $productsPerPage;
-$paginatedProducts = array_slice($filteredProducts, $offset, $productsPerPage, true);
+$paginatedProducts = $filteredProducts; // Already limited/offset in SQL
 
 // 4. Handle AJAX Response
 if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {

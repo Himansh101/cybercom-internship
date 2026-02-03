@@ -13,7 +13,7 @@ require_once __DIR__ . '/../partials/header.view.php';
 
 <div class="cart-layout">
     <section>
-        <h1 class="mb-12">Shopping Cart <span style="font-size: 1rem; color: #64748b; font-weight: normal; margin-left: 10px;">(<?php echo count($_SESSION['cart'] ?? []); ?> items)</span></h1>
+        <h1 class="mb-12">Shopping Cart <span style="font-size: 1rem; color: #64748b; font-weight: normal; margin-left: 10px;">(<?php echo count($cartItems); ?> items)</span></h1>
         <div class="table-responsive">
             <table>
                 <thead>
@@ -27,47 +27,41 @@ require_once __DIR__ . '/../partials/header.view.php';
                     </tr>
                 </thead>
                 <tbody>
-                    <?php 
-                    global $products;
-                    if (!empty($_SESSION['cart'])): ?>
-                        <?php foreach ($_SESSION['cart'] as $id => $quantity):
-                            if (!isset($products[$id])) continue;
-                            $product = $products[$id];
-                            $item_total = $product['price'] * $quantity;
-                            $maxStock = $product['stock_count'] ?? 0;
-                            $isMaxed = ($quantity >= $maxStock);
+                    <?php if (!empty($cartItems)): ?>
+                        <?php foreach ($cartItems as $id => $item):
+                            $isMaxed = ($item['quantity'] >= $item['stock_count']);
                         ?>
                             <tr data-id="<?php echo $id; ?>">
                                 <td class="cart-img-cell" data-label="Image">
                                     <div class="cart-img-wrapper">
-                                        <img src="assets/<?php echo $product['image']; ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
+                                        <img src="assets/<?php echo $item['image']; ?>" alt="<?php echo htmlspecialchars($item['name']); ?>">
                                     </div>
                                 </td>
                                 <td data-label="Product">
-                                    <span class="product-name-text"><?php echo htmlspecialchars($product['name']); ?></span>
+                                    <span class="product-name-text"><?php echo htmlspecialchars($item['name']); ?></span>
                                     <div class="stock-warning">
                                         <?php if ($isMaxed): ?>
-                                            <small style="display:block; color: #e11d48; font-size: 0.7rem; margin-top: 4px;">Max stock: <?php echo $maxStock; ?></small>
+                                            <small style="display:block; color: #e11d48; font-size: 0.7rem; margin-top: 4px;">Max stock: <?php echo $item['stock_count']; ?></small>
                                         <?php endif; ?>
                                     </div>
                                 </td>
-                                <td class="price-cell" data-label="Price">₹<?php echo number_format($product['price']); ?></td>
+                                <td class="price-cell" data-label="Price">₹<?php echo number_format($item['price']); ?></td>
                                 <td class="qty-cell" data-label="Quantity">
                                     <div class="qty-control">
                                         <button type="button" class="btn-qty minus js-qty-btn" data-action="minus" data-id="<?php echo $id; ?>">-</button>
-                                        <input type="number" class="js-qty-input" value="<?php echo $quantity; ?>" readonly>
+                                        <input type="number" class="js-qty-input" value="<?php echo $item['quantity']; ?>" readonly>
                                         <button type="button" class="btn-qty plus js-qty-btn" data-action="plus" data-id="<?php echo $id; ?>"
                                             <?php echo $isMaxed ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''; ?>>+</button>
                                     </div>
                                 </td>
-                                <td class="subtotal js-item-subtotal" data-label="Subtotal">₹<?php echo number_format($item_total); ?></td>
+                                <td class="subtotal js-item-subtotal" data-label="Subtotal">₹<?php echo number_format($item['item_total']); ?></td>
                                 <td class="action-cell">
                                     <form class="remove-form">
                                         <input type="hidden" name="product_id" value="<?php echo $id; ?>">
 
                                         <button type="button"
                                             class="btn-remove js-delete-confirm"
-                                            data-name="<?php echo htmlspecialchars($product['name']); ?>"
+                                            data-name="<?php echo htmlspecialchars($item['name']); ?>"
                                             data-id="<?php echo $id; ?>">
                                             <i class="ri-delete-bin-line"></i>
                                         </button>

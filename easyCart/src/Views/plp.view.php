@@ -5,9 +5,8 @@ if (!(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_RE
 }
 
 /** Helper functions for rendering encapsulated within the view for this task **/
-function renderProductGrid($paginatedProducts)
+function renderProductGrid($paginatedProducts, $categories = [], $brands = [])
 {
-    global $categories, $brands;
     ob_start();
     echo '<div class="grid">';
 
@@ -127,7 +126,7 @@ function renderPagination($pageNumber, $totalPages)
 if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
     $response = [
         'status' => 'success',
-        'grid_html' => renderProductGrid($paginatedProducts),
+        'grid_html' => renderProductGrid($paginatedProducts, $categories, $brands),
         'pagination_html' => renderPagination($pageNumber, $totalPages),
         'count_text' => $totalVisible > 0 ? "Showing {$startItem}-{$endItem} of {$totalVisible} Items" : "0 Items Found",
         'total_visible' => $totalVisible
@@ -180,7 +179,6 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
                     <h4><i class="ri-grid-line"></i> Categories</h4>
                     <div class="filter-options-list">
                         <?php 
-                        global $categories;
                         foreach ($categories as $id => $name): ?>
                             <label class="filter-option">
                                 <input type="checkbox" name="categories[]" class="js-filter-input" value="<?php echo $id; ?>"
@@ -195,7 +193,6 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
                     <h4><i class="ri-government-line"></i> Brands</h4>
                     <div class="filter-options-list">
                         <?php 
-                        global $brands;
                         foreach ($brands as $id => $bData): ?>
                             <label class="filter-option">
                                 <input type="checkbox" name="brands[]" class="js-filter-input" value="<?php echo $id; ?>"
@@ -250,7 +247,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
                 <div id="loading-overlay">
                     <i class="ri-loader-4-line ri-spin" style="font-size: 3rem; color: #6366f1;"></i>
                 </div>
-                <?php echo renderProductGrid($paginatedProducts); ?>
+                <?php echo renderProductGrid($paginatedProducts, $categories, $brands); ?>
             </div>
 
             <div id="pagination-container">

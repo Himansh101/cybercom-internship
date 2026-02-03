@@ -4,83 +4,90 @@ require_once __DIR__ . '/../init.php';
 header('Content-Type: application/json');
 
 $action = $_POST['action'] ?? '';
-global $products;
 
 switch ($action) {
     case 'add':
-        $productId = $_POST['product_id'] ?? null;
-        if (!$productId || !isset($products[$productId])) {
+        $productId = isset($_POST['product_id']) ? (int)$_POST['product_id'] : null;
+        if (!$productId) {
             echo json_encode(['status' => 'error', 'message' => 'Invalid product']);
             exit();
         }
 
-        $availableStock = $products[$productId]['stock_count'] ?? 0;
-        $currentQty = $_SESSION['cart'][$productId] ?? 0;
+        $stmt = $pdo->prepare("SELECT stock_count FROM catalog_product_entity WHERE entity_id = ?");
+        $stmt->execute([$productId]);
+        $availableStock = $stmt->fetchColumn();
+
+        if ($availableStock === false) {
+            echo json_encode(['status' => 'error', 'message' => 'Product not found']);
+            exit();
+        }
+
+        // Get current quantity from DB
+        $stmt = $pdo->prepare("SELECT quantity FROM sales_cart_product WHERE cart_id = ? AND product_id = ?");
+        $stmt->execute([$cartId, $productId]);
+        $currentQty = (int)$stmt->fetchColumn();
+        
         $newQty = $currentQty + 1;
 
         if ($newQty <= $availableStock) {
-            $_SESSION['cart'][$productId] = $newQty;
-            syncCartToJson(); // Sync
-
-            // Return full updates so PDP can update UI
-            sendCartUpdates($products);
+            updateCartItemDb($pdo, $cartId, $productId, $newQty);
+            sendCartUpdates($pdo);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Not enough stock available!']);
         }
         break;
 
     case 'update':
-        $productId = $_POST['product_id'] ?? null;
-        $qtyAction = $_POST['qty_action'] ?? ''; // 'plus' or 'minus'
+        $productId = isset($_POST['product_id']) ? (int)$_POST['product_id'] : null;
+        $qtyAction = $_POST['qty_action'] ?? '';
 
-        if (!$productId || !isset($products[$productId])) {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid product']);
+        if (!$productId || !$cartId) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
             exit();
         }
 
-        $availableStock = $products[$productId]['stock_count'] ?? 0;
-        $currentQty = $_SESSION['cart'][$productId] ?? 0;
+        $stmt = $pdo->prepare("SELECT stock_count FROM catalog_product_entity WHERE entity_id = ?");
+        $stmt->execute([$productId]);
+        $availableStock = $stmt->fetchColumn();
+
+        $stmt = $pdo->prepare("SELECT quantity FROM sales_cart_product WHERE cart_id = ? AND product_id = ?");
+        $stmt->execute([$cartId, $productId]);
+        $currentQty = (int)$stmt->fetchColumn();
 
         if ($qtyAction === 'plus') {
             if ($currentQty < $availableStock) {
-                $_SESSION['cart'][$productId]++;
+                $currentQty++;
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'Max stock reached!']);
                 exit();
             }
         } elseif ($qtyAction === 'minus') {
-            $_SESSION['cart'][$productId]--;
-            if ($_SESSION['cart'][$productId] < 1) {
-                unset($_SESSION['cart'][$productId]);
-            }
+            $currentQty--;
         }
 
-        syncCartToJson(); // Sync
-        sendCartUpdates($products);
+        updateCartItemDb($pdo, $cartId, $productId, $currentQty);
+        sendCartUpdates($pdo);
         break;
 
     case 'remove':
-        $productId = $_POST['product_id'] ?? null;
-        if ($productId && isset($_SESSION['cart'][$productId])) {
-            unset($_SESSION['cart'][$productId]);
+        $productId = isset($_POST['product_id']) ? (int)$_POST['product_id'] : null;
+        if ($productId && $cartId) {
+            updateCartItemDb($pdo, $cartId, $productId, 0); // 0 quantity deletes the record
         }
-        syncCartToJson(); // Sync
-        sendCartUpdates($products);
+        sendCartUpdates($pdo);
         break;
 
     case 'restore':
-        $localCart = $_POST['cart_data'] ?? []; // Associative array [id => qty]
-        if (!empty($localCart) && is_array($localCart)) {
-            // Validate items against product list
+        $localCart = $_POST['cart_data'] ?? [];
+        if (!empty($localCart) && is_array($localCart) && $cartId) {
             foreach ($localCart as $pid => $qty) {
-                if (isset($products[$pid])) {
-                    $qty = (int)$qty;
-                    if ($qty > 0) {
-                        $_SESSION['cart'][$pid] = $qty; 
-                    }
+                $pid = (int)$pid;
+                $stmt = $pdo->prepare("SELECT entity_id FROM catalog_product_entity WHERE entity_id = ?");
+                $stmt->execute([$pid]);
+                if ($stmt->fetch()) {
+                    updateCartItemDb($pdo, $cartId, $pid, (int)$qty);
                 }
             }
-            syncCartToJson();
             echo json_encode(['status' => 'success', 'message' => 'Cart restored']);
         } else {
             echo json_encode(['status' => 'success', 'message' => 'Nothing to restore']);
@@ -92,29 +99,13 @@ switch ($action) {
         break;
 }
 
-function syncCartToJson()
+
+function sendCartUpdates($pdo)
 {
-    if (!isset($_SESSION['user']['id'])) return;
+    global $cartId;
+    $cartItems = loadCartArrayFromDb($pdo, $cartId);
 
-    $userId = $_SESSION['user']['id'];
-    $cart = $_SESSION['cart'] ?? [];
-
-    $file = __DIR__ . '/../../users.json'; // Adjust path if needed
-    if (file_exists($file)) {
-        $users = json_decode(file_get_contents($file), true) ?? [];
-        foreach ($users as &$user) {
-            if ($user['id'] === $userId) {
-                $user['cart'] = $cart;
-                break;
-            }
-        }
-        file_put_contents($file, json_encode($users, JSON_PRETTY_PRINT));
-    }
-}
-
-function sendCartUpdates($products)
-{
-    if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
+    if (empty($cartItems)) {
         echo json_encode([
             'status' => 'success',
             'cart_count' => 0,
@@ -125,34 +116,37 @@ function sendCartUpdates($products)
         return;
     }
 
-    $cartCount = count($_SESSION['cart']);
+    $cartCount = count($cartItems);
     $subtotal = 0;
     $hasFreightItem = false;
     $items = [];
 
-    foreach ($_SESSION['cart'] as $id => $quantity) {
-        if (isset($products[$id])) {
-            $item_total = $products[$id]['price'] * $quantity;
+    foreach ($cartItems as $id => $quantity) {
+        $stmt = $pdo->prepare("SELECT p.name, p.price, p.stock_count, 
+            (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'shipping_type') as shipping_type
+            FROM catalog_product_entity p WHERE p.entity_id = ?");
+        $stmt->execute([$id]);
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($product) {
+            $item_total = $product['price'] * $quantity;
             $subtotal += $item_total;
 
-            if (isset($products[$id]['item_shipping_type']) && $products[$id]['item_shipping_type'] === 'freight') {
+            if ($product['shipping_type'] === 'freight') {
                 $hasFreightItem = true;
             }
 
             $items[$id] = [
+                'name' => $product['name'],
+                'price' => $product['price'],
                 'quantity' => $quantity,
                 'item_total' => '₹' . number_format($item_total),
-                'is_maxed' => ($quantity >= $products[$id]['stock_count'])
+                'is_maxed' => ($quantity >= $product['stock_count'])
             ];
         }
     }
 
-    if ($hasFreightItem || $subtotal > 300) {
-        $shippingMethod = 'white_glove';
-    } else {
-        $shippingMethod = 'standard';
-    }
-
+    $shippingMethod = ($hasFreightItem || $subtotal > 300) ? 'white_glove' : 'standard';
     $shipping_fee = calculate_shipping_cost($shippingMethod, $subtotal);
     $total = $subtotal > 0 ? ($subtotal + $shipping_fee) : 0;
 
@@ -165,8 +159,8 @@ function sendCartUpdates($products)
 
     echo json_encode([
         'status' => 'success',
-        'cart_count' => count($_SESSION['cart']),
-        'cart_data' => $_SESSION['cart'], 
+        'cart_count' => count($cartItems),
+        'cart_data' => $cartItems, 
         'subtotal' => '₹' . number_format($subtotal),
         'shipping' => $methodNames[$shippingMethod] . ' - ₹' . number_format($subtotal > 0 ? $shipping_fee : 0),
         'shipping_method' => $shippingMethod,

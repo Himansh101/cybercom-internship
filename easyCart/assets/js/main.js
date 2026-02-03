@@ -103,37 +103,42 @@ window.saveCartToLocal = function (cartData) {
 
 document.addEventListener('DOMContentLoaded', () => {
     // Check on load
+    const isLoggedInData = document.body.dataset.isLoggedIn;
+    const isLoggedIn = isLoggedInData === 'true';
     const localCartJson = localStorage.getItem('guest_cart');
+
     if (localCartJson) {
+        if (isLoggedIn) {
+            // Logged in? The database is the source of truth, 
+            // and merge already happened during login. Clear local leftover guest items.
+            localStorage.removeItem('guest_cart');
+            return;
+        }
+
         try {
             const localCart = JSON.parse(localCartJson);
             const hasLocal = Object.keys(localCart).length > 0;
 
             // Check if server thinks cart is empty
             const badge = document.querySelector('.cart-badge');
-            // If badge exists and has number > 0, server has items
             const serverCount = badge ? parseInt(badge.textContent) : 0;
             const hasServer = serverCount > 0;
 
             if (hasLocal && !hasServer) {
-                // Server empty, Local has items -> RESTORE
                 console.log('Restoring guest cart from LocalStorage...');
-
                 const formData = new FormData();
                 formData.append('action', 'restore');
-                // send associative array
                 for (const [pid, qty] of Object.entries(localCart)) {
                     formData.append(`cart_data[${pid}]`, qty);
                 }
 
-                fetch('cart_handler.php', {
+                fetch('src/controllers/cart.handler.php', {
                     method: 'POST',
                     body: formData
                 })
                     .then(r => r.json())
                     .then(data => {
                         if (data.status === 'success') {
-                            console.log('Cart restored successfully');
                             location.reload();
                         }
                     })

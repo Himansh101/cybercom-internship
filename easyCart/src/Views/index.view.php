@@ -21,8 +21,7 @@ require_once __DIR__ . '/../partials/header.view.php';
     <div class="grid">
         <?php if (!empty($featuredProducts)): ?>
             <?php foreach ($featuredProducts as $id => $product):
-                global $categories;
-                $categoryName = $categories[$product['cat_id']];
+                $categoryName = $categories[$product['cat_id']] ?? 'Uncategorized';
             ?>
                 <div class="card product-card">
                     <div class="product-image-wrapper">
@@ -53,7 +52,6 @@ require_once __DIR__ . '/../partials/header.view.php';
     <h2>Popular Categories</h2>
     <div class="pill-list">
         <?php 
-        global $categories;
         if (isset($categories)): ?>
             <?php foreach ($categories as $cat_id => $name): ?>
                 <a class="pill indexPill" href="plp.php?categories[]=<?php echo $cat_id; ?>"><?php echo $name; ?></a>
@@ -66,7 +64,6 @@ require_once __DIR__ . '/../partials/header.view.php';
     <h2>Popular Brands</h2>
     <div class="grid">
         <?php 
-        global $brands;
         if (isset($brands)): ?>
             <?php foreach ($brands as $brand_id => $brand): ?>
                 <a class="card brandCard" href="plp.php?brands[]=<?php echo $brand_id; ?>">

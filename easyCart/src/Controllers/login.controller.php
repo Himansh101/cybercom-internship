@@ -11,41 +11,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (empty($password)) {
         $error = "Password cannot be empty.";
     } else {
-        // Load users from JSON file
-        $users = [];
-        $file = __DIR__ . '/../../users.json';
-        if (file_exists($file)) {
-            $json_data = file_get_contents($file);
-            $users = json_decode($json_data, true) ?? [];
-        }
+        // Query database for user
+        $stmt = $pdo->prepare("SELECT * FROM customer_entity WHERE email = :email");
+        $stmt->execute([':email' => $email]);
+        $dbUser = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $userFound = false;
-        foreach ($users as $user) {
-            if ($user['email'] === $email) {
-                if (password_verify($password, $user['password'])) {
-                    // Successful login
-                    $_SESSION['user'] = [
-                        'id' => $user['id'],
-                        'name' => $user['name'],
-                        'email' => $user['email'],
-                        'mobile' => $user['mobile']
-                    ];
+        if ($dbUser && password_verify($password, $dbUser['password'])) {
+            // Successful login - store ONLY user_id in session
+            $_SESSION['user_id'] = $dbUser['entity_id'];
 
-                    // Restore cart
-                    if (isset($user['cart']) && is_array($user['cart'])) {
-                        $_SESSION['cart'] = $user['cart'];
-                    }
-                    header("Location: index.php");
-                    exit();
-                } else {
-                    $error = "Invalid email or password.";
-                }
-                $userFound = true;
-                break;
-            }
-        }
-
-        if (!$userFound) {
+            // Sync cart from database
+            $userCartId = mergeCartOnLogin($pdo, $dbUser['entity_id']);
+            $_SESSION['cart_id'] = $userCartId;
+            header("Location: index.php");
+            exit();
+        } else {
             $error = "Invalid email or password.";
         }
     }

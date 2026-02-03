@@ -16,7 +16,7 @@
     <script src="assets/js/auth.js" defer></script>
 </head>
 
-<body class="page-<?php echo $currentPage ?? 'default'; ?>">
+<body class="page-<?php echo $currentPage ?? 'default'; ?>" data-is-logged-in="<?php echo $isLoggedIn ? 'true' : 'false'; ?>">
     <header>
         <div class="logo">EasyCart</div>
         <nav>

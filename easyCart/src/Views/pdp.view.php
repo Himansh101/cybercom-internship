@@ -98,7 +98,7 @@ require_once __DIR__ . '/../partials/header.view.php';
                 </div>
             <?php else: ?>
                 <!-- Standard Add to Cart Button -->
-                <form id="add-to-cart-form" method="POST">
+                <form id="add-to-cart-form" action="cart.handler.php" method="POST">
                     <input type="hidden" name="product_id" value="<?php echo $productId; ?>">
                     <input type="hidden" name="action" value="add">
                     <button type="submit" id="add-to-cart-btn" class="btn btn-success pdp-add-to-cart-btn">

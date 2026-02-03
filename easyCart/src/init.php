@@ -52,8 +52,8 @@ if ($isLoggedIn) {
     }
 }
 
-// Ensure cart_id is tracked
-$cartId = getOrCreateCartId($pdo, $userId);
+// Ensure cart_id is tracked (Lazy: don't create if missing)
+$cartId = getOrCreateCartId($pdo, $userId, false);
 
 // Calculate total cart quantity (Distinct Items from DB)
 $cartQuantity = 0;

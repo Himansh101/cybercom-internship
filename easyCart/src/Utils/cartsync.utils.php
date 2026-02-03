@@ -2,9 +2,10 @@
 
 /**
  * Gets or creates a cart record and returns the cart_id.
- * If userId is provided, it attempts to find/link the cart.
+ * By default, it only looks for an EXISTING active cart.
+ * If $createIfMissing is true, it will create a new one if none found.
  */
-function getOrCreateCartId($pdo, $userId = null)
+function getOrCreateCartId($pdo, $userId = null, $createIfMissing = false)
 {
     $sessionId = session_id();
     if (!$sessionId) return null;
@@ -16,31 +17,35 @@ function getOrCreateCartId($pdo, $userId = null)
 
     // 2. Check DB by user_id if logged in
     if ($userId) {
-        $stmt = $pdo->prepare("SELECT cart_id FROM sales_cart WHERE user_id = ?");
+        $stmt = $pdo->prepare("SELECT cart_id FROM sales_cart WHERE user_id = ? AND is_active = TRUE");
         $stmt->execute([$userId]);
         $id = $stmt->fetchColumn();
         if ($id) {
             $_SESSION['cart_id'] = $id;
-            return $id;
+            return (int)$id;
         }
     }
 
     // 3. Check DB by session_id for guest
-    $stmt = $pdo->prepare("SELECT cart_id FROM sales_cart WHERE session_id = ? AND user_id IS NULL");
+    $stmt = $pdo->prepare("SELECT cart_id FROM sales_cart WHERE session_id = ? AND user_id IS NULL AND is_active = TRUE");
     $stmt->execute([$sessionId]);
     $id = $stmt->fetchColumn();
     if ($id) {
         $_SESSION['cart_id'] = $id;
-        return $id;
+        return (int)$id;
     }
 
-    // 4. Create new cart
+    // 4. Create new cart only if requested
+    if (!$createIfMissing) {
+        return null;
+    }
+
     try {
         $stmt = $pdo->prepare("INSERT INTO sales_cart (session_id, user_id) VALUES (?, ?) RETURNING cart_id");
         $stmt->execute([$sessionId, $userId]);
         $id = $stmt->fetchColumn();
         $_SESSION['cart_id'] = $id;
-        return $id;
+        return (int)$id;
     } catch (Exception $e) {
         error_log("Cart creation error: " . $e->getMessage());
         return null;
@@ -109,12 +114,12 @@ function mergeCartOnLogin($pdo, $userId)
     $sessionId = session_id();
     
     // 1. Find/Create user cart
-    $stmt = $pdo->prepare("SELECT cart_id FROM sales_cart WHERE user_id = ?");
+    $stmt = $pdo->prepare("SELECT cart_id FROM sales_cart WHERE user_id = ? AND is_active = TRUE");
     $stmt->execute([$userId]);
     $userCartId = $stmt->fetchColumn();
 
     // 2. Find guest cart
-    $stmt = $pdo->prepare("SELECT cart_id FROM sales_cart WHERE session_id = ? AND user_id IS NULL");
+    $stmt = $pdo->prepare("SELECT cart_id FROM sales_cart WHERE session_id = ? AND user_id IS NULL AND is_active = TRUE");
     $stmt->execute([$sessionId]);
     $guestCartId = $stmt->fetchColumn();
 

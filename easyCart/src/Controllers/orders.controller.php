@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 $userId = $_SESSION['user_id'];
 
 if (!is_numeric($userId)) {
-    header("Location: login.php");
+    header("Location: login");
     exit();
 }
 
@@ -51,7 +51,7 @@ foreach ($rows as $row) {
 $pageTitle = 'EasyCart | My Orders';
 $currentPage = 'orders';
 $extraStyles = ['orders.css'];
-$extraScripts = [];
+$extraScripts = ['checkout.js'];
 
 // Load View
 require_once __DIR__ . '/../views/orders.view.php';

@@ -193,8 +193,9 @@ switch ($action) {
             $stmtAddr = $pdo->prepare("INSERT INTO sales_order_address (order_id, full_name, street_address, city, pincode) VALUES (?, ?, ?, ?, ?)");
             $stmtAddr->execute([$orderId, $name, $address, $city, $pincode]);
 
-            // 5. Clear Database Cart Items
+            // 5. Deactivate Cart & Clear Database Cart Items
             if (isset($cartId) && $cartId) {
+                $pdo->prepare("UPDATE sales_cart SET is_active = FALSE WHERE cart_id = ?")->execute([$cartId]);
                 $pdo->prepare("DELETE FROM sales_cart_product WHERE cart_id = ?")->execute([$cartId]);
             }
 

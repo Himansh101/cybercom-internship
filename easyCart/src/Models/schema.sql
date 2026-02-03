@@ -75,6 +75,7 @@ create table sales_cart (
     cart_id serial primary key,
     session_id varchar(255) not null, -- store the session_id from php here
     user_id int null, -- link if user logs in
+    is_active boolean default true,
     created_at timestamp default current_timestamp
 );
 

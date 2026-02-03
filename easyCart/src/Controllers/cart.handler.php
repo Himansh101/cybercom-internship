@@ -22,6 +22,11 @@ switch ($action) {
             exit();
         }
 
+        // Ensure we have a cart_id (Create if missing)
+        if (!$cartId) {
+            $cartId = getOrCreateCartId($pdo, $userId, true);
+        }
+
         // Get current quantity from DB
         $stmt = $pdo->prepare("SELECT quantity FROM sales_cart_product WHERE cart_id = ? AND product_id = ?");
         $stmt->execute([$cartId, $productId]);

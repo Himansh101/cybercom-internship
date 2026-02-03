@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../partials/header.view.php';
 ?>
 
-<a href="plp.php" class="back-btn"><i class="ri-arrow-left-line"></i> Back to Products</a>
+<a href="plp" class="back-btn"><i class="ri-arrow-left-line"></i> Back to Products</a>
 
 <div class="layout">
     <div class="gallery">

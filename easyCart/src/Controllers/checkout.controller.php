@@ -60,8 +60,9 @@ if ($hasFreightItem || $subtotal > 300) {
     $allowedShippingMethods = ['standard', 'express'];
 }
 
-// 2. Apply Coupon Discount (if valid)
-$coupon_code = $_POST['coupon_code'] ?? $_SESSION['coupon_code'] ?? '';
+// 2. Fetch Checkout Metadata (Shipping & Coupon) from DB
+$metadata = getCartMetadata($pdo, $cartId);
+$coupon_code = $metadata['coupon_code'] ?? '';
 $coupon_data = get_coupon_data($coupon_code, $subtotal);
 
 $discount = $coupon_data['discount_amount'];
@@ -70,15 +71,13 @@ $discount_message = $coupon_data['message'];
 
 $discounted_subtotal = $subtotal - $discount;
 
-// 3. Determine Shipping Cost based on button click or radio selection
-$method = $_POST['shipping_method'] ?? $_SESSION['shipping_method'] ?? 'standard';
+// 3. Determine Shipping Cost
+$method = $metadata['shipping_method'] ?: 'standard';
 
-// Validate that selected method is allowed
-if (!in_array($method, $allowedShippingMethods)) {
-    $method = $allowedShippingMethods[0];
+// Handle POST override (if any)
+if (isset($_POST['shipping_method'])) {
+    $method = $_POST['shipping_method'];
 }
-
-$_SESSION['shipping_method'] = $method;
 $shipping = calculate_shipping_cost($method, $discounted_subtotal);
 
 // 4. Calculate GST (18%)

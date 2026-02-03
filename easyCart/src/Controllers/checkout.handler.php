@@ -48,15 +48,20 @@ switch ($action) {
             $shippingInfoMessage = 'Standard shipping options available for your cart.';
         }
 
-        $method = $_POST['shipping_method'] ?? $_SESSION['shipping_method'] ?? 'standard';
+        $metadata = getCartMetadata($pdo, $cartId);
+        $method = $_POST['shipping_method'] ?? $metadata['shipping_method'] ?? 'standard';
+        
         if (!in_array($method, $allowedShippingMethods)) {
             $method = $allowedShippingMethods[0];
         }
 
-        $_SESSION['shipping_method'] = $method;
-
-        $coupon_code = $_POST['coupon_code'] ?? '';
-        $_SESSION['coupon_code'] = $coupon_code;
+        $coupon_code = $_POST['coupon_code'] ?? $metadata['coupon_code'] ?? '';
+        
+        // Save to DB Metadata
+        updateCartMetadata($pdo, $cartId, [
+            'shipping_method' => $method,
+            'coupon_code' => $coupon_code
+        ]);
 
         $coupon_data = get_coupon_data($coupon_code, $subtotal);
         $discount = $coupon_data['discount_amount'];
@@ -91,7 +96,11 @@ switch ($action) {
         break;
 
     case 'remove_coupon':
-        unset($_SESSION['coupon_code']);
+        $metadata = getCartMetadata($pdo, $cartId);
+        updateCartMetadata($pdo, $cartId, [
+            'shipping_method' => $metadata['shipping_method'],
+            'coupon_code' => null
+        ]);
         echo json_encode(['status' => 'success', 'message' => 'Coupon removed']);
         break;
 
@@ -149,10 +158,11 @@ switch ($action) {
                 }
             }
 
-            $coupon_data = get_coupon_data($_SESSION['coupon_code'] ?? '', $subtotal);
+            $metadata = getCartMetadata($pdo, $cartId);
+            $coupon_data = get_coupon_data($metadata['coupon_code'] ?? '', $subtotal);
             $discount = $coupon_data['discount_amount'];
             $discounted_subtotal = $subtotal - $discount;
-            $shipping = calculate_shipping_cost($_SESSION['shipping_method'] ?? 'standard', $discounted_subtotal);
+            $shipping = calculate_shipping_cost($metadata['shipping_method'] ?? 'standard', $discounted_subtotal);
             $gst = $discounted_subtotal * 0.18;
             $finalTotal = $discounted_subtotal + $shipping + $gst;
 
@@ -164,11 +174,19 @@ switch ($action) {
 
             // 3. Insert Items & Update Stock
             $stmtItem = $pdo->prepare("INSERT INTO sales_order_item (order_id, product_id, product_name_snapshot, price_snapshot, quantity) VALUES (?, ?, ?, ?, ?)");
-            $stmtStock = $pdo->prepare("UPDATE catalog_product_entity SET stock_count = stock_count - ? WHERE entity_id = ?");
-            
+            $stmtStock = $pdo->prepare("UPDATE catalog_product_entity SET stock_count = stock_count - ? WHERE entity_id = ? RETURNING stock_count");
+            $stmtAttr = $pdo->prepare("UPDATE catalog_product_attribute SET attribute_value = ? WHERE entity_id = ? AND attribute_key = 'in_stock'");
+
             foreach ($itemsToProcess as $item) {
                 $stmtItem->execute([$orderId, $item['id'], $item['name'], $item['price'], $item['qty']]);
+                
                 $stmtStock->execute([$item['qty'], $item['id']]);
+                $newStock = $stmtStock->fetchColumn();
+
+                // If stock hits 0, update attribute to '0'
+                if ($newStock <= 0) {
+                    $stmtAttr->execute(['0', $item['id']]);
+                }
             }
 
             // 4. Insert Address
@@ -184,9 +202,7 @@ switch ($action) {
 
             unset($_SESSION['cart']);
             unset($_SESSION['cart_id']);
-            unset($_SESSION['shipping_method']);
-            unset($_SESSION['shipping_cost']);
-            unset($_SESSION['coupon_code']);
+            clearCartMetadata($pdo, $cartId);
 
             echo json_encode(['status' => 'success', 'message' => 'Order placed successfully!', 'order_id' => $orderNumber]);
 

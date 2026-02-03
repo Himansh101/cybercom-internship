@@ -2,6 +2,7 @@
 drop table if exists sales_order_address cascade;
 drop table if exists sales_order_item cascade;
 drop table if exists sales_order cascade;
+drop table if exists sales_cart_metadata cascade;
 drop table if exists sales_cart_address cascade;
 drop table if exists sales_cart_product cascade;
 drop table if exists sales_cart cascade;
@@ -83,6 +84,14 @@ create table sales_cart_product (
     cart_id int references sales_cart(cart_id) on delete cascade,
     product_id int references catalog_product_entity(entity_id),
     quantity int not null default 1
+);
+
+-- table: sales_cart_metadata
+create table sales_cart_metadata (
+    metadata_id serial primary key,
+    cart_id int unique references sales_cart(cart_id) on delete cascade,
+    shipping_method varchar(50) default 'standard',
+    coupon_code varchar(50) null
 );
 
 -- table: sales_cart_address

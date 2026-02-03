@@ -70,7 +70,7 @@ function updateQuantity(id, qtyAction) {
     formData.append('product_id', id);
     formData.append('qty_action', qtyAction);
 
-    fetch('cart_handler.php', {
+    fetch('src/Controllers/cart.handler.php', {
         method: 'POST',
         body: formData
     })
@@ -113,7 +113,7 @@ function removeItem(id) {
     formData.append('action', 'remove');
     formData.append('product_id', id);
 
-    fetch('cart_handler.php', {
+    fetch('src/Controllers/cart.handler.php', {
         method: 'POST',
         body: formData
     })

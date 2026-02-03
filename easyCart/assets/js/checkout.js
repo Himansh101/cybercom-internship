@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('shipping_method', selectedMethod);
         formData.append('coupon_code', couponCode);
 
-        fetch('checkout_handler.php', {
+        fetch('src/Controllers/checkout.handler.php', {
             method: 'POST',
             body: formData
         })
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formData = new FormData();
                 formData.append('action', 'remove_coupon');
 
-                fetch('checkout_handler.php', {
+                fetch('src/Controllers/checkout.handler.php', {
                     method: 'POST',
                     body: formData
                 })
@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            fetch('checkout_handler.php', {
+            fetch('src/Controllers/checkout.handler.php', {
                 method: 'POST',
                 body: formData
             })

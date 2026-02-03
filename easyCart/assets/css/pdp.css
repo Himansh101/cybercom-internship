@@ -33,13 +33,13 @@
     background-clip: text;
 }
 
-.pdp .price {
+.page-products .product-details .price {
     font-size: 2rem;
     font-weight: 800;
     margin: 16px 0;
 }
 
-.pdp .meta {
+.page-products .meta {
     margin-top: 12px;
 }
 

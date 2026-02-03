@@ -162,13 +162,13 @@ header .logo {
     background-clip: text;
 }
 
-.user-greeting{
-color: #6366f1;
-font-weight: 600;
-font-size: 0.9rem;
-border-left: 1px solid #e2e8f0;
-padding-left: 15px;
-margin-left: 5px
+.user-greeting {
+    color: #6366f1;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-left: 1px solid #e2e8f0;
+    padding-left: 15px;
+    margin-left: 5px
 }
 
 nav {
@@ -519,16 +519,148 @@ section:first-child {
     font-weight: 600;
 }
 
+/* --- Product & Category Badges --- */
 .category-badge {
+    font-size: 0.7rem;
+    background: #eef2ff;
+    color: #6366f1;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
     display: inline-block;
-    background: linear-gradient(135deg, #fef3c7, #fde68a);
-    color: #92400e;
-    padding: 6px 12px;
-    border-radius: var(--radius-full);
-    font-size: 0.8rem;
-    font-weight: 600;
-    border: 1px solid rgba(146, 64, 14, 0.2);
     margin-bottom: 8px;
+}
+
+.brand-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    background: #f1f5f9;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.stock-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #ef4444;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    z-index: 2;
+}
+
+.shipping-badge {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    z-index: 2;
+    text-transform: capitalize;
+}
+
+.shipping-badge.express {
+    background: #10b981;
+    color: white;
+}
+
+.shipping-badge.freight {
+    background: #f59e0b;
+    color: white;
+}
+
+/* --- Product Card Component --- */
+.product-card {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    padding: 0 !important;
+    /* Override standard card padding */
+    overflow: hidden;
+}
+
+.product-image-wrapper {
+    width: 100%;
+    aspect-ratio: 1/0.4;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.product-image-wrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    padding: 20px;
+    transition: transform 0.3s;
+}
+
+.product-card:hover img {
+    transform: scale(1.1);
+}
+
+.card-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.card-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.product-card h3 {
+    font-size: 1.1rem;
+    margin: 0 0 8px 0 !important;
+    color: #1e293b;
+    line-height: 1.4;
+}
+
+.price {
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: #6366f1;
+}
+
+.product-card .price {
+    margin-top: auto;
+}
+
+.btn-view {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 15px;
+    padding: 12px;
+    background: #f1f5f9;
+    color: #1e293b;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.btn-view:hover {
+    background: #6366f1;
+    color: white;
 }
 
 .back-btn {

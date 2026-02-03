@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const originalHTML = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i>';
 
-            fetch('cart_handler.php', {
+            fetch('src/Controllers/cart.handler.php', {
                 method: 'POST',
                 body: formData
             })
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('product_id', id);
         formData.append('qty_action', action);
 
-        fetch('cart_handler.php', {
+        fetch('src/Controllers/cart.handler.php', {
             method: 'POST',
             body: formData
         })

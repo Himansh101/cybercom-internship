@@ -1,13 +1,10 @@
 <?php
-session_start();
-include 'data/data.php';
-include 'utils/coupon_utils.php';
-include 'utils/shipping_utils.php';
+require_once __DIR__ . '/../init.php';
 
 header('Content-Type: application/json');
 
-
 $action = $_POST['action'] ?? '';
+global $products;
 
 switch ($action) {
     case 'add':
@@ -79,8 +76,7 @@ switch ($action) {
                 if (isset($products[$pid])) {
                     $qty = (int)$qty;
                     if ($qty > 0) {
-                        $_SESSION['cart'][$pid] = $qty; // Trust client qty? Or cap at stock? 
-                        // For now trust, user can adjust later.
+                        $_SESSION['cart'][$pid] = $qty; 
                     }
                 }
             }
@@ -103,7 +99,7 @@ function syncCartToJson()
     $userId = $_SESSION['user']['id'];
     $cart = $_SESSION['cart'] ?? [];
 
-    $file = 'users.json';
+    $file = __DIR__ . '/../../users.json'; // Adjust path if needed
     if (file_exists($file)) {
         $users = json_decode(file_get_contents($file), true) ?? [];
         foreach ($users as &$user) {
@@ -122,7 +118,7 @@ function sendCartUpdates($products)
         echo json_encode([
             'status' => 'success',
             'cart_count' => 0,
-            'cart_data' => [], // Empty cart
+            'cart_data' => [], 
             'subtotal' => 0,
             'cart_html' => '<tr><td colspan="6" class="empty-msg">Your cart is empty.</td></tr>'
         ]);
@@ -139,7 +135,6 @@ function sendCartUpdates($products)
             $item_total = $products[$id]['price'] * $quantity;
             $subtotal += $item_total;
 
-            // Check if this product requires freight shipping
             if (isset($products[$id]['item_shipping_type']) && $products[$id]['item_shipping_type'] === 'freight') {
                 $hasFreightItem = true;
             }
@@ -152,18 +147,15 @@ function sendCartUpdates($products)
         }
     }
 
-    // Determine shipping method based on cart contents
     if ($hasFreightItem || $subtotal > 300) {
         $shippingMethod = 'white_glove';
     } else {
         $shippingMethod = 'standard';
     }
 
-    // Calculate shipping cost using the shipping utility
     $shipping_fee = calculate_shipping_cost($shippingMethod, $subtotal);
     $total = $subtotal > 0 ? ($subtotal + $shipping_fee) : 0;
 
-    // Method names for display
     $methodNames = [
         'standard' => 'Standard',
         'express' => 'Express',
@@ -174,7 +166,7 @@ function sendCartUpdates($products)
     echo json_encode([
         'status' => 'success',
         'cart_count' => count($_SESSION['cart']),
-        'cart_data' => $_SESSION['cart'], // Send raw cart for LocalStorage
+        'cart_data' => $_SESSION['cart'], 
         'subtotal' => '₹' . number_format($subtotal),
         'shipping' => $methodNames[$shippingMethod] . ' - ₹' . number_format($subtotal > 0 ? $shipping_fee : 0),
         'shipping_method' => $shippingMethod,
@@ -182,3 +174,4 @@ function sendCartUpdates($products)
         'items' => $items
     ]);
 }
+?>

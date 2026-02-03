@@ -78,7 +78,7 @@ if (!empty($selectedStock)) {
 }
 
 // Sorting logic with Stock Priority
-$stockPrioritySql = "(SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'in_stock') DESC";
+$stockPrioritySql = "(CASE WHEN p.stock_count > 0 THEN 1 ELSE 0 END) DESC";
 
 switch ($sortBy) {
     case 'price_low': $sortSql = "p.price ASC"; break;

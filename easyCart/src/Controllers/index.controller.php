@@ -16,6 +16,7 @@ $stmt = $pdo->query("SELECT p.*, i.image_url as image,
     FROM catalog_product_entity p
     LEFT JOIN catalog_product_image i ON p.entity_id = i.product_id AND i.is_main_image = true
     WHERE EXISTS (SELECT 1 FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'is_featured' AND attribute_value = '1')
+    ORDER BY (CASE WHEN p.stock_count > 0 THEN 1 ELSE 0 END) DESC
     LIMIT 4");
 $dbFeatured = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

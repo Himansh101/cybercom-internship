@@ -1,0 +1,11 @@
+Options -Indexes
+RewriteEngine On
+
+# 1. Redirect /page.php to /page (Clean URLs)
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /(.+)\.php\ HTTP/
+RewriteRule ^(.+)\.php$ $1 [R=301,L]
+
+# 2. Internally map /page to /page.php if it exists
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [L]

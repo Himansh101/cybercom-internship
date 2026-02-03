@@ -20,17 +20,17 @@
     <header>
         <div class="logo">EasyCart</div>
         <nav>
-            <a href="index.php" class="<?php echo ($currentPage ?? '') === 'home' ? 'active' : ''; ?>">Home</a>
-            <a href="plp.php" class="<?php echo ($currentPage ?? '') === 'products' ? 'active' : ''; ?>">Products</a>
-            <a href="cart.php" id="cart-nav-link" class="<?php echo ($currentPage ?? '') === 'cart' ? 'active' : ''; ?>">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
+            <a href="index" class="<?php echo ($currentPage ?? '') === 'home' ? 'active' : ''; ?>">Home</a>
+            <a href="plp" class="<?php echo ($currentPage ?? '') === 'products' ? 'active' : ''; ?>">Products</a>
+            <a href="cart" id="cart-nav-link" class="<?php echo ($currentPage ?? '') === 'cart' ? 'active' : ''; ?>">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
             <?php if ($isLoggedIn): ?>
-                <a href="orders.php" class="<?php echo ($currentPage ?? '') === 'orders' ? 'active' : ''; ?>">My Orders</a>
+                <a href="orders" class="<?php echo ($currentPage ?? '') === 'orders' ? 'active' : ''; ?>">My Orders</a>
                 <span class="user-greeting" >
                     Hi, <?php echo htmlspecialchars(explode(' ', $user['name'])[0]); ?>
                 </span>
-                <a href="logout.php">Logout</a>
+                <a href="logout">Logout</a>
             <?php else: ?>
-                <a href="login.php" class="<?php echo ($currentPage ?? '') === 'login' ? 'active' : ''; ?>">Login</a>
+                <a href="login" class="<?php echo ($currentPage ?? '') === 'login' ? 'active' : ''; ?>">Login</a>
             <?php endif; ?>
         </nav>
         <button class="mobile-menu-btn" id="mobile-menu-btn">

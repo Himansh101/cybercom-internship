@@ -10,12 +10,12 @@ session_destroy();
     <title>Logging out...</title>
     <script>
         localStorage.clear();
-        window.location.href = "index.php";
+        window.location.href = "index";
     </script>
-    <meta http-equiv="refresh" content="2;url=index.php">
+    <meta http-equiv="refresh" content="2;url=index">
 </head>
 <body>
-    <p>Clearing session data... If you are not redirected, <a href="index.php">click here</a>.</p>
+    <p>Clearing session data... If you are not redirected, <a href="index">click here</a>.</p>
 </body>
 </html>
 <?php

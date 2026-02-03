@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             // Redirect to login with success message
-            header("Location: login.php?registered=true");
+            header("Location: login?registered=true");
             exit();
         }
     }

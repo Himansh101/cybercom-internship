@@ -24,7 +24,7 @@
             </p>
         <?php endif; ?>
 
-        <form action="signup.php" method="POST" id="signupForm" novalidate>
+        <form action="signup" method="POST" id="signupForm" novalidate>
             <div class="form-group">
                 <label for="name">Full Name</label>
                 <input id="name" name="full_name" type="text" placeholder="Alex Doe" minlength="3" pattern="[a-zA-Z\s]+" title="Name should only contain letters and spaces, and be at least 3 characters long." required value="<?php echo htmlspecialchars($fullName ?? ''); ?>">
@@ -66,8 +66,8 @@
             <button class="btn btn-success" type="submit">Sign Up</button>
         </form>
 
-        <p class="auth-meta">Already have an account? <a href="login.php">Login here</a></p>
-        <p class="auth-meta"><a href="index.php">Back to Home</a></p>
+        <p class="auth-meta">Already have an account? <a href="login">Login here</a></p>
+        <p class="auth-meta"><a href="index">Back to Home</a></p>
     </div>
 </body>
 

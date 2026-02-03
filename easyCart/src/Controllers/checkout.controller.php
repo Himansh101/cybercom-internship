@@ -3,7 +3,7 @@ require_once __DIR__ . '/../init.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: login");
     exit();
 }
 
@@ -18,7 +18,7 @@ $dbCartItems = loadCartArrayFromDb($pdo, $cartId);
 
 // Redirect to product page if cart is empty
 if (empty($dbCartItems)) {
-    header("Location: plp.php");
+    header("Location: plp");
     exit();
 }
 
@@ -46,7 +46,7 @@ foreach ($dbCartItems as $id => $quantity) {
         $checkoutItems[$id] = [
             'name' => $product['name'],
             'price' => $product['price'],
-            'image' => (strpos($product['image'] ?? '', 'http') === 0) ? $product['image'] : 'assets/images/products/' . $product['image'],
+            'image' => (strpos($product['image'] ?? '', 'http') === 0) ? $product['image'] : 'assets/' . $product['image'],
             'quantity' => $quantity,
             'item_total' => $item_total
         ];

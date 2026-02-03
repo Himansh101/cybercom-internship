@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../partials/header.view.php';
 ?>
 
-<a href="plp.php" class="back-btn"><i class="ri-arrow-left-line"></i> Continue Shopping</a>
+<a href="plp" class="back-btn"><i class="ri-arrow-left-line"></i> Continue Shopping</a>
 
 <?php if (isset($_SESSION['stock_error'])): ?>
     <div class="stock-alert" style="background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 8px; margin: 20px 0; border: 1px solid #fecaca;">
@@ -100,7 +100,7 @@ require_once __DIR__ . '/../partials/header.view.php';
             <hr class="summary-divider">
             <div class="row total"><span>Total Amount</span><span id="cart-total">₹<?php echo number_format($subtotal > 0 ? ($subtotal + $shipping_fee) : 0); ?></span></div>
         </div>
-        <a id="checkout-link" href="<?php echo ($subtotal > 0) ? ($isLoggedIn ? 'checkout.php' : 'login.php') : '#'; ?>" class="btn <?php echo ($subtotal > 0) ? 'btn-primary' : 'btn-disabled'; ?> mt-18 w-full">Proceed to Checkout</a>
+        <a id="checkout-link" href="<?php echo ($subtotal > 0) ? ($isLoggedIn ? 'checkout' : 'login') : '#'; ?>" class="btn <?php echo ($subtotal > 0) ? 'btn-primary' : 'btn-disabled'; ?> mt-18 w-full">Proceed to Checkout</a>
     </aside>
 </div>
 

@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('shipping_method', selectedMethod);
         formData.append('coupon_code', couponCode);
 
-        fetch('src/controllers/checkout.handler.php', {
+        fetch('src/controllers/checkout.handler', {
             method: 'POST',
             body: formData
         })
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formData = new FormData();
                 formData.append('action', 'remove_coupon');
 
-                fetch('src/controllers/checkout.handler.php', {
+                fetch('src/controllers/checkout.handler', {
                     method: 'POST',
                     body: formData
                 })
@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            fetch('src/controllers/checkout.handler.php', {
+            fetch('src/controllers/checkout.handler', {
                 method: 'POST',
                 body: formData
             })
@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             timerProgressBar: true
                         });
                         // Redirect to orders page
-                        window.location.href = 'orders.php';
+                        window.location.href = 'orders';
                     } else {
                         Swal.fire('Error', data.message || 'Failed to place order', 'error');
                     }

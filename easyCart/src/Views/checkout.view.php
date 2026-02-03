@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../partials/header.view.php';
 ?>
 
-<a href="cart.php" class="back-btn"><i class="ri-arrow-left-line"></i> Back to Cart</a>
+<a href="cart" class="back-btn"><i class="ri-arrow-left-line"></i> Back to Cart</a>
 
 <?php if (isset($_SESSION['checkout_errors'])): ?>
     <div class="error-summary" style="background: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
@@ -16,7 +16,7 @@ require_once __DIR__ . '/../partials/header.view.php';
     <?php unset($_SESSION['checkout_errors']); ?>
 <?php endif; ?>
 
-<form action="checkout_handler.php" id="checkout-form" method="POST" data-subtotal="<?php echo $subtotal; ?>">
+<form action="/../controllers/checkout.handler" id="checkout-form" method="POST" data-subtotal="<?php echo $subtotal; ?>">
     <input type="hidden" name="action" value="place_order">
     <div class="checkout-layout">
 

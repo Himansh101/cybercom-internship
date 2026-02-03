@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Sync cart from database
             $userCartId = mergeCartOnLogin($pdo, $dbUser['entity_id']);
             $_SESSION['cart_id'] = $userCartId;
-            header("Location: index.php");
+            header("Location: index");
             exit();
         } else {
             $error = "Invalid email or password.";

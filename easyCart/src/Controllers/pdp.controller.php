@@ -12,7 +12,7 @@ $productId = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
 // 2. Validate Product Existence & Fetch Details
 if ($productId === null) {
-    header("Location: plp.php");
+    header("Location: plp");
     exit();
 }
 
@@ -26,7 +26,7 @@ $stmt->execute([':id' => $productId]);
 $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$row) {
-    header("Location: plp.php");
+    header("Location: plp");
     exit();
 }
 

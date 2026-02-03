@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const formData = new FormData(filterForm);
         const params = new URLSearchParams(formData);
-        const url = `plp.php?${params.toString()}`;
+        const url = `plp?${params.toString()}`;
 
         // Show loading state
         if (loadingOverlay) loadingOverlay.style.display = 'flex';

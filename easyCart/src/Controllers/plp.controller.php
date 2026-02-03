@@ -94,6 +94,7 @@ $totalVisible = (int)$stmtCount->fetchColumn();
 // Main Fetch Query
 $sql = "SELECT p.*, i.image_url as image, 
         (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'in_stock') as in_stock,
+        (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'shipping_type') as shipping_type,
         (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'brand_id') as brand_id,
         (SELECT category_id FROM catalog_category_product WHERE product_id = p.entity_id LIMIT 1) as cat_id
         FROM catalog_product_entity p
@@ -116,7 +117,8 @@ foreach ($productsFromDb as $row) {
         'image' => (strpos($row['image'], 'http') === 0) ? $row['image'] : $row['image'],
         'in_stock' => ($row['in_stock'] === '1'),
         'brand_id' => $row['brand_id'],
-        'cat_id' => $row['cat_id'] // Added to ensure view can look up category
+        'cat_id' => $row['cat_id'], // Added to ensure view can look up category
+        'item_shipping_type' => $row['shipping_type']
     ];
 }
 

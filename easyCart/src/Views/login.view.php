@@ -30,7 +30,7 @@
             </p>
         <?php endif; ?>
 
-        <form action="login.php" method="POST" id="loginForm" novalidate>
+        <form action="login" method="POST" id="loginForm" novalidate>
             <div class="form-group">
                 <label for="email">Email</label>
                 <input id="email" name="email" type="email" placeholder="you@example.com"
@@ -49,8 +49,8 @@
             <button class="btn btn-success" type="submit">Sign In</button>
         </form>
 
-        <p class="auth-meta">New to EasyCart? <a href="signup.php">Create account</a></p>
-        <p class="auth-meta"><a href="index.php">Back to Home</a></p>
+        <p class="auth-meta">New to EasyCart? <a href="signup">Create account</a></p>
+        <p class="auth-meta"><a href="index">Back to Home</a></p>
     </div>
 </body>
 

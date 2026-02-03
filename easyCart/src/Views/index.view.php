@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../partials/header.view.php';
 ?>
 
-<form action="plp.php" method="GET" class="content-search-bar">
+<form action="plp" method="GET" class="content-search-bar">
     <input type="text" name="search" placeholder="Search for products, brands and more..."
         value="<?php echo htmlspecialchars($searchQuery); ?>">
     <button type="submit"><i class="ri-search-line"></i></button>
@@ -12,7 +12,7 @@ require_once __DIR__ . '/../partials/header.view.php';
     <div>
         <h1>Discover deals for everything you love</h1>
         <p>Curated gadgets, fashion essentials, and home comforts delivered fast.</p>
-        <a class="btn btn-success btn-inline" href="plp.php">Shop Products</a>
+        <a class="btn btn-success btn-inline" href="plp">Shop Products</a>
     </div>
 </section>
 
@@ -36,7 +36,7 @@ require_once __DIR__ . '/../partials/header.view.php';
                         <div class="category-badge"><?php echo $categoryName; ?></div>
                         <h3><?php echo $product['name']; ?></h3>
                         <div class="price">₹<?php echo number_format($product['price']); ?></div>
-                        <a class="btn btn-primary btn-sm btn-inline mt-18" href="pdp.php?id=<?php echo $id; ?>">
+                        <a class="btn btn-primary btn-sm btn-inline mt-18" href="pdp?id=<?php echo $id; ?>">
                             View Details
                         </a>
                     </div>
@@ -54,7 +54,7 @@ require_once __DIR__ . '/../partials/header.view.php';
         <?php 
         if (isset($categories)): ?>
             <?php foreach ($categories as $cat_id => $name): ?>
-                <a class="pill indexPill" href="plp.php?categories[]=<?php echo $cat_id; ?>"><?php echo $name; ?></a>
+                <a class="pill indexPill" href="plp?categories[]=<?php echo $cat_id; ?>"><?php echo $name; ?></a>
             <?php endforeach; ?>
         <?php endif; ?>
     </div>
@@ -66,7 +66,7 @@ require_once __DIR__ . '/../partials/header.view.php';
         <?php 
         if (isset($brands)): ?>
             <?php foreach ($brands as $brand_id => $brand): ?>
-                <a class="card brandCard" href="plp.php?brands[]=<?php echo $brand_id; ?>">
+                <a class="card brandCard" href="plp?brands[]=<?php echo $brand_id; ?>">
                     <h3><?php echo $brand['name']; ?></h3>
                 </a>
             <?php endforeach; ?>

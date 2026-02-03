@@ -14,7 +14,7 @@ function renderProductGrid($paginatedProducts, $categories = [], $brands = [])
         echo '<div class="no-results" style="grid-column: 1/-1; text-align: center; padding: 60px;">
                 <i class="ri-search-2-line" style="font-size: 3rem; color: #cbd5e1;"></i>
                 <p>No products match your current filters.</p>
-                <a href="plp.php" style="color: #6366f1;">Clear all filters</a>
+                <a href="plp" style="color: #6366f1;">Clear all filters</a>
               </div>';
     } else {
         foreach ($paginatedProducts as $id => $product) {
@@ -48,7 +48,7 @@ function renderProductGrid($paginatedProducts, $categories = [], $brands = [])
                             Unavailable
                         </button>
                     <?php else: ?>
-                        <a class="btn-view" href="pdp.php?id=<?php echo $id; ?>">
+                        <a class="btn-view" href="pdp?id=<?php echo $id; ?>">
                             View Details <i class="ri-arrow-right-line"></i>
                         </a>
                     <?php endif; ?>
@@ -137,7 +137,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
 }
 ?>
 
-<form id="filter-form" action="plp.php" method="GET">
+<form id="filter-form" action="plp" method="GET">
     <input type="hidden" name="page" value="<?php echo $pageNumber; ?>">
     <div class="shop-container">
         <aside class="sidebar-filters">
@@ -204,7 +204,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
                 </div>
                 <div class="filter-actions" style="padding: 16px; border-top: 1px solid #e2e8f0;">
                     <button type="submit" class="btn-apply">Apply Filters</button>
-                    <a href="plp.php" class="btn-reset">Reset All</a>
+                    <a href="plp" class="btn-reset">Reset All</a>
                 </div>
         </aside>
 

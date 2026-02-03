@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Logout Confirmation Logic ---
-    const logoutLink = document.querySelector('a[href="logout.php"]');
+    const logoutLink = document.querySelector('a[href="logout"]');
     if (logoutLink && typeof Swal !== 'undefined') {
         logoutLink.addEventListener('click', function (e) {
             e.preventDefault();
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = 'logout.php';
+                    window.location.href = 'logout';
                 }
             });
         });

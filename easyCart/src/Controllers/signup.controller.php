@@ -74,5 +74,5 @@ $extraStyles = ['auth.css'];
 $extraScripts = ['auth.js'];
 
 // Load View
-require_once __DIR__ . '/../Views/signup.view.php';
+require_once __DIR__ . '/../views/signup.view.php';
 ?>

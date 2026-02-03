@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('shipping_method', selectedMethod);
         formData.append('coupon_code', couponCode);
 
-        fetch('src/Controllers/checkout.handler.php', {
+        fetch('src/controllers/checkout.handler.php', {
             method: 'POST',
             body: formData
         })
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formData = new FormData();
                 formData.append('action', 'remove_coupon');
 
-                fetch('src/Controllers/checkout.handler.php', {
+                fetch('src/controllers/checkout.handler.php', {
                     method: 'POST',
                     body: formData
                 })
@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            fetch('src/Controllers/checkout.handler.php', {
+            fetch('src/controllers/checkout.handler.php', {
                 method: 'POST',
                 body: formData
             })
@@ -354,7 +354,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (data.status === 'success') {
                         // Clear guest persistence
                         localStorage.removeItem('guest_cart');
-
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Order Placed Successfully',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
                         // Redirect to orders page
                         window.location.href = 'orders.php';
                     } else {

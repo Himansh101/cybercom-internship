@@ -4,9 +4,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/Models/data.php';
-require_once __DIR__ . '/Utils/shipping.utils.php';
-require_once __DIR__ . '/Utils/coupon.utils.php';
+require_once __DIR__ . '/models/data.php';
+require_once __DIR__ . '/utils/shipping.utils.php';
+require_once __DIR__ . '/utils/coupon.utils.php';
 
 // Global variables
 $isLoggedIn = isset($_SESSION['user']);

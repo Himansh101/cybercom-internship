@@ -60,5 +60,5 @@ $extraScripts = ['auth.js'];
 $signup_success = isset($_GET['registered']) && $_GET['registered'] === 'true';
 
 // Load View
-require_once __DIR__ . '/../Views/login.view.php';
+require_once __DIR__ . '/../views/login.view.php';
 ?>

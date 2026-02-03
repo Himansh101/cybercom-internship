@@ -27,5 +27,5 @@ $categoryName = $categories[$product['cat_id']] ?? 'Uncategorized';
 $brandName    = $brands[$product['brand_id']]['name'] ?? 'Generic';
 
 // Load View
-require_once __DIR__ . '/../Views/pdp.view.php';
+require_once __DIR__ . '/../views/pdp.view.php';
 ?>

@@ -19,5 +19,5 @@ $extraStyles = ['plp.css'];
 $extraScripts = ['plp.js'];
 
 // Load View
-require_once __DIR__ . '/../Views/index.view.php';
+require_once __DIR__ . '/../views/index.view.php';
 ?>

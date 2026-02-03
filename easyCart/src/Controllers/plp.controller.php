@@ -81,10 +81,10 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
     // Note: In a real refactor, we would move helper functions to `src/Utils/plp_helpers.php`
     // For now, index.view handles the rendering helper logic or we just re-include view parts.
     // Simplifying: re-render the view part for AJAX
-    require_once __DIR__ . '/../Views/plp.view.php';
+    require_once __DIR__ . '/../views/plp.view.php';
     exit;
 }
 
 // Load View
-require_once __DIR__ . '/../Views/plp.view.php';
+require_once __DIR__ . '/../views/plp.view.php';
 ?>

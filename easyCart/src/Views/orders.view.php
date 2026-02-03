@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../Partials/header.view.php';
+require_once __DIR__ . '/../partials/header.view.php';
 ?>
 
 <div class="orders-container">
@@ -88,5 +88,5 @@ require_once __DIR__ . '/../Partials/header.view.php';
 </div>
 
 <?php
-require_once __DIR__ . '/../Partials/footer.view.php';
+require_once __DIR__ . '/../partials/footer.view.php';
 ?>

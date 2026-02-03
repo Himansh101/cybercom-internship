@@ -1,57 +1,53 @@
 # EasyCart - Modern PHP E-commerce Platform
 
-A premium, responsive e-commerce web application featuring a clean architecture, dynamic filtering, and a seamless shopping experience.
+A premium, responsive e-commerce web application featuring a clean **Controller-View** architecture, dynamic filtering, and a seamless shopping experience.
 
-## 🚀 Features
-- **Product Discovery**: Advanced filtering by category, brand, and price range with AJAX updates.
-- **Detailed Product Views**: High-quality imagery, stock status, and shipping information.
-- **Shopping Cart**: Real-time quantity adjustments and persistence.
-- **Seamless Checkout**: Address validation, dynamic shipping calculation, and coupon support.
-- **User Authentication**: Secure login and signup with session persistence.
-- **Order Tracking**: View recent order history.
+## 🚀 Key Features
+- **Product Discovery**: Advanced filtering by category, brand, and price range.
+- **Stock Priority**: In-stock items are automatically prioritized at the top of the listings.
+- **Premium Orders Page**: Real-time order persistence in `users.json` with a modern, glassmorphic UI overhaul.
+- **Shopping Cart**: Real-time quantity adjustments and local/session persistence.
+- **Dynamic Checkout**: Intelligent shipping calculations, coupon support, and field validations.
+- **Secure Auth**: Dedicated login and signup modules with protected routes.
 
 ## 🛠️ Tech Stack
-- **Frontend**: Vanilla HTML5, Vanilla CSS3 (Custom Properties, Flexbox, Grid), Remix Icon.
-- **Backend**: Native PHP 8.x (Separated Logic & Views).
-- **Data Management**: JSON-based user/cart persistence & hardcoded product catalog.
+- **Frontend**: HTML5, Vanilla CSS3 (Custom Properties, Glassmorphism, Animations), Remix Icon, SweetAlert2.
+- **Backend**: Native PHP 8.x (Modular Controller-View pattern).
+- **Data**: JSON-based persistence for Users, Carts, and Order History.
 
 ## 📂 Project Structure
 
-The project follows a clean **Controller-View** pattern for better maintainability.
-
 ```text
 easyCart/
-├── assets/                 # Publicly accessible assets
-│   ├── images/             # Product and UI images
-│   ├── styles/             # Modular CSS files
-│   └── js/                 # Client-side logic (AJAX, Validations)
-├── src/                    # Core source code
-│   ├── Controllers/        # Business logic & Request handling
-│   │   ├── *.controller.php # Page-specific logic
-│   │   └── *.handler.php    # AJAX/Action handlers
-│   ├── Views/              # HTML Templates (Views)
-│   ├── Partials/           # Reusable UI components (Header, Footer)
-│   ├── Utils/              # Helper functions (Shipping, Coupons)
-│   └── init.php            # Core initialization (Session, Data loading)
-├── data.php                # Product catalog (Model-like data)
-├── index.php               # Entry points (Routing to Controllers)
-├── plp.php
-├── pdp.php
-├── cart.php
-├── checkout.php
-└── ...
+├── assets/                 # Centralized Asset Store
+│   ├── css/                # Refactored modular stylesheets
+│   ├── js/                 # AJAX controllers and UI logic
+│   └── images/             # Product catalog images
+├── src/                    # Core Application Logic
+│   ├── Controllers/        # Business logic & Route handlers
+│   │   ├── *.controller.php # Page logic
+│   │   └── *.handler.php    # AJAX action handlers
+│   ├── Views/              # Clean HTML templates
+│   ├── Partials/           # Reusable Header/Footer views
+│   ├── Models/             # Data models (data.php)
+│   ├── Utils/              # Utility classes (*.utils.php)
+│   └── init.php            # Global Initialization (Sessions, DI)
+├── index.php               # Clean Entry Points (Delegating to src/Controllers)
+├── plp.php / pdp.php
+├── cart.php / checkout.php
+└── orders.php
 ```
 
 ## ⚙️ Setup Instructions
-1. Clone the repository into your web server directory (e.g., `xampp/htdocs`).
-2. Ensure you have a PHP environment (PHP 8.0+ recommended).
+1. Clone the repository into your PHP environment (e.g., `xampp/htdocs`).
+2. Ensure you have PHP 8.0+ enabled.
 3. Access the project via `http://localhost/cybercom-internship/easyCart/`.
 
 ## 🧑‍💻 Refactoring Highlights
-- **Separation of Concerns**: Logic and View are separated into `controller.php` and `view.php`.
-- **Naming Conventions**: Adopts dot notation for handler files (e.g., `cart.handler.php`).
-- **Asset Organization**: Centralized all CSS, JS, and Images under the `assets/` directory.
-- **Shared Infrastructure**: Introduced `init.php` to handle global requirements like sessions and data loading.
+- **Clean Architecture**: Complete separation of business logic (`Controllers`) from presentation (`Views`).
+- **Dot Notation**: Standardized naming for handlers (`cart.handler.php`) and utilities (`shipping.utils.php`).
+- **AJAX Shims**: Uses root-level shims for AJAX stability while keeping logic safe in internal directories.
+- **UI Excellence**: Transitioned to a premium design language using glassmorphism and modern CSS variables.
 
 ---
-*Created as part of the Cybercom Internship program.*
+*Developed as part of the Cybercom Internship program.*

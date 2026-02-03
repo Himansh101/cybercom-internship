@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../Partials/header.view.php';
+require_once __DIR__ . '/../partials/header.view.php';
 ?>
 
 <a href="cart.php" class="back-btn"><i class="ri-arrow-left-line"></i> Back to Cart</a>
@@ -212,5 +212,5 @@ require_once __DIR__ . '/../Partials/header.view.php';
 </form>
 
 <?php
-require_once __DIR__ . '/../Partials/footer.view.php';
+require_once __DIR__ . '/../partials/footer.view.php';
 ?>

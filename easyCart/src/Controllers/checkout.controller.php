@@ -72,5 +72,5 @@ $gst = $discounted_subtotal * $gst_rate;
 $final_total = $discounted_subtotal + $shipping + $gst;
 
 // Load View
-require_once __DIR__ . '/../Views/checkout.view.php';
+require_once __DIR__ . '/../views/checkout.view.php';
 ?>

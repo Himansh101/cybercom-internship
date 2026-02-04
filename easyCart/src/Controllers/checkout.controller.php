@@ -63,6 +63,7 @@ if ($hasFreightItem || $subtotal > 300) {
 // 2. Fetch Checkout Metadata (Shipping & Coupon) from DB
 $metadata = getCartMetadata($pdo, $cartId);
 $coupon_code = $metadata['coupon_code'] ?? '';
+$saved_payment_method = $metadata['payment_method'] ?? 'cod';
 $coupon_data = get_coupon_data($pdo, $coupon_code, $subtotal);
 
 $discount = $coupon_data['discount_amount'];

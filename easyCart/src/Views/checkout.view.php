@@ -153,7 +153,7 @@ require_once __DIR__ . '/../partials/header.view.php';
                 <h3>Payment Method</h3>
                 <div class="payment-options">
                     <label class="payment-card">
-                        <input type="radio" name="payment" value="cod" checked>
+                        <input type="radio" name="payment_method" value="cod" <?php echo ($saved_payment_method === 'cod') ? 'checked' : ''; ?>>
                         <div class="payment-info">
                             <i class="ri-truck-line"></i>
                             <div class="method-details">
@@ -164,7 +164,7 @@ require_once __DIR__ . '/../partials/header.view.php';
                     </label>
 
                     <label class="payment-card">
-                        <input type="radio" name="payment" value="stripe">
+                        <input type="radio" name="payment_method" value="stripe" id="payment-stripe" <?php echo ($saved_payment_method === 'stripe') ? 'checked' : ''; ?>>
                         <div class="payment-info">
                             <i class="ri-bank-card-line"></i>
                             <div class="method-details">
@@ -176,12 +176,23 @@ require_once __DIR__ . '/../partials/header.view.php';
                             <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" style="height: 15px;">
                         </div>
                     </label>
+
+                    <!-- Stripe Element Container -->
+                    <div id="stripe-card-container" class="mt-4 hidden" style="background: white; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <div id="card-element"><!-- Stripe.js will inject the card Element here --></div>
+                        <div id="card-errors" role="alert" style="color: #efa2a2; margin-top: 10px; font-size: 0.9em;"></div>
+                    </div>
                 </div>
             </div>
-            <button class="btn btn-success" type="submit">Place Order</button>
+            <button class="btn btn-success" type="submit" id="submit-btn">Place Order</button>
         </aside>
     </div>
 </form>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    const STRIPE_PUBLISHABLE_KEY = "<?php require_once __DIR__ . '/../config/stripe.php'; echo STRIPE_PUBLISHABLE_KEY; ?>";
+</script>
 
 <?php
 require_once __DIR__ . '/../partials/footer.view.php';

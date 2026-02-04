@@ -8,6 +8,9 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $action = $_POST['action'] ?? '';
+error_log("Checkout Handler Action: " . $action);
+error_log("POST Data: " . print_r($_POST, true));
+
 $userId = $_SESSION['user_id'];
 global $products;
 
@@ -56,11 +59,13 @@ switch ($action) {
         }
 
         $coupon_code = $_POST['coupon_code'] ?? $metadata['coupon_code'] ?? '';
+        $payment_method = $_POST['payment_method'] ?? $metadata['payment_method'] ?? 'cod';
         
         // Save to DB Metadata
         updateCartMetadata($pdo, $cartId, [
             'shipping_method' => $method,
-            'coupon_code' => $coupon_code
+            'coupon_code' => $coupon_code,
+            'payment_method' => $payment_method
         ]);
 
         $coupon_data = get_coupon_data($pdo, $coupon_code, $subtotal);
@@ -104,6 +109,45 @@ switch ($action) {
         echo json_encode(['status' => 'success', 'message' => 'Coupon removed']);
         break;
 
+    case 'create_payment_intent':
+        try {
+            $cartItems = loadCartArrayFromDb($pdo, $cartId);
+            if (empty($cartItems)) throw new Exception("Cart is empty");
+
+            // Calculate exact total again
+            $subtotal = 0;
+            $hasFreight = false;
+            foreach ($cartItems as $id => $qty) {
+                $stmt = $pdo->prepare("SELECT price, (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'shipping_type') as type FROM catalog_product_entity p WHERE entity_id = ?");
+                $stmt->execute([$id]);
+                $p = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($p) {
+                    $subtotal += $p['price'] * $qty;
+                    if (($p['type'] ?? '') === 'freight') $hasFreight = true;
+                }
+            }
+            
+            $metadata = getCartMetadata($pdo, $cartId);
+            $coupon = get_coupon_data($pdo, $metadata['coupon_code'] ?? '', $subtotal);
+            $discountedSubtotal = $subtotal - $coupon['discount_amount'];
+            
+            $shippingMethod = $metadata['shipping_method'] ?? ($hasFreight || $subtotal > 300 ? 'white_glove' : 'standard');
+            $shipping = calculate_shipping_cost($pdo, $shippingMethod, $discountedSubtotal);
+            $gst = $discountedSubtotal * 0.18;
+            $finalTotal = $discountedSubtotal + $shipping + $gst;
+
+            // Stripe expects integer logic (e.g. paisa for INR)
+            $amountInSmallestUnit = round($finalTotal * 100);
+
+            $intent = stripe_create_payment_intent($amountInSmallestUnit, 'inr', ['user_id' => $userId, 'cart_id' => $cartId]);
+
+            echo json_encode(['status' => 'success', 'clientSecret' => $intent['client_secret']]);
+
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+        break;
+
     case 'place_order':
         $errors = [];
         $dbCartItems = loadCartArrayFromDb($pdo, $cartId);
@@ -117,6 +161,8 @@ switch ($action) {
         $address = trim($_POST['address'] ?? '');
         $city = trim($_POST['city'] ?? '');
         $pincode = trim($_POST['pincode'] ?? '');
+        $paymentMethod = $_POST['payment_method'] ?? 'cod';
+        $paymentIntentId = $_POST['payment_intent_id'] ?? null;
 
         // (Validations kept as is for brevity, assume they pass for logic core)
         if (strlen($name) < 3) $errors[] = "Invalid name.";
@@ -126,6 +172,27 @@ switch ($action) {
         if (!empty($errors)) {
             echo json_encode(['status' => 'error', 'message' => implode("\n", $errors)]);
             exit();
+        }
+
+        // Verify Stripe Payment if applicable
+        $paymentStatus = 'pending';
+        if ($paymentMethod === 'stripe') {
+            if (!$paymentIntentId) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing payment information.']);
+                exit();
+            }
+            try {
+                $intent = stripe_retrieve_payment_intent($paymentIntentId);
+                if (($intent['status'] ?? '') === 'succeeded') {
+                    $paymentStatus = 'paid';
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Payment verification failed: ' . ($intent['status'] ?? 'Unknown')]);
+                    exit();
+                }
+            } catch (Exception $e) {
+                echo json_encode(['status' => 'error', 'message' => 'Payment error: ' . $e->getMessage()]);
+                exit();
+            }
         }
 
         try {
@@ -166,10 +233,10 @@ switch ($action) {
             $gst = $discounted_subtotal * 0.18;
             $finalTotal = $discounted_subtotal + $shipping + $gst;
 
-            // 2. Insert Order
-            $stmt = $pdo->prepare("INSERT INTO sales_order (user_id, order_number, subtotal, shipping_cost, tax_amount, final_amount, status, created_at) 
-                                   VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) RETURNING order_id");
-            $stmt->execute([$userId, $orderNumber, $discounted_subtotal, $shipping, $gst, $finalTotal, 'placed']);
+            // 2. Insert Order (Updated Schema)
+            $stmt = $pdo->prepare("INSERT INTO sales_order (user_id, order_number, subtotal, shipping_cost, tax_amount, final_amount, status, created_at, payment_method, transaction_id, payment_status) 
+                                   VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?) RETURNING order_id");
+            $stmt->execute([$userId, $orderNumber, $discounted_subtotal, $shipping, $gst, $finalTotal, 'placed', $paymentMethod, $paymentIntentId, $paymentStatus]);
             $orderId = $stmt->fetchColumn();
 
             // 3. Insert Items & Update Stock

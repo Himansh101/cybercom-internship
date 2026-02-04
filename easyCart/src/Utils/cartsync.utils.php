@@ -190,17 +190,17 @@ function syncCartToDb($pdo, $userId, $cart)
 }
 
 /**
- * Gets cart metadata (shipping, coupon) from database.
+ * Gets cart metadata (shipping, coupon, payment) from database.
  */
 function getCartMetadata($pdo, $cartId)
 {
-    if (!$cartId) return ['shipping_method' => 'standard', 'coupon_code' => ''];
+    if (!$cartId) return ['shipping_method' => 'standard', 'coupon_code' => '', 'payment_method' => 'cod'];
     
-    $stmt = $pdo->prepare("SELECT shipping_method, coupon_code FROM sales_cart_metadata WHERE cart_id = ?");
+    $stmt = $pdo->prepare("SELECT shipping_method, coupon_code, payment_method FROM sales_cart_metadata WHERE cart_id = ?");
     $stmt->execute([$cartId]);
     $data = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    return $data ?: ['shipping_method' => 'standard', 'coupon_code' => ''];
+    return $data ?: ['shipping_method' => 'standard', 'coupon_code' => '', 'payment_method' => 'cod'];
 }
 
 /**
@@ -212,16 +212,17 @@ function updateCartMetadata($pdo, $cartId, $data)
     
     $shipping = $data['shipping_method'] ?? 'standard';
     $coupon = $data['coupon_code'] ?? null;
+    $payment = $data['payment_method'] ?? 'cod';
     
     try {
         $check = $pdo->prepare("SELECT metadata_id FROM sales_cart_metadata WHERE cart_id = ?");
         $check->execute([$cartId]);
         if ($check->fetch()) {
-            $stmt = $pdo->prepare("UPDATE sales_cart_metadata SET shipping_method = ?, coupon_code = ? WHERE cart_id = ?");
-            $stmt->execute([$shipping, $coupon, $cartId]);
+            $stmt = $pdo->prepare("UPDATE sales_cart_metadata SET shipping_method = ?, coupon_code = ?, payment_method = ? WHERE cart_id = ?");
+            $stmt->execute([$shipping, $coupon, $payment, $cartId]);
         } else {
-            $stmt = $pdo->prepare("INSERT INTO sales_cart_metadata (cart_id, shipping_method, coupon_code) VALUES (?, ?, ?)");
-            $stmt->execute([$cartId, $shipping, $coupon]);
+            $stmt = $pdo->prepare("INSERT INTO sales_cart_metadata (cart_id, shipping_method, coupon_code, payment_method) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$cartId, $shipping, $coupon, $payment]);
         }
         return true;
     } catch (Exception $e) {

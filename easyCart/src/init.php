@@ -8,6 +8,8 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/utils/shipping.utils.php';
 require_once __DIR__ . '/utils/coupon.utils.php';
 require_once __DIR__ . '/utils/cartsync.utils.php';
+require_once __DIR__ . '/config/stripe.php';
+require_once __DIR__ . '/utils/stripe.utils.php';
 
 // Database initialization
 $database = new Database();

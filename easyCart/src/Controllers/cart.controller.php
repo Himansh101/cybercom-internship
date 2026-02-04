@@ -61,7 +61,7 @@ if ($hasFreightItem || $subtotal > 300) {
 }
 
 // Calculate shipping cost
-$shipping_fee = calculate_shipping_cost($defaultShippingMethod, $subtotal);
+$shipping_fee = calculate_shipping_cost($pdo, $defaultShippingMethod, $subtotal);
 
 // Load View
 require_once __DIR__ . '/../views/cart.view.php';

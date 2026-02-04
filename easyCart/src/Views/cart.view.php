@@ -87,13 +87,9 @@ require_once __DIR__ . '/../partials/header.view.php';
                 <span>Shipping</span>
                 <span id="cart-shipping" data-method="<?php echo $defaultShippingMethod; ?>">
                     <?php
-                    $methodNames = [
-                        'standard' => 'Standard',
-                        'express' => 'Express',
-                        'freight' => 'Freight',
-                        'white_glove' => 'White Glove'
-                    ];
-                    echo $methodNames[$defaultShippingMethod] . ' - ₹' . number_format($subtotal > 0 ? $shipping_fee : 0);
+                    $allMethods = get_all_shipping_methods($pdo, $subtotal);
+                    $methodName = $allMethods[$defaultShippingMethod]['name'] ?? 'Unknown';
+                    echo $methodName . ' - ₹' . number_format($subtotal > 0 ? $shipping_fee : 0);
                     ?>
                 </span>
             </div>

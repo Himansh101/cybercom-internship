@@ -152,7 +152,7 @@ function sendCartUpdates($pdo)
     }
 
     $shippingMethod = ($hasFreightItem || $subtotal > 300) ? 'white_glove' : 'standard';
-    $shipping_fee = calculate_shipping_cost($shippingMethod, $subtotal);
+    $shipping_fee = calculate_shipping_cost($pdo, $shippingMethod, $subtotal);
     $total = $subtotal > 0 ? ($subtotal + $shipping_fee) : 0;
 
     $methodNames = [

@@ -63,14 +63,14 @@ switch ($action) {
             'coupon_code' => $coupon_code
         ]);
 
-        $coupon_data = get_coupon_data($coupon_code, $subtotal);
+        $coupon_data = get_coupon_data($pdo, $coupon_code, $subtotal);
         $discount = $coupon_data['discount_amount'];
         $discount_pct = $coupon_data['discount_pct'];
         $coupon_valid = $coupon_data['valid'];
         $coupon_message = $coupon_data['message'];
 
         $discounted_subtotal = $subtotal - $discount;
-        $shipping = calculate_shipping_cost($method, $discounted_subtotal);
+        $shipping = calculate_shipping_cost($pdo, $method, $discounted_subtotal);
         $gst = $discounted_subtotal * 0.18;
         $final_total = $discounted_subtotal + $shipping + $gst;
 
@@ -159,10 +159,10 @@ switch ($action) {
             }
 
             $metadata = getCartMetadata($pdo, $cartId);
-            $coupon_data = get_coupon_data($metadata['coupon_code'] ?? '', $subtotal);
+            $coupon_data = get_coupon_data($pdo, $metadata['coupon_code'] ?? '', $subtotal);
             $discount = $coupon_data['discount_amount'];
             $discounted_subtotal = $subtotal - $discount;
-            $shipping = calculate_shipping_cost($metadata['shipping_method'] ?? 'standard', $discounted_subtotal);
+            $shipping = calculate_shipping_cost($pdo, $metadata['shipping_method'] ?? 'standard', $discounted_subtotal);
             $gst = $discounted_subtotal * 0.18;
             $finalTotal = $discounted_subtotal + $shipping + $gst;
 

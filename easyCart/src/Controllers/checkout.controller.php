@@ -63,7 +63,7 @@ if ($hasFreightItem || $subtotal > 300) {
 // 2. Fetch Checkout Metadata (Shipping & Coupon) from DB
 $metadata = getCartMetadata($pdo, $cartId);
 $coupon_code = $metadata['coupon_code'] ?? '';
-$coupon_data = get_coupon_data($coupon_code, $subtotal);
+$coupon_data = get_coupon_data($pdo, $coupon_code, $subtotal);
 
 $discount = $coupon_data['discount_amount'];
 $discount_percentage = $coupon_data['discount_pct'];
@@ -78,7 +78,7 @@ $method = $metadata['shipping_method'] ?: 'standard';
 if (isset($_POST['shipping_method'])) {
     $method = $_POST['shipping_method'];
 }
-$shipping = calculate_shipping_cost($method, $discounted_subtotal);
+$shipping = calculate_shipping_cost($pdo, $method, $discounted_subtotal);
 
 // 4. Calculate GST (18%)
 $gst_rate = 0.18;

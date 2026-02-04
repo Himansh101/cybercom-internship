@@ -81,45 +81,21 @@ require_once __DIR__ . '/../partials/header.view.php';
                 </div>
 
                 <div class="shipping-options">
-                    <label class="shipping-card <?php echo !in_array('standard', $allowedShippingMethods) ? 'disabled' : ''; ?>">
-                        <input type="radio" name="shipping_method" value="standard"
-                            <?php echo ($method === 'standard') ? 'checked' : ''; ?>
-                            <?php echo !in_array('standard', $allowedShippingMethods) ? 'disabled' : ''; ?>>
-                        <div class="shipping-info">
-                            <span class="method-title">Standard Shipping</span>
-                            <span class="method-desc">3-5 Business Days</span>
-                        </div>
-                    </label>
-
-                    <label class="shipping-card <?php echo !in_array('express', $allowedShippingMethods) ? 'disabled' : ''; ?>">
-                        <input type="radio" name="shipping_method" value="express"
-                            <?php echo ($method === 'express') ? 'checked' : ''; ?>
-                            <?php echo !in_array('express', $allowedShippingMethods) ? 'disabled' : ''; ?>>
-                        <div class="shipping-info">
-                            <span class="method-title">Express Shipping</span>
-                            <span class="method-desc">1-2 Business Days</span>
-                        </div>
-                    </label>
-
-                    <label class="shipping-card <?php echo !in_array('white_glove', $allowedShippingMethods) ? 'disabled' : ''; ?>">
-                        <input type="radio" name="shipping_method" value="white_glove"
-                            <?php echo ($method === 'white_glove') ? 'checked' : ''; ?>
-                            <?php echo !in_array('white_glove', $allowedShippingMethods) ? 'disabled' : ''; ?>>
-                        <div class="shipping-info">
-                            <span class="method-title">White Glove Delivery</span>
-                            <span class="method-desc">Premium In-Home Setup</span>
-                        </div>
-                    </label>
-
-                    <label class="shipping-card <?php echo !in_array('freight', $allowedShippingMethods) ? 'disabled' : ''; ?>">
-                        <input type="radio" name="shipping_method" value="freight"
-                            <?php echo ($method === 'freight') ? 'checked' : ''; ?>
-                            <?php echo !in_array('freight', $allowedShippingMethods) ? 'disabled' : ''; ?>>
-                        <div class="shipping-info">
-                            <span class="method-title">Freight Shipping</span>
-                            <span class="method-desc">Heavy/Bulky Items</span>
-                        </div>
-                    </label>
+                    <?php 
+                    $allMethods = get_all_shipping_methods($pdo, $subtotal);
+                    foreach ($allMethods as $code => $m): 
+                        $isAllowed = in_array($code, $allowedShippingMethods);
+                    ?>
+                        <label class="shipping-card <?php echo !$isAllowed ? 'disabled' : ''; ?>">
+                            <input type="radio" name="shipping_method" value="<?php echo $code; ?>"
+                                <?php echo ($method === $code) ? 'checked' : ''; ?>
+                                <?php echo !$isAllowed ? 'disabled' : ''; ?>>
+                            <div class="shipping-info">
+                                <span class="method-title"><?php echo htmlspecialchars($m['name']); ?></span>
+                                <span class="method-desc"><?php echo htmlspecialchars($m['description']); ?></span>
+                            </div>
+                        </label>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </section>

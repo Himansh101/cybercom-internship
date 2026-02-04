@@ -4,7 +4,7 @@
  * Centrally manages all coupon logic for EasyCart.
  * Returns an array with validation status, discount percentage, and message.
  */
-function get_coupon_data($coupon_code, $subtotal)
+function get_coupon_data($pdo, $coupon_code, $subtotal)
 {
     $coupon_code_upper = strtoupper(trim($coupon_code));
     $data = [
@@ -18,30 +18,19 @@ function get_coupon_data($coupon_code, $subtotal)
         return $data;
     }
 
-    switch ($coupon_code_upper) {
-        case 'SAVE5':
-            $data['discount_pct'] = 5;
-            $data['valid'] = true;
-            break;
-        case 'SAVE10':
-            $data['discount_pct'] = 10;
-            $data['valid'] = true;
-            break;
-        case 'SAVE15':
-            $data['discount_pct'] = 15;
-            $data['valid'] = true;
-            break;
-        case 'SAVE20':
-            $data['discount_pct'] = 20;
-            $data['valid'] = true;
-            break;
-        default:
-            $data['message'] = 'Invalid coupon code';
-            return $data;
-    }
+    // Check DB
+    $stmt = $pdo->prepare("SELECT discount_percent, description FROM sales_coupon WHERE code = ? AND is_active = true");
+    $stmt->execute([$coupon_code_upper]);
+    $coupon = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $data['discount_amount'] = $subtotal * ($data['discount_pct'] / 100);
-    $data['message'] = $data['discount_pct'] . '% discount applied!';
+    if ($coupon) {
+        $data['valid'] = true;
+        $data['discount_pct'] = (float)$coupon['discount_percent'];
+        $data['discount_amount'] = $subtotal * ($data['discount_pct'] / 100);
+        $data['message'] = $coupon['description']; // Or dynamic message: $data['discount_pct'] . '% discount applied!';
+    } else {
+        $data['message'] = 'Invalid coupon code';
+    }
 
     return $data;
 }

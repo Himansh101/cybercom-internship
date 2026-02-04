@@ -9,8 +9,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/styles.css">
-    <?php if (isset($extraStyles)): foreach ($extraStyles as $style): ?>
-        <link rel="stylesheet" href="assets/css/<?php echo $style; ?>">
+    <?php if (isset($extraStyles)): foreach ($extraStyles as $style): 
+        $stylePath = (strpos($style, 'http') === 0) ? $style : "assets/css/$style";
+    ?>
+        <link rel="stylesheet" href="<?php echo $stylePath; ?>">
     <?php endforeach; endif; ?>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="assets/js/auth.js" defer></script>
@@ -24,6 +26,7 @@
             <a href="plp" class="<?php echo ($currentPage ?? '') === 'products' ? 'active' : ''; ?>">Products</a>
             <a href="cart" id="cart-nav-link" class="<?php echo ($currentPage ?? '') === 'cart' ? 'active' : ''; ?>">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
             <?php if ($isLoggedIn): ?>
+                <a href="dashboard" class="<?php echo ($currentPage ?? '') === 'dashboard' ? 'active' : ''; ?>">Dashboard</a>
                 <a href="orders" class="<?php echo ($currentPage ?? '') === 'orders' ? 'active' : ''; ?>">My Orders</a>
                 <span class="user-greeting" >
                     Hi, <?php echo htmlspecialchars(explode(' ', $user['name'])[0]); ?>

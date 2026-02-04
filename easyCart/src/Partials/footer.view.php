@@ -18,8 +18,9 @@
                     <li><a href="index.php">Home</a></li>
                     <?php if ($isLoggedIn): ?>
                         <li><a href="plp">Shop Products</a></li>
-                        <li><a href="cart">My Cart</a></li>
+                        <li><a href="dashboard">User Dashboard</a></li>
                         <li><a href="orders">Track Orders</a></li>
+                        <li><a href="cart">My Cart</a></li>
                         <li><a href="logout">Logout</a></li>
                     <?php else: ?>
                         <li><a href="login">Login / Register</a></li>
@@ -43,8 +44,10 @@
         </div>
     </footer>
     <script src="assets/js/main.js"></script>
-    <?php if (isset($extraScripts)): foreach ($extraScripts as $script): ?>
-        <script src="assets/js/<?php echo $script; ?>"></script>
+    <?php if (isset($extraScripts)): foreach ($extraScripts as $script): 
+        $scriptPath = (strpos($script, 'http') === 0) ? $script : "assets/js/$script";
+    ?>
+        <script src="<?php echo $scriptPath; ?>"></script>
     <?php endforeach; endif; ?>
 </body>
 

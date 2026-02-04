@@ -7,11 +7,13 @@ A professional, responsive e-commerce web application featuring a modular **Cont
 - **Stock Synchronization**: Real-time stock decrementing and automatic status/badge updates.
 - **Persistent Cart & Checkout**: Carts, shipping choices, and coupon codes are persisted in the database, ensuring a consistent experience across sessions.
 - **Clean URLs**: Professional, extension-less routing (e.g., `/cart`) with secure `.php` blockage via Apache `.htaccess`.
+- **User Dashboard**: A personalized hub with real-time metrics (Total Spent, Total Orders) and an interactive spending trend chart.
+- **Order Insight**: Detailed AJAX-driven order breakdowns showing comprehensive product lists, price summaries, and shipping details instantly.
 - **Premium UI**: Modern, glassmorphic design language with real-time feedback and state-of-the-art CSS animations.
 - **Secure Auth**: Modular login/signup system with guest-to-user cart merging.
 
 ## 🛠️ Tech Stack
-- **Frontend**: HTML5, Vanilla CSS3 (Custom Properties, Glassmorphism, Animations), Remix Icon, SweetAlert2.
+- **Frontend**: HTML5, Vanilla CSS3 (Custom Properties, Glassmorphism, Animations), Remix Icon, SweetAlert2, Chart.js.
 - **Backend**: Native PHP 8.x (Modular Controller-View pattern, PDO).
 - **Database**: PostgreSQL (Relational schema for Catalog, Customers, Carts, and Orders).
 
@@ -34,6 +36,7 @@ easyCart/
 ├── .htaccess               # URL Rewrite and Security rules
 ├── index / plp / pdp       # Clean Entry Points (Routed via .htaccess)
 ├── cart / checkout / orders
+├── dashboard               # User Dashboard shim
 └── logout / login / signup
 ```
 

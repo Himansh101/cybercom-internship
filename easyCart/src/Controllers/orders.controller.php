@@ -51,7 +51,7 @@ foreach ($rows as $row) {
 $pageTitle = 'EasyCart | My Orders';
 $currentPage = 'orders';
 $extraStyles = ['orders.css'];
-$extraScripts = ['checkout.js'];
+$extraScripts = ['checkout.js', 'orders.js'];
 
 // Load View
 require_once __DIR__ . '/../views/orders.view.php';

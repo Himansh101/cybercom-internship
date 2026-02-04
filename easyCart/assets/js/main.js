@@ -53,7 +53,7 @@ function updateCartBadge(count) {
     if (idLink) cartLinks.push(idLink);
 
     // 2. Fallback: Find all links to cart.php (footer, etc.)
-    const allLinks = document.querySelectorAll('a[href*="cart.php"]');
+    const allLinks = document.querySelectorAll('a[href*="cart"]');
     allLinks.forEach(link => {
         if (!cartLinks.includes(link)) cartLinks.push(link);
     });
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     formData.append(`cart_data[${pid}]`, qty);
                 }
 
-                fetch('src/controllers/cart.handler.php', {
+                fetch('src/controllers/cart.handler', {
                     method: 'POST',
                     body: formData
                 })

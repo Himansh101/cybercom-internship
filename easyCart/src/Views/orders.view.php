@@ -76,12 +76,51 @@ require_once __DIR__ . '/../partials/header.view.php';
                             <span>Shipping via: <strong><?php echo ucfirst($order['shipping_method']); ?></strong></span>
                         </div>
                         <div class="order-actions">
-                            <button class="btn-details">View Details</button>
+                            <button class="btn-details" data-order-id="<?php echo $order['order_id']; ?>">View Details</button>
                         </div>
                     </div>
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
+    </div>
+</div>
+
+<!-- Order Detail Modal -->
+<div id="orderModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Order Details <span id="modalOrderNo"></span></h2>
+            <button class="close-modal"><i class="ri-close-line"></i></button>
+        </div>
+        <div class="modal-body">
+            <div id="modalLoading" class="modal-loading">
+                <div class="spinner"></div>
+                <p>Fetching order details...</p>
+            </div>
+            <div id="modalContent" style="display: none;">
+                <div class="modal-grid">
+                    <div class="modal-left">
+                        <h3>Items in Order</h3>
+                        <div id="modalItems" class="modal-items-list">
+                            <!-- Items injected here -->
+                        </div>
+                    </div>
+                    <div class="modal-right">
+                        <h3>Order Summary</h3>
+                        <div class="price-breakup">
+                            <div class="price-row"><span>Subtotal</span> <span id="detailSubtotal"></span></div>
+                            <div class="price-row"><span>Shipping</span> <span id="detailShipping"></span></div>
+                            <div class="price-row"><span>GST (18%)</span> <span id="detailTax"></span></div>
+                            <div class="price-row total"><span>Total Amount</span> <span id="detailTotal"></span></div>
+                        </div>
+                        <div class="shipping-address-box">
+                            <h3>Shipping Address</h3>
+                            <p id="detailAddress"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

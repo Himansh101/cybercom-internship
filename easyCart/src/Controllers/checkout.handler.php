@@ -284,6 +284,10 @@ switch ($action) {
 
             $pdo->commit();
 
+            // 6. Save Shipping Address to User Profile for future use
+            $stmtSaveAddr = $pdo->prepare("UPDATE customer_entity SET street_address = ?, city = ?, pincode = ? WHERE entity_id = ?");
+            $stmtSaveAddr->execute([$shipping_address, $shipping_city, $shipping_pincode, $userId]);
+
             unset($_SESSION['cart']);
             unset($_SESSION['cart_id']);
             clearCartMetadata($pdo, $cartId);

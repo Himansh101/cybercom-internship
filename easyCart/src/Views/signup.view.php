@@ -42,8 +42,8 @@
 
             <div class="form-group">
                 <label for="mobile">Mobile No</label>
-                <input id="mobile" name="mobile" type="tel" placeholder="9876543210" pattern="[6-9][0-9]{9}" required value="<?php echo htmlspecialchars($mobile ?? ''); ?>">
-                <span class="error-message" id="mobile-error">Please enter a valid mobile number.</span>
+                <input id="mobile" name="mobile" type="tel" placeholder="+919876543210" pattern="(\+91)[6-9][0-9]{9}" title="Enter a valid +91 mobile number" required value="<?php echo htmlspecialchars($mobile ?? ''); ?>">
+                <span class="error-message" id="mobile-error">Enter valid +91 mobile number (e.g., +919876543210).</span>
             </div>
 
             <div class="form-group">

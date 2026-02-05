@@ -27,6 +27,24 @@ require_once __DIR__ . '/../partials/header.view.php';
             <div class="address-section">
                 <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.1rem; color: #475569; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Shipping Address</h3>
                 
+                <?php if ($userAddress): ?>
+                    <div class="saved-address-options" style="margin-bottom: 20px; background: #f0f9ff; padding: 15px; border-radius: 8px; border: 1px solid #bae6fd;">
+                        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin-bottom: 10px;">
+                            <input type="radio" name="address_selection" value="saved" checked onchange="toggleAddressSelection('saved')">
+                            <div>
+                                <span style="font-weight: 600; color: #0369a1; display: block;">Use Saved Address</span>
+                                <span style="font-size: 0.9rem; color: #334155; display: block; margin-top: 4px;">
+                                    <?php echo htmlspecialchars($userAddress['address'] . ', ' . $userAddress['city'] . ' - ' . $userAddress['pincode']); ?>
+                                </span>
+                            </div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="radio" name="address_selection" value="new" onchange="toggleAddressSelection('new')">
+                            <span style="font-weight: 600; color: #334155;">Enter New Address</span>
+                        </label>
+                    </div>
+                <?php endif; ?>
+
                 <div class="form-group">
                     <label for="shipping_name">Full Name</label>
                     <input type="text" id="shipping_name" name="shipping_name" value="<?php echo htmlspecialchars($_POST['shipping_name'] ?? ''); ?>" placeholder="John Doe" minlength="3" pattern="[a-zA-Z\s]+" title="Name should only contain letters and spaces." required>
@@ -235,6 +253,7 @@ require_once __DIR__ . '/../partials/header.view.php';
 <script src="https://js.stripe.com/v3/"></script>
 <script>
     const STRIPE_PUBLISHABLE_KEY = "<?php require_once __DIR__ . '/../config/stripe.php'; echo STRIPE_PUBLISHABLE_KEY; ?>";
+    const USER_SAVED_ADDRESS = <?php echo json_encode($userAddress); ?>;
 </script>
 
 <?php

@@ -16,6 +16,23 @@ $extraScripts = ['checkout.js'];
 // 1. Fetch Cart Items from Database
 $dbCartItems = loadCartArrayFromDb($pdo, $cartId);
 
+// Fetch user details including saved address
+$stmt = $pdo->prepare("SELECT name, email, mobile, street_address, city, pincode FROM customer_entity WHERE entity_id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$userAddress = null;
+if (!empty($user['street_address'])) {
+    $userAddress = [
+        'name' => $user['name'],
+        'email' => $user['email'],
+        'mobile' => $user['mobile'],
+        'address' => $user['street_address'],
+        'city' => $user['city'],
+        'pincode' => $user['pincode']
+    ];
+}
+
 // Redirect to product page if cart is empty
 if (empty($dbCartItems)) {
     header("Location: plp");
@@ -95,5 +112,6 @@ $gst = $discounted_subtotal * $gst_rate;
 $final_total = $discounted_subtotal + $shipping + $gst;
 
 // Load View
+// $userAddress is available here
 require_once __DIR__ . '/../views/checkout.view.php';
 ?>

@@ -19,6 +19,46 @@ document.addEventListener('DOMContentLoaded', () => {
     const billingSection = document.getElementById('billing-address-section');
     const billingInputs = billingSection ? billingSection.querySelectorAll('input, textarea') : [];
 
+    // --- 0. Saved Address Logic ---
+    window.toggleAddressSelection = function (type) {
+        if (typeof USER_SAVED_ADDRESS === 'undefined' || !USER_SAVED_ADDRESS) return;
+
+        const fields = ['shipping_name', 'shipping_mobile', 'shipping_email', 'shipping_address', 'shipping_city', 'shipping_pincode'];
+        const map = {
+            'shipping_name': 'name',
+            'shipping_mobile': 'mobile',
+            'shipping_email': 'email',
+            'shipping_address': 'address',
+            'shipping_city': 'city',
+            'shipping_pincode': 'pincode'
+        };
+
+        if (type === 'saved') {
+            fields.forEach(id => {
+                const input = document.getElementById(id);
+                if (input && USER_SAVED_ADDRESS[map[id]]) {
+                    input.value = USER_SAVED_ADDRESS[map[id]];
+                    // Trigger validation to clear errors if any
+                    validateField(input);
+                }
+            });
+        } else {
+            fields.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.value = '';
+                    // Reset validation state
+                    validateField(input);
+                }
+            });
+        }
+    };
+
+    // Auto-fill on load if "saved" is checked by default
+    if (document.querySelector('input[name="address_selection"][value="saved"]:checked')) {
+        toggleAddressSelection('saved');
+    }
+
 
     function toggleBillingAddress() {
         if (!billingCheckbox || !billingSection) return;

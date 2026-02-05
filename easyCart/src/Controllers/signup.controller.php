@@ -14,8 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Invalid name. Must be at least 3 characters and contain only letters.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Invalid email address.";
-    } elseif (!preg_match("/^[6-9][0-9]{9}$/", $mobile)) {
-        $error = "Invalid mobile number. Must be 10 digits starting with 6-9.";
+    } elseif (!preg_match("/^(\+91)[6-9][0-9]{9}$/", $mobile)) {
+        $error = "Invalid mobile number. Must be in +91XXXXXXXXXX format.";
     } elseif ($password !== $confirm) {
         $error = "Passwords do not match!";
     } elseif (strlen($password) < 8) {

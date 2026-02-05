@@ -50,8 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     break;
                 case 'mobile':
-                    if (!/^[6-9][0-9]{9}$/.test(val)) {
-                        errorMessage = "Please enter a valid 10-digit Indian mobile number.";
+                    if (!/^(\+91)[6-9][0-9]{9}$/.test(val)) {
+                        errorMessage = "Enter valid +91 mobile number (e.g., +919876543210).";
                     }
                     break;
                 case 'password':

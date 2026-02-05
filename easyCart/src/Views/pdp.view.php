@@ -101,9 +101,14 @@ require_once __DIR__ . '/../partials/header.view.php';
                 <form id="add-to-cart-form" action="cart.handler.php" method="POST">
                     <input type="hidden" name="product_id" value="<?php echo $productId; ?>">
                     <input type="hidden" name="action" value="add">
-                    <button type="submit" id="add-to-cart-btn" class="btn btn-success pdp-add-to-cart-btn">
-                        <i class="ri-shopping-cart-line"></i> Add to Cart
-                    </button>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" id="add-to-cart-btn" class="btn btn-success pdp-add-to-cart-btn">
+                            <i class="ri-shopping-cart-line"></i> Add to Cart
+                        </button>
+                        <button type="button" id="buy-now-btn" class="btn btn-primary pdp-add-to-cart-btn" style="background-color: #f59e0b; border-color: #d97706;">
+                            <i class="ri-flashlight-line"></i> Buy Now
+                        </button>
+                    </div>
                 </form>
             <?php endif; ?>
         </div>

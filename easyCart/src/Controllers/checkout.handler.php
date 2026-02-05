@@ -155,19 +155,19 @@ switch ($action) {
             $errors[] = "Your cart is empty.";
         }
 
-        $name = trim($_POST['name'] ?? '');
-        $mobile = trim($_POST['mobile'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-        $address = trim($_POST['address'] ?? '');
-        $city = trim($_POST['city'] ?? '');
-        $pincode = trim($_POST['pincode'] ?? '');
+        $shipping_name = trim($_POST['shipping_name'] ?? '');
+        $shipping_mobile = trim($_POST['shipping_mobile'] ?? '');
+        $shipping_email = trim($_POST['shipping_email'] ?? '');
+        $shipping_address = trim($_POST['shipping_address'] ?? '');
+        $shipping_city = trim($_POST['shipping_city'] ?? '');
+        $shipping_pincode = trim($_POST['shipping_pincode'] ?? '');
         $paymentMethod = $_POST['payment_method'] ?? 'cod';
         $paymentIntentId = $_POST['payment_intent_id'] ?? null;
 
-        // (Validations kept as is for brevity, assume they pass for logic core)
-        if (strlen($name) < 3) $errors[] = "Invalid name.";
-        if (!preg_match("/^(\+91)[6-9][0-9]{9}$/", $mobile)) $errors[] = "Invalid mobile.";
-        if (strlen($address) < 10) $errors[] = "Address too short.";
+        // (Validations)
+        if (strlen($shipping_name) < 3) $errors[] = "Invalid name.";
+        if (!preg_match("/^(\+91)[6-9][0-9]{9}$/", $shipping_mobile)) $errors[] = "Invalid mobile.";
+        if (strlen($shipping_address) < 10) $errors[] = "Address too short.";
 
         if (!empty($errors)) {
             echo json_encode(['status' => 'error', 'message' => implode("\n", $errors)]);
@@ -256,9 +256,25 @@ switch ($action) {
                 }
             }
 
-            // 4. Insert Address
-            $stmtAddr = $pdo->prepare("INSERT INTO sales_order_address (order_id, full_name, street_address, city, pincode) VALUES (?, ?, ?, ?, ?)");
-            $stmtAddr->execute([$orderId, $name, $address, $city, $pincode]);
+            // 4. Insert Addresses (Shipping & Billing)
+            $stmtAddr = $pdo->prepare("INSERT INTO sales_order_address (order_id, full_name, email, mobile, street_address, city, pincode, address_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            
+            // Insert Shipping Address
+            $stmtAddr->execute([$orderId, $shipping_name, $shipping_email, $shipping_mobile, $shipping_address, $shipping_city, $shipping_pincode, 'shipping']);
+
+            // Insert Billing Address
+            if (isset($_POST['billing_same_as_shipping']) && $_POST['billing_same_as_shipping'] == '1') {
+                // Duplicate shipping as billing
+                 $stmtAddr->execute([$orderId, $shipping_name, $shipping_email, $shipping_mobile, $shipping_address, $shipping_city, $shipping_pincode, 'billing']);
+            } else {
+                // Use separate billing details
+                $billing_name = trim($_POST['billing_name'] ?? '');
+                $billing_address = trim($_POST['billing_address'] ?? '');
+                $billing_city = trim($_POST['billing_city'] ?? '');
+                $billing_pincode = trim($_POST['billing_pincode'] ?? '');
+                // Billing email/mobile not in form, reuse shipping or make optional. Using shipping for contact for now.
+                $stmtAddr->execute([$orderId, $billing_name, $shipping_email, $shipping_mobile, $billing_address, $billing_city, $billing_pincode, 'billing']);
+            }
 
             // 5. Deactivate Cart & Clear Database Cart Items
             if (isset($cartId) && $cartId) {

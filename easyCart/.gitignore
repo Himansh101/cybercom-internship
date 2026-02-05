@@ -1,2 +1,5 @@
 users.json
-easyCart\src\config\stripe.php
+.env
+composer.json
+composer.lock
+vendor

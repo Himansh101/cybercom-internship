@@ -23,42 +23,85 @@ require_once __DIR__ . '/../partials/header.view.php';
         <section class="checkout-details">
             <h1>Checkout Details</h1>
 
-            <div class="form-group">
-                <label for="name">Full Name</label>
-                <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>" placeholder="John Doe" minlength="3" pattern="[a-zA-Z\s]+" title="Name should only contain letters and spaces, and be at least 3 characters long." required>
-                <span class="error-message" id="name-error">Please enter a valid name (min 3 letters).</span>
-            </div>
-
-            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <!-- Shipping Address Section -->
+            <div class="address-section">
+                <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.1rem; color: #475569; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Shipping Address</h3>
+                
                 <div class="form-group">
-                    <label for="mobile">Mobile Number (with +91)</label>
-                    <input type="tel" id="mobile" name="mobile" value="<?php echo htmlspecialchars($_POST['mobile'] ?? ''); ?>" pattern="(\+91)[6-9][0-9]{9}" title="Enter a valid Indian mobile number starting with +91 (e.g., +919876543210)" placeholder="+919876543210" required>
-                    <span class="error-message" id="mobile-error">Enter valid +91 number.</span>
+                    <label for="shipping_name">Full Name</label>
+                    <input type="text" id="shipping_name" name="shipping_name" value="<?php echo htmlspecialchars($_POST['shipping_name'] ?? ''); ?>" placeholder="John Doe" minlength="3" pattern="[a-zA-Z\s]+" title="Name should only contain letters and spaces." required>
+                    <span class="error-message" id="shipping_name-error">Please enter a valid name (min 3 letters).</span>
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label for="shipping_mobile">Mobile Number</label>
+                        <input type="tel" id="shipping_mobile" name="shipping_mobile" value="<?php echo htmlspecialchars($_POST['shipping_mobile'] ?? ''); ?>" pattern="(\+91)[6-9][0-9]{9}" title="Enter a valid +91 number" placeholder="+919876543210" required>
+                        <span class="error-message" id="shipping_mobile-error">Enter valid +91 number.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="shipping_email">Email Address</label>
+                        <input type="email" id="shipping_email" name="shipping_email" value="<?php echo htmlspecialchars($_POST['shipping_email'] ?? ''); ?>" placeholder="john@example.com" required>
+                        <span class="error-message" id="shipping_email-error">Enter a valid email.</span>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" placeholder="john@example.com" required>
-                    <span class="error-message" id="email-error">Enter a valid email.</span>
+                    <label for="shipping_address">Street Address</label>
+                    <textarea id="shipping_address" name="shipping_address" placeholder="House No, Street, Locality" minlength="10" required><?php echo htmlspecialchars($_POST['shipping_address'] ?? ''); ?></textarea>
+                    <span class="error-message" id="shipping_address-error">Address must be at least 10 characters.</span>
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label for="shipping_city">City</label>
+                        <input type="text" id="shipping_city" name="shipping_city" value="<?php echo htmlspecialchars($_POST['shipping_city'] ?? ''); ?>" placeholder="Mumbai" required>
+                        <span class="error-message" id="shipping_city-error">Please enter your city.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="shipping_pincode">Pincode</label>
+                        <input type="text" id="shipping_pincode" name="shipping_pincode" value="<?php echo htmlspecialchars($_POST['shipping_pincode'] ?? ''); ?>" pattern="[1-9][0-9]{5}" placeholder="400001" required>
+                        <span class="error-message" id="shipping_pincode-error">Enter valid 6-digit Pincode.</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="address">Delivery Address</label>
-                <textarea id="address" name="address" placeholder="House No, Street, Locality" minlength="10" title="Please provide a more detailed address (at least 10 characters)." required><?php echo htmlspecialchars($_POST['address'] ?? ''); ?></textarea>
-                <span class="error-message" id="address-error">Address must be at least 10 characters.</span>
+            <!-- Billing Address Toggle -->
+            <div class="form-group mt-6" style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <label class="checkbox-container" style="display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none;">
+                    <input type="checkbox" id="billing_same_as_shipping" name="billing_same_as_shipping" value="1" checked style="width: auto; margin: 0;">
+                    <span style="font-weight: 500; color: #334155;">My billing address is the same as my shipping address</span>
+                </label>
             </div>
 
-            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <!-- Billing Address Section (Hidden by default) -->
+            <div id="billing-address-section" class="address-section mt-6 hidden">
+                <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.1rem; color: #475569; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Billing Address</h3>
+                
                 <div class="form-group">
-                    <label for="city">City</label>
-                    <input type="text" id="city" name="city" value="<?php echo htmlspecialchars($_POST['city'] ?? ''); ?>" placeholder="Mumbai" required>
-                    <span class="error-message" id="city-error">Please enter your city.</span>
+                    <label for="billing_name">Full Name</label>
+                    <input type="text" id="billing_name" name="billing_name" placeholder="John Doe">
+                    <span class="error-message" id="billing_name-error">Please enter a valid name.</span>
                 </div>
+
                 <div class="form-group">
-                    <label for="pincode">Pincode</label>
-                    <input type="text" id="pincode" name="pincode" value="<?php echo htmlspecialchars($_POST['pincode'] ?? ''); ?>" pattern="[1-9][0-9]{5}" title="Enter a valid 6-digit Indian Pincode" placeholder="400001" required>
-                    <span class="error-message" id="pincode-error">Enter valid 6-digit Pincode.</span>
+                    <label for="billing_address">Street Address</label>
+                    <textarea id="billing_address" name="billing_address" placeholder="House No, Street, Locality"></textarea>
+                    <span class="error-message" id="billing_address-error">Address must be at least 10 characters.</span>
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label for="billing_city">City</label>
+                        <input type="text" id="billing_city" name="billing_city" placeholder="Mumbai">
+                        <span class="error-message" id="billing_city-error">Please enter your city.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="billing_pincode">Pincode</label>
+                        <input type="text" id="billing_pincode" name="billing_pincode" pattern="[1-9][0-9]{5}" placeholder="400001">
+                        <span class="error-message" id="billing_pincode-error">Enter valid 6-digit Pincode.</span>
+                    </div>
                 </div>
             </div>
 

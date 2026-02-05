@@ -79,6 +79,12 @@ $method = $metadata['shipping_method'] ?: 'standard';
 if (isset($_POST['shipping_method'])) {
     $method = $_POST['shipping_method'];
 }
+
+// Validate method against allowed options
+if (!empty($allowedShippingMethods) && !in_array($method, $allowedShippingMethods)) {
+    $method = $allowedShippingMethods[0];
+}
+
 $shipping = calculate_shipping_cost($pdo, $method, $discounted_subtotal);
 
 // 4. Calculate GST (18%)

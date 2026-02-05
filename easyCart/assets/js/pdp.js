@@ -55,6 +55,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+
+    // Buy Now Handler
+    actionContainer.addEventListener('click', function (e) {
+        if (e.target.id === 'buy-now-btn' || e.target.closest('#buy-now-btn')) {
+            const btn = e.target.closest('#buy-now-btn') || e.target;
+            const form = document.getElementById('add-to-cart-form');
+            if (!form) return;
+
+            btn.disabled = true;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Processing...';
+
+            const formData = new FormData(form);
+
+            fetch('src/controllers/cart.handler', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        window.location.href = 'checkout';
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = originalHTML;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    btn.disabled = false;
+                    btn.innerHTML = originalHTML;
+                });
+        }
+    });
+
     actionContainer.addEventListener('click', function (e) {
         const qtyBtn = e.target.closest('.js-pdp-qty-btn');
         if (qtyBtn) {
@@ -130,9 +166,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <form id="add-to-cart-form" method="POST">
                     <input type="hidden" name="product_id" value="${productId}">
                     <input type="hidden" name="action" value="add">
-                    <button type="submit" id="add-to-cart-btn" class="btn btn-success pdp-add-to-cart-btn">
-                        <i class="ri-shopping-cart-line"></i> Add to Cart
-                    </button>
+                     <div style="display: flex; gap: 10px;">
+                        <button type="submit" id="add-to-cart-btn" class="btn btn-success pdp-add-to-cart-btn">
+                            <i class="ri-shopping-cart-line"></i> Add to Cart
+                        </button>
+                        <button type="button" id="buy-now-btn" class="btn btn-primary pdp-add-to-cart-btn" style="background-color: #f59e0b; border-color: #d97706;">
+                            <i class="ri-flashlight-line"></i> Buy Now
+                        </button>
+                    </div>
                 </form>
             `;
         } else {
@@ -155,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
         }
-    }
+    };
 });
 
 function switchImage(src, element) {

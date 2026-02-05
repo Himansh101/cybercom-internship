@@ -13,36 +13,84 @@ document.addEventListener('DOMContentLoaded', () => {
     const couponInput = document.getElementById('coupon_code');
     const applyCouponBtn = document.getElementById('apply_coupon');
 
-    // --- Stripe Initialization ---
-    let stripe, elements, card;
-    if (typeof Stripe !== 'undefined' && typeof STRIPE_PUBLISHABLE_KEY !== 'undefined') {
-        stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
-        elements = stripe.elements();
-        card = elements.create('card', {
-            style: {
-                base: {
-                    color: "#32325d",
-                    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-                    fontSmoothing: "antialiased",
-                    fontSize: "16px",
-                    "::placeholder": { color: "#aab7c4" }
-                },
-                invalid: { color: "#fa755a", iconColor: "#fa755a" }
-            }
-        });
-        card.mount("#card-element");
+    // --- 1. Billing Address Toggle (Critical UI) ---
+    // Moved to top to ensure it runs even if other parts fail
+    const billingCheckbox = document.getElementById('billing_same_as_shipping');
+    const billingSection = document.getElementById('billing-address-section');
+    const billingInputs = billingSection ? billingSection.querySelectorAll('input, textarea') : [];
 
-        card.on('change', ({ error }) => {
-            const displayError = document.getElementById('card-errors');
-            if (error) {
-                displayError.textContent = error.message;
-            } else {
-                displayError.textContent = '';
-            }
-        });
+    console.log('Initializing Billing Toggle', { billingCheckbox, billingSection });
+
+    function toggleBillingAddress() {
+        if (!billingCheckbox || !billingSection) return;
+
+        console.log('Toggling Billing Address. Checked:', billingCheckbox.checked);
+
+        if (billingCheckbox.checked) {
+            billingSection.classList.add('hidden');
+            billingSection.style.display = 'none';
+            billingInputs.forEach(input => {
+                input.required = false;
+                // clear errors when hiding
+                const errorSpan = document.getElementById(input.id + '-error');
+                if (errorSpan) errorSpan.style.display = 'none';
+                input.style.borderColor = '';
+            });
+        } else {
+            billingSection.classList.remove('hidden');
+            billingSection.style.display = 'block';
+            billingInputs.forEach(input => {
+                input.required = true;
+                // Re-apply validation patterns
+                if (input.id.includes('name')) { input.minLength = 3; input.pattern = "[a-zA-Z\\s]+"; }
+                if (input.id.includes('address')) { input.minLength = 10; }
+                if (input.id.includes('pincode')) { input.pattern = "[1-9][0-9]{5}"; }
+            });
+        }
     }
 
-    // Toggle Stripe Container
+    if (billingCheckbox) {
+        billingCheckbox.addEventListener('change', toggleBillingAddress);
+        // Force initial state
+        setTimeout(toggleBillingAddress, 0);
+    }
+
+    // --- 2. Stripe Initialization (Safeguarded) ---
+    let stripe, elements, card;
+    try {
+        if (typeof Stripe !== 'undefined' && typeof STRIPE_PUBLISHABLE_KEY !== 'undefined' && STRIPE_PUBLISHABLE_KEY) {
+            stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+            elements = stripe.elements();
+            card = elements.create('card', {
+                style: {
+                    base: {
+                        color: "#32325d",
+                        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                        fontSmoothing: "antialiased",
+                        fontSize: "16px",
+                        "::placeholder": { color: "#aab7c4" }
+                    },
+                    invalid: { color: "#fa755a", iconColor: "#fa755a" }
+                }
+            });
+            card.mount("#card-element");
+
+            card.on('change', ({ error }) => {
+                const displayError = document.getElementById('card-errors');
+                if (error) {
+                    displayError.textContent = error.message;
+                } else {
+                    displayError.textContent = '';
+                }
+            });
+        } else {
+            console.warn('Stripe key missing or Stripe.js not loaded.');
+        }
+    } catch (e) {
+        console.error('Stripe Initialization Error:', e);
+    }
+
+    // --- 3. Payment Toggle Logic ---
     function toggleStripeContainer() {
         const selected = document.querySelector('input[name="payment_method"]:checked');
         if (selected && selected.value === 'stripe') {
@@ -56,15 +104,15 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSummary();
     }
 
-    paymentRadios.forEach(radio => {
-        radio.addEventListener('change', toggleStripeContainer);
-    });
+    if (paymentRadios.length > 0) {
+        paymentRadios.forEach(radio => {
+            radio.addEventListener('change', toggleStripeContainer);
+        });
+        // Set initial state
+        toggleStripeContainer();
+    }
 
-    // Set initial state
-    toggleStripeContainer();
-
-    // --- Reusing Existing Logic for Summary/Validation ---
-
+    // --- 4. Summary & Shipping Selection Logic ---
     function updateSummary() {
         const selectedRadio = document.querySelector('input[name="shipping_method"]:checked');
         if (!selectedRadio) return;
@@ -72,6 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedMethod = selectedRadio.value;
         const couponCode = couponInput ? couponInput.value.trim() : '';
         const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'cod';
+
+        console.log('Updating Summary:', { selectedMethod, paymentMethod });
 
         const formData = new FormData();
         formData.append('action', 'calculate_shipping');
@@ -85,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
             .then(response => response.json())
             .then(data => {
+                console.log('Summary Data:', data);
                 if (data.status === 'success') {
                     if (data.allowed_methods) {
                         updateShippingAvailability(data.allowed_methods, data.shipping_info_message, data.selected_method);
@@ -110,17 +161,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => console.error('Error updating summary:', error));
     }
-
-    // --- Form Submission Logic ---
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         // 1. Validate Fields
         let isFormValid = true;
-        inputs.forEach(input => {
-            if (!validateField(input)) isFormValid = false;
+        // Re-query inputs to make sure we check the correct required state
+        const currentInputs = form.querySelectorAll('input, textarea');
+        currentInputs.forEach(input => {
+            if (!validateField(input)) {
+                isFormValid = false;
+            }
         });
 
         if (!isFormValid) {
@@ -153,8 +206,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     payment_method: {
                         card: card,
                         billing_details: {
-                            name: document.getElementById('name').value,
-                            email: document.getElementById('email').value
+                            name: document.getElementById('shipping_name').value,
+                            email: document.getElementById('shipping_email').value
                         }
                     }
                 });
@@ -260,14 +313,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!errorSpan) return true;
         let msg = "";
         const val = input.value.trim();
+
+        // If not required and empty, it's valid (e.g. hidden billing fields)
+        if (!input.required && val === "") {
+            errorSpan.style.display = 'none';
+            input.style.borderColor = '';
+            return true;
+        }
+
         if (input.required && val === "") msg = "This field is required.";
         else {
-            if (input.id === 'name' && (val.length < 3 || !/^[a-zA-Z\s]+$/.test(val))) msg = "Name must be at least 3 chars (letters only).";
-            if (input.id === 'mobile' && !/^(\+91)[6-9][0-9]{9}$/.test(val)) msg = "Enter valid +91 number.";
-            if (input.id === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) msg = "Enter valid email.";
-            if (input.id === 'address' && val.length < 10) msg = "Address too short (min 10 chars).";
-            if (input.id === 'city' && val.length < 2) msg = "Enter valid city.";
-            if (input.id === 'pincode' && !/^[1-9][0-9]{5}$/.test(val)) msg = "Enter valid 6-digit Pincode.";
+            if (input.id.includes('name') && (val.length < 3 || !/^[a-zA-Z\s]+$/.test(val))) msg = "Name must be at least 3 chars (letters only).";
+            if (input.id.includes('mobile') && !/^(\+91)[6-9][0-9]{9}$/.test(val)) msg = "Enter valid +91 number.";
+            if (input.id.includes('email') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) msg = "Enter valid email.";
+            if (input.id.includes('address') && val.length < 10) msg = "Address too short (min 10 chars).";
+            if (input.id.includes('city') && val.length < 2) msg = "Enter valid city.";
+            if (input.id.includes('pincode') && !/^[1-9][0-9]{5}$/.test(val)) msg = "Enter valid 6-digit Pincode.";
         }
         if (msg) { errorSpan.textContent = msg; errorSpan.style.display = 'block'; input.style.borderColor = '#ef4444'; return false; }
         else { errorSpan.style.display = 'none'; input.style.borderColor = ''; return true; }

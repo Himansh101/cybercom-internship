@@ -19,12 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const billingSection = document.getElementById('billing-address-section');
     const billingInputs = billingSection ? billingSection.querySelectorAll('input, textarea') : [];
 
-    console.log('Initializing Billing Toggle', { billingCheckbox, billingSection });
 
     function toggleBillingAddress() {
         if (!billingCheckbox || !billingSection) return;
 
-        console.log('Toggling Billing Address. Checked:', billingCheckbox.checked);
 
         if (billingCheckbox.checked) {
             billingSection.classList.add('hidden');
@@ -121,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const couponCode = couponInput ? couponInput.value.trim() : '';
         const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'cod';
 
-        console.log('Updating Summary:', { selectedMethod, paymentMethod });
 
         const formData = new FormData();
         formData.append('action', 'calculate_shipping');
@@ -135,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
             .then(response => response.json())
             .then(data => {
-                console.log('Summary Data:', data);
+
                 if (data.status === 'success') {
                     if (data.allowed_methods) {
                         updateShippingAvailability(data.allowed_methods, data.shipping_info_message, data.selected_method);

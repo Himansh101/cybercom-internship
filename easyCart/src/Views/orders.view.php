@@ -25,7 +25,7 @@ require_once __DIR__ . '/../partials/header.view.php';
                 <div class="empty-icon"><i class="ri-shopping-bag-3-line"></i></div>
                 <h2>No Orders Yet!</h2>
                 <p>Looks like you haven't placed any orders yet. Start shopping to find something you love!</p>
-                <a href="plp.php" class="btn btn-primary mt-18">Start Shopping</a>
+                <a href="plp" class="btn btn-primary mt-18">Start Shopping</a>
             </div>
         <?php else: ?>
             <?php foreach ($userOrders as $order): ?>

@@ -48,7 +48,7 @@ $user = null;
 
 if ($isLoggedIn) {
     // Fetch full user record from DB (but keep session minimal)
-    $stmtUser = $pdo->prepare("SELECT entity_id as id, name, email, mobile FROM customer_entity WHERE entity_id = ?");
+    $stmtUser = $pdo->prepare("SELECT entity_id as id, name, email, mobile, is_admin FROM customer_entity WHERE entity_id = ?");
     $stmtUser->execute([$userId]);
     $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
 

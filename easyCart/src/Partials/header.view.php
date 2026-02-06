@@ -28,9 +28,12 @@
             <?php if ($isLoggedIn): ?>
                 <a href="dashboard" class="<?php echo ($currentPage ?? '') === 'dashboard' ? 'active' : ''; ?>">Dashboard</a>
                 <a href="orders" class="<?php echo ($currentPage ?? '') === 'orders' ? 'active' : ''; ?>">My Orders</a>
-                <span class="user-greeting" >
-                    Hi, <?php echo htmlspecialchars(explode(' ', $user['name'])[0]); ?>
-                </span>
+                <?php if (!empty($user['is_admin'])): ?>
+                    <a href="admin" class="<?php echo ($currentPage ?? '') === 'admin' ? 'active' : ''; ?>"><i class="ri-settings-4-line"></i> Admin</a>
+                <?php endif; ?>
+                <a href="profile" class="user-greeting <?php echo ($currentPage ?? '') === 'profile' ? 'active' : ''; ?>">
+                    <i class="ri-user-line"></i> Hi, <?php echo htmlspecialchars(explode(' ', $user['name'])[0]); ?>
+                </a>
                 <a href="logout">Logout</a>
             <?php else: ?>
                 <a href="login" class="<?php echo ($currentPage ?? '') === 'login' ? 'active' : ''; ?>">Login</a>

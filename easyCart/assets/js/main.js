@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     formData.append(`cart_data[${pid}]`, qty);
                 }
 
-                fetch('src/controllers/cart.handler', {
+                fetch('src/handlers/cart.handler', {
                     method: 'POST',
                     body: formData
                 })

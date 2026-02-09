@@ -16,7 +16,7 @@ require_once __DIR__ . '/../partials/header.view.php';
     <?php unset($_SESSION['checkout_errors']); ?>
 <?php endif; ?>
 
-<form action="/../controllers/checkout.handler" id="checkout-form" method="POST" data-subtotal="<?php echo $subtotal; ?>">
+<form action="/../handlers/checkout.handler" id="checkout-form" method="POST" data-subtotal="<?php echo $subtotal; ?>">
     <input type="hidden" name="action" value="place_order">
     <div class="checkout-layout">
 

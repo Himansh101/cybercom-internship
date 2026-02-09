@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(importForm);
 
         try {
-            const response = await fetch('src/controllers/admin.handler', {
+            const response = await fetch('src/handlers/admin.handler', {
                 method: 'POST',
                 body: formData
             });

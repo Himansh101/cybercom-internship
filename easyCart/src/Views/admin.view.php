@@ -55,7 +55,7 @@ require_once __DIR__ . '/../partials/header.view.php';
         <div class="admin-card">
             <h2><i class="ri-download-cloud-2-line"></i> Export Products</h2>
             <p>Download all products as a CSV file for backup or editing.</p>
-            <a href="src/controllers/admin.handler?action=export_products" class="btn btn-secondary">
+            <a href="src/handlers/admin.handler?action=export_products" class="btn btn-secondary">
                 <i class="ri-download-2-line"></i> Download CSV
             </a>
             <div class="export-info">
@@ -68,7 +68,7 @@ require_once __DIR__ . '/../partials/header.view.php';
     <!-- Sample CSV Template -->
     <div class="admin-card full-width">
         <h2><i class="ri-file-list-3-line"></i> Sample CSV Template</h2>
-        <p>Use this format for importing products. <a href="src/controllers/admin.handler?action=download_template" class="link">Download Template</a></p>
+        <p>Use this format for importing products. <a href="src/handlers/admin.handler?action=download_template" class="link">Download Template</a></p>
         <pre class="csv-preview">sku,name,price,stock_count,category,brand_id,description,image_url,shipping_type,in_stock
 SKU-001,Premium Headphones,2499.00,50,Electronics,br_01,High quality wireless headphones,images/headphones.jpg,standard,1
 SKU-002,Office Desk,8999.00,10,Furniture,br_02,Modern ergonomic office desk,images/desk.jpg,freight,1</pre>

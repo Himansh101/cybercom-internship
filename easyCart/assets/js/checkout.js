@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('coupon_code', couponCode);
         formData.append('payment_method', paymentMethod);
 
-        fetch('src/controllers/checkout.handler', {
+        fetch('src/handlers/checkout.handler', {
             method: 'POST',
             body: formData
         })
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // A. Create Payment Intent
-                const intentRes = await fetch('src/controllers/checkout.handler', {
+                const intentRes = await fetch('src/handlers/checkout.handler', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: 'action=create_payment_intent'
@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
             willOpen: () => { Swal.showLoading(); }
         });
 
-        fetch('src/controllers/checkout.handler', {
+        fetch('src/handlers/checkout.handler', {
             method: 'POST',
             body: formData
         })
@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (applyCouponBtn.dataset.state === 'remove') {
                 // Remove logic
                 const fd = new FormData(); fd.append('action', 'remove_coupon');
-                fetch('src/controllers/checkout.handler', { method: 'POST', body: fd }).then(r => r.json()).then(d => {
+                fetch('src/handlers/checkout.handler', { method: 'POST', body: fd }).then(r => r.json()).then(d => {
                     if (d.status === 'success') { couponInput.value = ''; applyCouponBtn.textContent = 'Apply'; applyCouponBtn.dataset.state = 'apply'; removeCoupon(); updateSummary(); Swal.fire({ icon: 'success', title: 'Coupon Removed', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, timerProgressBar: true }); }
                 });
             } else updateSummary();

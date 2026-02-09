@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form);
 
         try {
-            const response = await fetch('src/controllers/profile.handler', {
+            const response = await fetch('src/handlers/profile.handler', {
                 method: 'POST',
                 body: formData
             });

@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const formData = new FormData();
         formData.append('action', 'get_stats');
 
-        fetch('src/controllers/dashboard.handler', {
+        fetch('src/handlers/dashboard.handler', {
             method: 'POST',
             body: formData
         })

@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
         formData.append('action', 'get_details');
         formData.append('order_id', orderId);
 
-        fetch('src/controllers/order.handler', {
+        fetch('src/handlers/order.handler', {
             method: 'POST',
             body: formData
         })

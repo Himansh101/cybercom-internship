@@ -14,6 +14,8 @@ drop table if exists catalog_category_attribute cascade;
 drop table if exists catalog_category_entity cascade;
 drop table if exists catalog_brand_entity cascade;
 drop table if exists customer_entity cascade;
+drop table if exists sales_shipping_method cascade;
+drop table if exists sales_coupon cascade;
 
 -- table: catalog_brand_entity
 create table catalog_brand_entity (
@@ -146,5 +148,25 @@ create table customer_entity (
     email varchar(255) unique not null,
     mobile varchar(20),
     password varchar(255) not null,
+    street_address text,
+    city varchar(100),
+    pincode varchar(20),
+    is_admin boolean default false,
     created_at timestamp default current_timestamp
+);
+
+-- table: sales_shipping_method
+create table sales_shipping_method (
+    code varchar(50) primary key,
+    name varchar(100) not null,
+    type varchar(20) not null, -- 'flat', 'percentage'
+    base_cost decimal(10, 2) not null,
+    is_active boolean default true
+);
+
+-- table: sales_coupon
+create table sales_coupon (
+    code varchar(50) primary key,
+    discount_percent decimal(5, 2) not null,
+    is_active boolean default true
 );

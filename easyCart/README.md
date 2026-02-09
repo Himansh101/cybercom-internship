@@ -1,180 +1,157 @@
-# EasyCart - Developer Documentation
+# EasyCart - Technical Developer Documentation
 
-**EasyCart** is a modern, full-stack e-commerce platform built with native PHP and PostgreSQL. This documentation provides a complete technical overview, describing every function, workflow, and database element to help developers understand, maintain, and extend the system.
+**EasyCart** is a high-performance, full-stack e-commerce platform built using native PHP 8.x and PostgreSQL. This documentation provides a comprehensive technical overview, describing every architectural layer, core workflow, and database element.
 
 ---
 
 ## 📚 Table of Contents
-1.  [Application Workflows](#application-workflows)
-2.  [Database Schema Reference](#database-schema-reference)
-3.  [Project Architecture](#project-architecture)
-4.  [Setup & Configuration](#setup--configuration)
+1.  [Project Architecture](#project-architecture)
+2.  [Deep Application flows](#deep-application-flows)
+3.  [Database Schema Reference](#database-schema-reference)
+4.  [Admin & Management](#admin--management)
+5.  [Setup & Configuration](#setup--configuration)
 
 ---
 
-## <a id="application-workflows"></a>1. Application Workflows
+## <a id="project-architecture"></a>1. Project Architecture
 
-### 🛍️ The Shopping Journey
-1.  **Product Discovery (PLP)**:
-    - Users browse `/plp` (Product Listing Page).
-    - **Filtering**: Sidebar filters (Category, Brand, Price) trigger AJAX requests to `plp.controller.php`, which returns a filtered HTML fragment.
-    - **Stock Logic**: Out-of-stock items are visually dimmed and sorted to the bottom.
-2.  **Product Details (PDP)**:
-    - `/pdp?id=X` fetches full product metadata, images, and attributes.
-    - **Add to Cart**: Clicking "Add to Cart" sends an AJAX POST to `cart.handler.php`, creating a cart session if one doesn't exist.
+EasyCart follows a custom-built **MVC (Model-View-Controller)** pattern, ensuring strict separation of concerns.
 
-### 🛒 Cart & Checkout System
-1.  **Cart Management**:
-    - **Guest vs User**: Carts are stored in the `sales_cart` table. If a guest logs in (`login.controller.php`), their guest cart items are merged into their persistent user cart.
-    - **Persistence**: Cart IDs are stored in `$_SESSION`. The database acts as the single source of truth.
-2.  **Checkout Process**:
-    - **Validation**: `/checkout` access is restricted to logged-in users with non-empty carts (`checkout.controller.php`).
-    - **Address Entry**:
-        - **Shipping**: User enters shipping details.
-        - **Billing**: A "Same as shipping" toggle controls the visibility of a separate Billing Address form.
-    - **Shipping Calculation**:
-        - Logic in `shipping.utils.php` checks for "Freight" items (heavy goods) or high cart value (> ₹300).
-        - **Freight**: Forces "White Glove" shipping.
-        - **Standard**: Offers "Standard" or "Express".
-    - **Payment**:
-        - **Stripe**: Uses `stripe.js` to mount a secure card element. A `PaymentIntent` is created on the server (`checkout.handler.php`) via the Stripe API.
-        - **COD**: Simple flag setting.
-3.  **Order Placement**:
-    - On confirmation, `checkout.handler.php` performs a transaction:
-        1.  Verifies Stock one last time.
-        2.  Creates `sales_order` record.
-        3.  Moves items from `sales_cart_product` to `sales_order_item`.
-        4.  Decrements `catalog_product_entity.stock_count`.
-        5.  Deactivates the cart (`is_active = FALSE`).
-
-### � Order Management
--   **Dashboard**: `/dashboard` visualizes spending using Chart.js, fetching aggregated data via `dashboard.handler.php`.
--   **Order History**: `/orders` lists all past purchases. Clicking "View Details" opens an AJAX modal with line-item specifics.
+- **`src/Controllers/`**: Orchestrates page-level requests. It validates session state, prepares data from the database, and injects it into the views.
+- **`src/Handlers/`**: A lightweight API and asynchronous logic layer. Handlers process **AJAX** requests (e.g., cart updates, CSV export) and return structured JSON or file streams.
+- **`src/Views/`**: Pure presentation layer using PHP/HTML templates.
+- **`src/Partials/`**: Reusable UI components (Header, Footer, Modals).
+- **`src/Utils/`**: Backend services for business logic:
+    - `shipping.utils.php`: Dynamic rate calculation based on DB rules.
+    - `coupon.utils.php`: Validation and discount logic.
+    - `cartsync.utils.php`: Merging guest and user carts.
+    - `stripe.utils.php`: Secure payment orchestration.
+- **`src/init.php`**: The central bootstrap file that handles session initialization, environment variables (`.env`), and database connection.
 
 ---
 
-## <a id="database-schema-reference"></a>2. Database Schema Reference
+## <a id="deep-application-flows"></a>2. Deep Application Flows
 
-The database consists of 4 main domains: **Catalog**, **Sales (Cart/Order)**, **Customers**, and **Configuration**.
+### 🏠 System Initialization
+Every request triggers `src/init.php`, which perform the following:
+1. **Environment**: Loads `.env` variables via `phpdotenv`.
+2. **Session**: Starts/resumes the PHP session.
+3. **Connectivity**: Establishes a singleton PostgreSQL connection.
+4. **Auth Detection**: Identifies the logged-in user and fetches their profile and `is_admin` status.
+5. **Cart Context**: Checks for an existing `cart_id` or computes the total quantity for the header badge.
+
+### 🔐 Authentication & Cart Synchronization
+EasyCart ensures a seamless transition when a guest user logs in.
+
+```mermaid
+sequenceDiagram
+    participant Guest as Guest User
+    participant Login as Login Controller
+    participant DB as PostgreSQL
+    participant Session as PHP Session
+
+    Guest->>Session: Adds items to Guest Cart (ID in Session)
+    Guest->>Login: Submits credentials
+    Login->>DB: Validates User
+    Login->>DB: Fetches User's existing DB Cart (if any)
+    Login->>DB: Merges Guest items into User Cart
+    Login->>Session: Records user_id and persistent cart_id
+    Login->>Guest: Redirects to Home (Authenticated)
+```
+
+### 🛍️ The Shopping Journey (PLP & PDP)
+- **Discovery (PLP)**: `plp.controller.php` fetches products with optimized sorting. In-stock products are prioritized at the top, while out-of-stock items are dimmed and sorted to the bottom.
+- **Deep Attributes (PDP)**: Uses an EAV (Entity-Attribute-Value) pattern to fetch rich metadata like "Shipping Type", multiple high-res images, and detailed descriptions.
+
+### 💳 Transactional Checkout Flow
+1. **Address Memory**: Upon landing on `/checkout`, the system checks `customer_entity` for saved addresses. Users can toggle "Use Saved Address" for instant population.
+2. **Dual Address Capture**: Supports separate Shipping and Billing addresses.
+3. **Shipping Logic**: 
+    - Detects "Freight" items (oversized) which forces specialized shipping methods.
+    - Dynamically queries `sales_shipping_method` from the database.
+4. **Payment Integrity**:
+    - **Stripe**: The handler creates a `PaymentIntent`. Client-side Stripe Elements collect sensitive data to ensure PCI compliance.
+    - **Final Verification**: Seconds before finalization, the system re-verifies stock counts to prevent overselling.
+
+---
+
+## <a id="database-schema-reference"></a>3. Database Schema Reference
 
 ### 👤 Customer Domain
 **`customer_entity`**
-Stores registered user accounts.
 | Column | Type | Description |
 | :--- | :--- | :--- |
 | `entity_id` | SERIAL (PK) | Unique User ID |
 | `name` | VARCHAR(255) | Full Name |
-| `email` | VARCHAR(255) | Unique Email Address |
+| `email` | VARCHAR(255) | Unique Email |
 | `mobile` | VARCHAR(20) | Contact Number |
 | `password` | VARCHAR(255) | Hashed Password (bcrypt) |
-| `created_at` | TIMESTAMP | Registration Date |
+| `street_address` | TEXT | Saved Street Address |
+| `city` | VARCHAR(100) | Saved City |
+| `pincode` | VARCHAR(20) | Saved Pincode |
+| `is_admin` | BOOLEAN | Admin Privilege Flag |
 
 ### 📦 Catalog Domain
 **`catalog_product_entity`**
-The core product table.
 | Column | Type | Description |
 | :--- | :--- | :--- |
 | `entity_id` | SERIAL (PK) | Unique Product ID |
-| `sku` | VARCHAR(100) | Stock Keeping Unit (Unique) |
-| `name` | VARCHAR(255) | Product Name |
-| `price` | DECIMAL(12,2) | Unit Price |
-| `stock_count` | INT | Current Physical Stock |
+| `sku` | VARCHAR(100) | Unique Stock Keeping Unit |
+| `name` | VARCHAR(255) | Product Display Name |
+| `price` | DECIMAL(12,2)| Unit Price |
+| `stock_count` | INT | Physical Stock available |
 
 **`catalog_product_attribute`**
-EAV table for flexible product data (Color, Size, Description, Shipping Type).
 | Column | Type | Description |
 | :--- | :--- | :--- |
-| `entity_id` | INT (FK) | Links to product |
-| `attribute_key` | VARCHAR | e.g., 'shipping_type', 'in_stock' |
-| `attribute_value` | TEXT | Value of the attribute |
+| `entity_id` | INT (FK) | Links to Product |
+| `attribute_key` | VARCHAR | e.g. 'shipping_type', 'color' |
+| `attribute_value`| TEXT | Technical Value |
 
-**`catalog_category_entity`** & **`catalog_brand_entity`**
-Standard lookup tables for Categories and Brands.
-
-### 🛒 Sales Domain (Cart)
+### 🛒 Sales Domain (Cart & Orders)
 **`sales_cart`**
-Persistent cart sessions.
 | Column | Type | Description |
 | :--- | :--- | :--- |
 | `cart_id` | SERIAL (PK) | Unique Cart ID |
-| `user_id` | INT (FK) | Owner User ID (Null for guests) |
-| `is_active` | BOOLEAN | `TRUE` = Open, `FALSE` = Converted to Order |
+| `user_id` | INT (FK) | Owner (Null if guest) |
+| `is_active` | BOOLEAN | `TRUE` = Open, `FALSE` = Ordered |
 
-**`sales_cart_product`**
-Items currently in a cart.
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `cart_id` | INT (FK) | Links to Cart |
-| `product_id` | INT (FK) | Links to Product |
-| `quantity` | INT | Quantity selected |
-
-### 📄 Sales Domain (Orders)
 **`sales_order`**
-Confirmed orders.
 | Column | Type | Description |
 | :--- | :--- | :--- |
 | `order_id` | SERIAL (PK) | Internal ID |
-| `order_number` | VARCHAR | Customer-facing ID (e.g., ORD-X8A2) |
-| `user_id` | INT (FK) | Customer link |
-| `final_amount` | DECIMAL | Total paid (Subtotal - Discount + Ship + Tax) |
-| `status` | VARCHAR | 'placed', 'shipped', 'delivered' |
-| `payment_method` | VARCHAR | 'stripe' or 'cod' |
-| `transaction_id`| VARCHAR | Stripe Payment Intent ID |
-| `payment_status`| VARCHAR | 'paid', 'pending' |
-
-**`sales_order_address`**
-Snapshots of addresses used for an order.
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `order_id` | INT (FK) | Links to Order |
-| `address_type` | VARCHAR | 'shipping' or 'billing' |
-| `full_name` | VARCHAR | Recipient Name |
-| `street_address`| TEXT | Full address text |
-| `city` | VARCHAR | City |
-| `pincode` | VARCHAR | Postal Code |
-
-### ⚙️ Configuration Domain
-**`sales_shipping_method`**
-Dynamic shipping rules.
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `code` | VARCHAR (PK) | 'standard', 'express', 'freight' |
-| `type` | VARCHAR | Calculation logic ('flat', 'percentage') |
-| `base_cost` | DECIMAL | Base fee |
-| `is_active` | BOOLEAN | Enabled/Disabled status |
-
-**`sales_coupon`**
-Discount codes.
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `code` | VARCHAR (PK) | The coupon code (e.g., 'SAVE10') |
-| `discount_percent`| DECIMAL | Percentage off |
-| `is_active` | BOOLEAN | Enabled/Disabled status |
+| `order_number` | VARCHAR | Customer Receipt No. |
+| `final_amount` | DECIMAL | Total Paid |
+| `status` | VARCHAR | 'pending', 'paid', 'shipped' |
+| `transaction_id`| VARCHAR | Stripe Reference ID |
 
 ---
 
-## <a id="project-architecture"></a>3. Project Architecture
+## <a id="admin--management"></a>4. Admin & Management
 
-The project follows a strict **MVC (Model-View-Controller)** pattern without using a framework.
-
--   **`src/Controllers/`**: Handle incoming requests, perform business logic, and verify permissions.
--   **`src/Views/`**: Pure HTML/PHP templates that render data passed by controllers.
--   **`src/Utils/`**: Helper functions (`cartsync`, `shipping`, `stripe`) to keep controllers thin.
--   **`src/init.php`**: The bootstrap file. It starts the session, connects to the DB, and loads Environment Variables (`.env`).
-
----
-
-## <a id="setup--configuration"></a>4. Setup & Configuration
-
-1.  **Dependencies**: Run `composer install` to load `vlucas/phpdotenv`.
-2.  **Environment**: Create a `.env` file in the root:
-    ```ini
-    STRIPE_SECRET_KEY=sk_test_...
-    STRIPE_PUBLISHABLE_KEY=pk_test_...
-    ```
-3.  **Database**:
-    - Update `src/config/database.php` with your PostgreSQL credentials.
-    - Import the schema from `src/models/schema.sql`.
+### 🛠️ Admin Panel (`/admin`)
+- **Dashboard**: Real-time visualization of Total Products, Orders, and Users.
+- **Bulk Import**: `admin.handler.php` handles CSV parsing. It validates data and skips duplicate SKUs to maintain catalog integrity.
+- **Background AJAX Export**: 
+    1. Admin clicks "Download CSV".
+    2. JavaScript triggers an AJAX call to the handler.
+    3. The browser shows a loading state.
+    4. The server generates the CSV stream.
+    5. JavaScript processes the stream as a `Blob` and triggers a browser download programmatically.
 
 ---
-*Maintained by the EasyCart Development Team.*
+
+## <a id="setup--configuration"></a>5. Setup & Configuration
+
+1. **Install Dependencies**: `composer install`
+2. **Environment**: Create a `.env` file with `STRIPE_SECRET_KEY` and `STRIPE_PUBLISHABLE_KEY`.
+3. **Database**: 
+   - Update `src/config/database.php`.
+   - Import `src/models/schema.sql`.
+4. **Admin Setup**: Manually set your account as an admin:
+   ```sql
+   UPDATE customer_entity SET is_admin = TRUE WHERE email = 'your@email.com';
+   ```
+
+---
+*Developed for the Cybercom Internship Program.*

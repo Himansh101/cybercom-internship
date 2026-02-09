@@ -55,9 +55,9 @@ require_once __DIR__ . '/../partials/header.view.php';
         <div class="admin-card">
             <h2><i class="ri-download-cloud-2-line"></i> Export Products</h2>
             <p>Download all products as a CSV file for backup or editing.</p>
-            <a href="src/handlers/admin.handler?action=export_products" class="btn btn-secondary">
+            <button id="export-btn" class="btn btn-secondary">
                 <i class="ri-download-2-line"></i> Download CSV
-            </a>
+            </button>
             <div class="export-info">
                 <h4>CSV Format</h4>
                 <code>sku, name, price, stock_count, category, brand_id, description, image_url, shipping_type, in_stock</code>

@@ -120,4 +120,57 @@ document.addEventListener('DOMContentLoaded', () => {
             importBtn.innerHTML = '<i class="ri-upload-2-line"></i> Import Products';
         }
     });
+
+    // Export handling
+    const exportBtn = document.getElementById('export-btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', async () => {
+            exportBtn.disabled = true;
+            const originalHTML = exportBtn.innerHTML;
+            exportBtn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Exporting...';
+
+            try {
+                const response = await fetch('src/handlers/admin.handler?action=export_products');
+
+                if (!response.ok) throw new Error('Export failed');
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                // Set filename from header or use default
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let fileName = 'products_export.csv';
+                if (contentDisposition && contentDisposition.indexOf('filename=') !== -1) {
+                    fileName = contentDisposition.split('filename=')[1].replace(/"/g, '');
+                }
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Export Successful',
+                        text: 'Your CSV file has been downloaded.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                }
+            } catch (error) {
+                console.error('Export error:', error);
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire('Export Failed', 'An error occurred while generating the CSV.', 'error');
+                }
+            } finally {
+                exportBtn.disabled = false;
+                exportBtn.innerHTML = originalHTML;
+            }
+        });
+    }
 });

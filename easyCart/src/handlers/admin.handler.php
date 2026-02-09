@@ -60,7 +60,7 @@ switch ($action) {
             $price = floatval($data['price'] ?? 0);
             $stockCount = intval($data['stock_count'] ?? 0);
             $category = trim($data['category'] ?? '');
-            $brandId = trim($data['brand_id'] ?? '');
+            $brandName = trim($data['brand_name'] ?? '');
             $description = trim($data['description'] ?? '');
             $imageUrl = trim($data['image_url'] ?? '');
             $shippingType = trim($data['shipping_type'] ?? 'standard');
@@ -98,7 +98,18 @@ switch ($action) {
                 if (!empty($description)) {
                     $stmtAttr->execute([$productId, 'description', $description]);
                 }
-                if (!empty($brandId)) {
+                if (!empty($brandName)) {
+                    // Find or create brand
+                    $stmtBrand = $pdo->prepare("SELECT entity_id FROM catalog_brand_entity WHERE LOWER(name) = LOWER(?)");
+                    $stmtBrand->execute([$brandName]);
+                    $brandId = $stmtBrand->fetchColumn();
+
+                    if (!$brandId) {
+                        // Create brand ID (slug-like)
+                        $brandId = 'br_' . strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $brandName)) . '_' . substr(uniqid(), -4);
+                        $stmtBrand = $pdo->prepare("INSERT INTO catalog_brand_entity (entity_id, name) VALUES (?, ?)");
+                        $stmtBrand->execute([$brandId, $brandName]);
+                    }
                     $stmtAttr->execute([$productId, 'brand_id', $brandId]);
                 }
                 $stmtAttr->execute([$productId, 'shipping_type', $shippingType]);
@@ -151,13 +162,13 @@ switch ($action) {
         $output = fopen('php://output', 'w');
         
         // Header row
-        fputcsv($output, ['sku', 'name', 'price', 'stock_count', 'category', 'brand_id', 'description', 'image_url', 'shipping_type', 'in_stock']);
+        fputcsv($output, ['sku', 'name', 'price', 'stock_count', 'category', 'brand_name', 'description', 'image_url', 'shipping_type', 'in_stock']);
         
         // Fetch all products with related data
         $sql = "SELECT 
                     p.sku, p.name, p.price, p.stock_count,
                     c.name as category,
-                    (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'brand_id') as brand_id,
+                    b.name as brand_name,
                     (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'description') as description,
                     i.image_url,
                     (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'shipping_type') as shipping_type,
@@ -165,6 +176,8 @@ switch ($action) {
                 FROM catalog_product_entity p
                 LEFT JOIN catalog_category_product cp ON p.entity_id = cp.product_id
                 LEFT JOIN catalog_category_entity c ON cp.category_id = c.entity_id
+                LEFT JOIN catalog_product_attribute b_attr ON p.entity_id = b_attr.entity_id AND b_attr.attribute_key = 'brand_id'
+                LEFT JOIN catalog_brand_entity b ON b_attr.attribute_value = b.entity_id
                 LEFT JOIN catalog_product_image i ON p.entity_id = i.product_id AND i.is_main_image = true
                 ORDER BY p.entity_id";
         
@@ -176,7 +189,7 @@ switch ($action) {
                 $row['price'],
                 $row['stock_count'],
                 $row['category'] ?? '',
-                $row['brand_id'] ?? '',
+                $row['brand_name'] ?? '',
                 $row['description'] ?? '',
                 $row['image_url'] ?? '',
                 $row['shipping_type'] ?? 'standard',
@@ -186,14 +199,15 @@ switch ($action) {
         
         fclose($output);
         exit();
+        break;
 
     case 'download_template':
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="product_import_template.csv"');
         
         $output = fopen('php://output', 'w');
-        fputcsv($output, ['sku', 'name', 'price', 'stock_count', 'category', 'brand_id', 'description', 'image_url', 'shipping_type', 'in_stock']);
-        fputcsv($output, ['SKU-SAMPLE', 'Sample Product', '999.00', '10', 'Electronics', 'br_01', 'Product description here', 'images/sample.jpg', 'standard', '1']);
+        fputcsv($output, ['sku', 'name', 'price', 'stock_count', 'category', 'brand_name', 'description', 'image_url', 'shipping_type', 'in_stock']);
+        fputcsv($output, ['SKU-SAMPLE', 'Sample Product', '999.00', '10', 'Electronics', 'Aurora', 'Product description here', 'images/sample.jpg', 'standard', '1']);
         fclose($output);
         exit();
 

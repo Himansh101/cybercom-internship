@@ -68,6 +68,6 @@ $cartQuantity = 0;
 if ($cartId) {
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM sales_cart_product WHERE cart_id = ?");
     $stmt->execute([$cartId]);
-    $cartQuantity = (int)$stmt->fetchColumn();
+    $cartQuantity = (int) $stmt->fetchColumn();
 }
 ?>

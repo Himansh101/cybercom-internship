@@ -32,14 +32,14 @@ if ($action === 'get_stats') {
         $chartValues = [];
         foreach ($chartDataRaw as $row) {
             $chartLabels[] = date('d M', strtotime($row['order_date']));
-            $chartValues[] = (float)$row['daily_amount'];
+            $chartValues[] = (float) $row['daily_amount'];
         }
 
         echo json_encode([
             'status' => 'success',
             'data' => [
-                'total_orders' => number_format((int)($metrics['total_orders'] ?? 0)),
-                'total_spent' => number_format((float)($metrics['total_spent'] ?? 0)),
+                'total_orders' => number_format((int) ($metrics['total_orders'] ?? 0)),
+                'total_spent' => number_format((float) ($metrics['total_spent'] ?? 0)),
                 'chart_labels' => $chartLabels,
                 'chart_values' => $chartValues
             ]

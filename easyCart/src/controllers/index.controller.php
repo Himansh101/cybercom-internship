@@ -27,7 +27,7 @@ foreach ($dbFeatured as $row) {
         'name' => $row['name'],
         'price' => $row['price'],
         'image' => (strpos($row['image'], 'http') === 0) ? $row['image'] : $row['image'],
-        'in_stock' => ($row['in_stock'] === '1' && (int)$row['stock_count'] > 0),
+        'in_stock' => ($row['in_stock'] === '1' && (int) $row['stock_count'] > 0),
         'cat_id' => $row['cat_id'],
         'item_shipping_type' => $row['shipping_type']
     ];

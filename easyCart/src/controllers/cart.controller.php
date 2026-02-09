@@ -36,7 +36,7 @@ if (!empty($cartItemsFromDb)) {
             if ($product['shipping_type'] === 'freight') {
                 $hasFreightItem = true;
             }
-            
+
             $cartItems[$id] = [
                 'id' => $product['entity_id'],
                 'name' => $product['name'],

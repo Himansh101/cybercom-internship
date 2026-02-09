@@ -15,13 +15,13 @@ function calculate_shipping_cost($pdo, $method, $discounted_subtotal)
 
     if (!$rule) {
         // Fallback or default if method not found / inactive
-        return 40; 
+        return 40;
     }
 
     $cost = 0;
     switch ($rule['type']) {
         case 'flat':
-            $cost = (float)$rule['base_cost'];
+            $cost = (float) $rule['base_cost'];
             break;
         case 'percentage_capped':
             // e.g. 10% capped at 80. logic: min(cap, subtotal * %)
@@ -34,7 +34,7 @@ function calculate_shipping_cost($pdo, $method, $discounted_subtotal)
             $cost = max($rule['limit_amount'], $calculated);
             break;
         default:
-            $cost = (float)$rule['base_cost'];
+            $cost = (float) $rule['base_cost'];
     }
 
     return $cost;

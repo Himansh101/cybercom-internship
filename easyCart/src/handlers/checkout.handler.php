@@ -53,14 +53,14 @@ switch ($action) {
 
         $metadata = getCartMetadata($pdo, $cartId);
         $method = $_POST['shipping_method'] ?? $metadata['shipping_method'] ?? 'standard';
-        
+
         if (!in_array($method, $allowedShippingMethods)) {
             $method = $allowedShippingMethods[0];
         }
 
         $coupon_code = $_POST['coupon_code'] ?? $metadata['coupon_code'] ?? '';
         $payment_method = $_POST['payment_method'] ?? $metadata['payment_method'] ?? 'cod';
-        
+
         // Save to DB Metadata
         updateCartMetadata($pdo, $cartId, [
             'shipping_method' => $method,
@@ -112,7 +112,8 @@ switch ($action) {
     case 'create_payment_intent':
         try {
             $cartItems = loadCartArrayFromDb($pdo, $cartId);
-            if (empty($cartItems)) throw new Exception("Cart is empty");
+            if (empty($cartItems))
+                throw new Exception("Cart is empty");
 
             // Calculate exact total again
             $subtotal = 0;
@@ -123,14 +124,15 @@ switch ($action) {
                 $p = $stmt->fetch(PDO::FETCH_ASSOC);
                 if ($p) {
                     $subtotal += $p['price'] * $qty;
-                    if (($p['type'] ?? '') === 'freight') $hasFreight = true;
+                    if (($p['type'] ?? '') === 'freight')
+                        $hasFreight = true;
                 }
             }
-            
+
             $metadata = getCartMetadata($pdo, $cartId);
             $coupon = get_coupon_data($pdo, $metadata['coupon_code'] ?? '', $subtotal);
             $discountedSubtotal = $subtotal - $coupon['discount_amount'];
-            
+
             $shippingMethod = $metadata['shipping_method'] ?? ($hasFreight || $subtotal > 300 ? 'white_glove' : 'standard');
             $shipping = calculate_shipping_cost($pdo, $shippingMethod, $discountedSubtotal);
             $gst = $discountedSubtotal * 0.18;
@@ -165,9 +167,12 @@ switch ($action) {
         $paymentIntentId = $_POST['payment_intent_id'] ?? null;
 
         // (Validations)
-        if (strlen($shipping_name) < 3) $errors[] = "Invalid name.";
-        if (!preg_match("/^(\+91)[6-9][0-9]{9}$/", $shipping_mobile)) $errors[] = "Invalid mobile.";
-        if (strlen($shipping_address) < 10) $errors[] = "Address too short.";
+        if (strlen($shipping_name) < 3)
+            $errors[] = "Invalid name.";
+        if (!preg_match("/^(\+91)[6-9][0-9]{9}$/", $shipping_mobile))
+            $errors[] = "Invalid mobile.";
+        if (strlen($shipping_address) < 10)
+            $errors[] = "Address too short.";
 
         if (!empty($errors)) {
             echo json_encode(['status' => 'error', 'message' => implode("\n", $errors)]);
@@ -200,7 +205,7 @@ switch ($action) {
 
             $userId = $_SESSION['user_id'];
             $orderNumber = strtoupper(substr(uniqid('ORD'), -8));
-            
+
             // 1. Calculate totals again securely
             $subtotal = 0;
             $itemsToProcess = [];
@@ -246,7 +251,7 @@ switch ($action) {
 
             foreach ($itemsToProcess as $item) {
                 $stmtItem->execute([$orderId, $item['id'], $item['name'], $item['price'], $item['qty']]);
-                
+
                 $stmtStock->execute([$item['qty'], $item['id']]);
                 $newStock = $stmtStock->fetchColumn();
 
@@ -258,14 +263,14 @@ switch ($action) {
 
             // 4. Insert Addresses (Shipping & Billing)
             $stmtAddr = $pdo->prepare("INSERT INTO sales_order_address (order_id, full_name, email, mobile, street_address, city, pincode, address_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            
+
             // Insert Shipping Address
             $stmtAddr->execute([$orderId, $shipping_name, $shipping_email, $shipping_mobile, $shipping_address, $shipping_city, $shipping_pincode, 'shipping']);
 
             // Insert Billing Address
             if (isset($_POST['billing_same_as_shipping']) && $_POST['billing_same_as_shipping'] == '1') {
                 // Duplicate shipping as billing
-                 $stmtAddr->execute([$orderId, $shipping_name, $shipping_email, $shipping_mobile, $shipping_address, $shipping_city, $shipping_pincode, 'billing']);
+                $stmtAddr->execute([$orderId, $shipping_name, $shipping_email, $shipping_mobile, $shipping_address, $shipping_city, $shipping_pincode, 'billing']);
             } else {
                 // Use separate billing details
                 $billing_name = trim($_POST['billing_name'] ?? '');
@@ -295,7 +300,8 @@ switch ($action) {
             echo json_encode(['status' => 'success', 'message' => 'Order placed successfully!', 'order_id' => $orderNumber]);
 
         } catch (Exception $e) {
-            if ($pdo->inTransaction()) $pdo->rollBack();
+            if ($pdo->inTransaction())
+                $pdo->rollBack();
             echo json_encode(['status' => 'error', 'message' => 'Failed to place order: ' . $e->getMessage()]);
         }
         break;

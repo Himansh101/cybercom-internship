@@ -46,8 +46,8 @@ if ($action === 'get_details') {
         foreach ($items as $item) {
             $formattedItems[] = [
                 'name' => $item['product_name_snapshot'],
-                'price' => (float)$item['price_snapshot'],
-                'qty' => (int)$item['quantity'],
+                'price' => (float) $item['price_snapshot'],
+                'qty' => (int) $item['quantity'],
                 'total' => $item['price_snapshot'] * $item['quantity'],
                 'image' => (strpos($item['main_image'], 'http') === 0) ? $item['main_image'] : 'assets/' . $item['main_image']
             ];
@@ -59,10 +59,10 @@ if ($action === 'get_details') {
                 'order_number' => $order['order_number'],
                 'date' => date('d M, Y', strtotime($order['created_at'])),
                 'status' => ucfirst($order['status']),
-                'subtotal' => (float)$order['subtotal'],
-                'shipping' => (float)$order['shipping_cost'],
-                'tax' => (float)$order['tax_amount'],
-                'total' => (float)$order['final_amount'],
+                'subtotal' => (float) $order['subtotal'],
+                'shipping' => (float) $order['shipping_cost'],
+                'tax' => (float) $order['tax_amount'],
+                'total' => (float) $order['final_amount'],
                 'address' => $address,
                 'items' => $formattedItems
             ]

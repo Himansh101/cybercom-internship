@@ -8,15 +8,15 @@ $extraStyles = ['plp.css'];
 $extraScripts = ['plp.js'];
 
 /** 1. Initialize variables from GET parameters */
-$selectedCats   = $_GET['categories'] ?? [];
+$selectedCats = $_GET['categories'] ?? [];
 $selectedBrands = $_GET['brands'] ?? [];
-$selectedStock  = $_GET['stock_status'] ?? [];
-$searchQuery    = isset($_GET['search']) ? trim($_GET['search']) : '';
+$selectedStock = $_GET['stock_status'] ?? [];
+$searchQuery = isset($_GET['search']) ? trim($_GET['search']) : '';
 
-$minPrice = (isset($_GET['min_price']) && $_GET['min_price'] !== '') ? (int)$_GET['min_price'] : 0;
-$maxPrice = (isset($_GET['max_price']) && $_GET['max_price'] !== '') ? (int)$_GET['max_price'] : 1000000;
-$sortBy   = $_GET['sort'] ?? 'newest';
-$pageNumber = (isset($_GET['page']) && $_GET['page'] > 0) ? (int)$_GET['page'] : 1;
+$minPrice = (isset($_GET['min_price']) && $_GET['min_price'] !== '') ? (int) $_GET['min_price'] : 0;
+$maxPrice = (isset($_GET['max_price']) && $_GET['max_price'] !== '') ? (int) $_GET['max_price'] : 1000000;
+$sortBy = $_GET['sort'] ?? 'newest';
+$pageNumber = (isset($_GET['page']) && $_GET['page'] > 0) ? (int) $_GET['page'] : 1;
 $productsPerPage = 9;
 
 // Fetch categories for filter
@@ -39,7 +39,8 @@ $params = [];
 if (!empty($selectedCats)) {
     $placeholders = implode(',', array_fill(0, count($selectedCats), '?'));
     $whereClauses[] = "p.entity_id IN (SELECT product_id FROM catalog_category_product WHERE category_id IN ($placeholders))";
-    foreach ($selectedCats as $cat) $params[] = (int)$cat;
+    foreach ($selectedCats as $cat)
+        $params[] = (int) $cat;
 }
 
 if (!empty($searchQuery)) {
@@ -57,7 +58,8 @@ if ($minPrice >= 0 && $maxPrice > 0) {
 if (!empty($selectedBrands)) {
     $placeholders = implode(',', array_fill(0, count($selectedBrands), '?'));
     $whereClauses[] = "p.entity_id IN (SELECT entity_id FROM catalog_product_attribute WHERE attribute_key = 'brand_id' AND attribute_value IN ($placeholders))";
-    foreach ($selectedBrands as $brandId) $params[] = $brandId;
+    foreach ($selectedBrands as $brandId)
+        $params[] = $brandId;
 }
 
 // Stock Status Filtering
@@ -71,7 +73,7 @@ if (!empty($selectedStock)) {
         // Has attribute '0' OR numeric count <= 0
         $subConditions[] = "(p.entity_id IN (SELECT entity_id FROM catalog_product_attribute WHERE attribute_key = 'in_stock' AND attribute_value = '0') OR p.stock_count <= 0)";
     }
-    
+
     if (!empty($subConditions)) {
         $whereClauses[] = "(" . implode(" OR ", $subConditions) . ")";
     }
@@ -81,19 +83,29 @@ if (!empty($selectedStock)) {
 $stockPrioritySql = "(CASE WHEN p.stock_count > 0 THEN 1 ELSE 0 END) DESC";
 
 switch ($sortBy) {
-    case 'price_low': $sortSql = "p.price ASC"; break;
-    case 'price_high': $sortSql = "p.price DESC"; break;
-    case 'name_asc': $sortSql = "p.name ASC"; break;
-    case 'name_desc': $sortSql = "p.name DESC"; break;
+    case 'price_low':
+        $sortSql = "p.price ASC";
+        break;
+    case 'price_high':
+        $sortSql = "p.price DESC";
+        break;
+    case 'name_asc':
+        $sortSql = "p.name ASC";
+        break;
+    case 'name_desc':
+        $sortSql = "p.name DESC";
+        break;
     case 'newest':
-    default: $sortSql = "p.created_at DESC"; break;
+    default:
+        $sortSql = "p.created_at DESC";
+        break;
 }
 
 // Total Count for Pagination
 $countSql = "SELECT COUNT(*) FROM catalog_product_entity p WHERE " . implode(" AND ", $whereClauses);
 $stmtCount = $pdo->prepare($countSql);
 $stmtCount->execute($params);
-$totalVisible = (int)$stmtCount->fetchColumn();
+$totalVisible = (int) $stmtCount->fetchColumn();
 
 // Main Fetch Query
 $sql = "SELECT p.*, i.image_url as image, 
@@ -120,7 +132,7 @@ foreach ($productsFromDb as $row) {
         'price' => $row['price'],
         'image' => (strpos($row['image'], 'http') === 0) ? $row['image'] : $row['image'],
         // Fail-safe: Check both the attribute and the actual stock_count
-        'in_stock' => ($row['in_stock'] === '1' && (int)$row['stock_count'] > 0),
+        'in_stock' => ($row['in_stock'] === '1' && (int) $row['stock_count'] > 0),
         'brand_id' => $row['brand_id'],
         'cat_id' => $row['cat_id'], // Added to ensure view can look up category
         'item_shipping_type' => $row['shipping_type']

@@ -55,7 +55,7 @@ switch ($action) {
                 $stmt = $pdo->prepare("SELECT password FROM customer_entity WHERE entity_id = ?");
                 $stmt->execute([$userId]);
                 $dbPassword = $stmt->fetchColumn();
-                
+
                 if (!password_verify($current_password, $dbPassword)) {
                     $errors[] = "Current password is incorrect.";
                 } elseif (strlen($new_password) < 8) {

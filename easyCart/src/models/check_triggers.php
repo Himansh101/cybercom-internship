@@ -9,7 +9,7 @@ if ($conn) {
     foreach ($triggers as $t) {
         echo " - " . $t['tgname'] . "\n";
     }
-    
+
     echo "Checking constraints...\n";
     $stmt = $conn->query("SELECT conname, contype, pg_get_constraintdef(oid) as consrc FROM pg_constraint JOIN pg_class ON pg_class.oid = conrelid WHERE relname IN ('catalog_category_entity', 'catalog_product_entity', 'catalog_product_attribute')");
     $constraints = $stmt->fetchAll(PDO::FETCH_ASSOC);

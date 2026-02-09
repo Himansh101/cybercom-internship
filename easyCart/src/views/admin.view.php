@@ -68,7 +68,8 @@ require_once __DIR__ . '/../partials/header.view.php';
     <!-- Sample CSV Template -->
     <div class="admin-card full-width">
         <h2><i class="ri-file-list-3-line"></i> Sample CSV Template</h2>
-        <p>Use this format for importing products. <a href="src/handlers/admin.handler?action=download_template" class="link">Download Template</a></p>
+        <p>Use this format for importing products. <a href="src/handlers/admin.handler?action=download_template"
+                class="link">Download Template</a></p>
         <pre class="csv-preview">sku,name,price,stock_count,category,brand_name,description,image_url,shipping_type,in_stock
 SKU-001,Premium Headphones,2499.00,50,Electronics,Aurora,High quality wireless headphones,images/headphones.jpg,standard,1
 SKU-002,Office Desk,8999.00,10,Furniture,ZenStyle,Modern ergonomic office desk,images/desk.jpg,freight,1</pre>

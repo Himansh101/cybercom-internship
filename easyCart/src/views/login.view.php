@@ -19,13 +19,15 @@
         <h1 class="auth-title">Login</h1>
 
         <?php if ($signup_success): ?>
-            <p style="color: #059669; background: #ecfdf5; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 0.9rem; text-align: center;">
+            <p
+                style="color: #059669; background: #ecfdf5; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 0.9rem; text-align: center;">
                 Registration successful! Please login.
             </p>
         <?php endif; ?>
 
         <?php if (isset($error)): ?>
-            <p style="color: #ef4444; background: #fee2e2; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 0.9rem; text-align: center;">
+            <p
+                style="color: #ef4444; background: #fee2e2; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 0.9rem; text-align: center;">
                 <?php echo $error; ?>
             </p>
         <?php endif; ?>
@@ -35,9 +37,10 @@
                 <label for="email">Email</label>
                 <input id="email" name="email" type="email" placeholder="you@example.com"
                     pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-                    title="Please enter a valid email address with a domain extension (e.g., .com, .org, .net)"
-                    required value="<?php echo htmlspecialchars($email ?? ''); ?>">
-                <span class="error-message" id="email-error">Please enter a valid email address with domain extension.</span>
+                    title="Please enter a valid email address with a domain extension (e.g., .com, .org, .net)" required
+                    value="<?php echo htmlspecialchars($email ?? ''); ?>">
+                <span class="error-message" id="email-error">Please enter a valid email address with domain
+                    extension.</span>
             </div>
 
             <div class="form-group">

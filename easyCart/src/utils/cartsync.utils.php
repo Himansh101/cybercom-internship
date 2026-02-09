@@ -8,7 +8,8 @@
 function getOrCreateCartId($pdo, $userId = null, $createIfMissing = false)
 {
     $sessionId = session_id();
-    if (!$sessionId) return null;
+    if (!$sessionId)
+        return null;
 
     // 1. Check session first
     if (isset($_SESSION['cart_id'])) {
@@ -22,7 +23,7 @@ function getOrCreateCartId($pdo, $userId = null, $createIfMissing = false)
         $id = $stmt->fetchColumn();
         if ($id) {
             $_SESSION['cart_id'] = $id;
-            return (int)$id;
+            return (int) $id;
         }
     }
 
@@ -32,7 +33,7 @@ function getOrCreateCartId($pdo, $userId = null, $createIfMissing = false)
     $id = $stmt->fetchColumn();
     if ($id) {
         $_SESSION['cart_id'] = $id;
-        return (int)$id;
+        return (int) $id;
     }
 
     // 4. Create new cart only if requested
@@ -45,7 +46,7 @@ function getOrCreateCartId($pdo, $userId = null, $createIfMissing = false)
         $stmt->execute([$sessionId, $userId]);
         $id = $stmt->fetchColumn();
         $_SESSION['cart_id'] = $id;
-        return (int)$id;
+        return (int) $id;
     } catch (Exception $e) {
         error_log("Cart creation error: " . $e->getMessage());
         return null;
@@ -57,7 +58,8 @@ function getOrCreateCartId($pdo, $userId = null, $createIfMissing = false)
  */
 function updateCartItemDb($pdo, $cartId, $productId, $quantity)
 {
-    if (!$cartId) return false;
+    if (!$cartId)
+        return false;
 
     try {
         if ($quantity <= 0) {
@@ -70,7 +72,7 @@ function updateCartItemDb($pdo, $cartId, $productId, $quantity)
                                    ON CONFLICT (cart_id, product_id) DO UPDATE SET quantity = EXCLUDED.quantity");
             // Wait, does sales_cart_product have a unique constraint on (cart_id, product_id)?
             // Looking at schema.sql, it doesn't. Let's do it manually or add the constraint.
-            
+
             $check = $pdo->prepare("SELECT increment_id FROM sales_cart_product WHERE cart_id = ? AND product_id = ?");
             $check->execute([$cartId, $productId]);
             if ($check->fetch()) {
@@ -93,15 +95,16 @@ function updateCartItemDb($pdo, $cartId, $productId, $quantity)
  */
 function loadCartArrayFromDb($pdo, $cartId)
 {
-    if (!$cartId) return [];
-    
+    if (!$cartId)
+        return [];
+
     $cart = [];
     $stmt = $pdo->prepare("SELECT product_id, quantity FROM sales_cart_product WHERE cart_id = ?");
     $stmt->execute([$cartId]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($rows as $row) {
-        $cart[$row['product_id']] = (int)$row['quantity'];
+        $cart[$row['product_id']] = (int) $row['quantity'];
     }
     return $cart;
 }
@@ -112,7 +115,7 @@ function loadCartArrayFromDb($pdo, $cartId)
 function mergeCartOnLogin($pdo, $userId)
 {
     $sessionId = session_id();
-    
+
     // 1. Find/Create user cart
     $stmt = $pdo->prepare("SELECT cart_id FROM sales_cart WHERE user_id = ? AND is_active = TRUE");
     $stmt->execute([$userId]);
@@ -169,7 +172,8 @@ function mergeCartOnLogin($pdo, $userId)
 function syncCartToDb($pdo, $userId, $cart)
 {
     $cartId = getOrCreateCartId($pdo, $userId);
-    if (!$cartId) return;
+    if (!$cartId)
+        return;
 
     try {
         $pdo->beginTransaction();
@@ -178,13 +182,14 @@ function syncCartToDb($pdo, $userId, $cart)
             $stmtLine = $pdo->prepare("INSERT INTO sales_cart_product (cart_id, product_id, quantity) VALUES (?, ?, ?)");
             foreach ($cart as $pid => $qty) {
                 if ($qty > 0) {
-                    $stmtLine->execute([$cartId, (int)$pid, (int)$qty]);
+                    $stmtLine->execute([$cartId, (int) $pid, (int) $qty]);
                 }
             }
         }
         $pdo->commit();
     } catch (Exception $e) {
-        if ($pdo->inTransaction()) $pdo->rollBack();
+        if ($pdo->inTransaction())
+            $pdo->rollBack();
         error_log("Cart sync error: " . $e->getMessage());
     }
 }
@@ -194,12 +199,13 @@ function syncCartToDb($pdo, $userId, $cart)
  */
 function getCartMetadata($pdo, $cartId)
 {
-    if (!$cartId) return ['shipping_method' => 'standard', 'coupon_code' => '', 'payment_method' => 'cod'];
-    
+    if (!$cartId)
+        return ['shipping_method' => 'standard', 'coupon_code' => '', 'payment_method' => 'cod'];
+
     $stmt = $pdo->prepare("SELECT shipping_method, coupon_code, payment_method FROM sales_cart_metadata WHERE cart_id = ?");
     $stmt->execute([$cartId]);
     $data = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     return $data ?: ['shipping_method' => 'standard', 'coupon_code' => '', 'payment_method' => 'cod'];
 }
 
@@ -208,12 +214,13 @@ function getCartMetadata($pdo, $cartId)
  */
 function updateCartMetadata($pdo, $cartId, $data)
 {
-    if (!$cartId) return false;
-    
+    if (!$cartId)
+        return false;
+
     $shipping = $data['shipping_method'] ?? 'standard';
     $coupon = $data['coupon_code'] ?? null;
     $payment = $data['payment_method'] ?? 'cod';
-    
+
     try {
         $check = $pdo->prepare("SELECT metadata_id FROM sales_cart_metadata WHERE cart_id = ?");
         $check->execute([$cartId]);
@@ -236,6 +243,7 @@ function updateCartMetadata($pdo, $cartId, $data)
  */
 function clearCartMetadata($pdo, $cartId)
 {
-    if (!$cartId) return;
+    if (!$cartId)
+        return;
     $pdo->prepare("DELETE FROM sales_cart_metadata WHERE cart_id = ?")->execute([$cartId]);
 }

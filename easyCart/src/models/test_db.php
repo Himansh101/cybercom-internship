@@ -4,7 +4,7 @@ $db = new Database();
 $conn = $db->getConnection();
 if ($conn) {
     echo "Connection successful!\n";
-    
+
     $tablesToCheck = ['catalog_product_entity', 'catalog_product_attribute', 'catalog_category_entity'];
     foreach ($tablesToCheck as $table) {
         echo "Columns for $table:\n";

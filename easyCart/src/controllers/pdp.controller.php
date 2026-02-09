@@ -8,7 +8,7 @@ $extraStyles = ['pdp.css'];
 $extraScripts = ['pdp.js'];
 
 // 1. Get the product ID from the URL
-$productId = isset($_GET['id']) ? (int)$_GET['id'] : null;
+$productId = isset($_GET['id']) ? (int) $_GET['id'] : null;
 
 // 2. Validate Product Existence & Fetch Details
 if ($productId === null) {
@@ -44,7 +44,7 @@ $product = [
     'images' => array_map(fn($i) => (strpos($i['image_url'], 'http') === 0) ? $i['image_url'] : $i['image_url'], $dbImages),
     'description' => $row['description'],
     'in_stock' => ($row['in_stock'] === '1'),
-    'stock_count' => (int)$row['stock_count'],
+    'stock_count' => (int) $row['stock_count'],
     'brand_id' => $row['brand_id'],
     'item_shipping_type' => $row['shipping_type']
 ];
@@ -64,7 +64,7 @@ $currentQtyInCart = 0;
 if ($cartId) {
     $stmtQty = $pdo->prepare("SELECT quantity FROM sales_cart_product WHERE cart_id = ? AND product_id = ?");
     $stmtQty->execute([$cartId, $productId]);
-    $currentQtyInCart = (int)$stmtQty->fetchColumn();
+    $currentQtyInCart = (int) $stmtQty->fetchColumn();
 }
 
 // Load View

@@ -25,7 +25,7 @@ function get_coupon_data($pdo, $coupon_code, $subtotal)
 
     if ($coupon) {
         $data['valid'] = true;
-        $data['discount_pct'] = (float)$coupon['discount_percent'];
+        $data['discount_pct'] = (float) $coupon['discount_percent'];
         $data['discount_amount'] = $subtotal * ($data['discount_pct'] / 100);
         $data['message'] = $coupon['description']; // Or dynamic message: $data['discount_pct'] . '% discount applied!';
     } else {

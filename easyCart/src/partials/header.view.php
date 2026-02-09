@@ -9,27 +9,33 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/styles.css">
-    <?php if (isset($extraStyles)): foreach ($extraStyles as $style): 
-        $stylePath = (strpos($style, 'http') === 0) ? $style : "assets/css/$style";
-    ?>
-        <link rel="stylesheet" href="<?php echo $stylePath; ?>">
-    <?php endforeach; endif; ?>
+    <?php if (isset($extraStyles)):
+        foreach ($extraStyles as $style):
+            $stylePath = (strpos($style, 'http') === 0) ? $style : "assets/css/$style";
+            ?>
+            <link rel="stylesheet" href="<?php echo $stylePath; ?>">
+        <?php endforeach; endif; ?>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="assets/js/auth.js" defer></script>
 </head>
 
-<body class="page-<?php echo $currentPage ?? 'default'; ?>" data-is-logged-in="<?php echo $isLoggedIn ? 'true' : 'false'; ?>">
+<body class="page-<?php echo $currentPage ?? 'default'; ?>"
+    data-is-logged-in="<?php echo $isLoggedIn ? 'true' : 'false'; ?>">
     <header>
         <div class="logo">EasyCart</div>
         <nav>
             <a href="index" class="<?php echo ($currentPage ?? '') === 'home' ? 'active' : ''; ?>">Home</a>
             <a href="plp" class="<?php echo ($currentPage ?? '') === 'products' ? 'active' : ''; ?>">Products</a>
-            <a href="cart" id="cart-nav-link" class="<?php echo ($currentPage ?? '') === 'cart' ? 'active' : ''; ?>">Cart<?php if ($cartQuantity > 0): ?><span class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
+            <a href="cart" id="cart-nav-link"
+                class="<?php echo ($currentPage ?? '') === 'cart' ? 'active' : ''; ?>">Cart<?php if ($cartQuantity > 0): ?><span
+                        class="cart-badge"><?php echo $cartQuantity; ?></span><?php endif; ?></a>
             <?php if ($isLoggedIn): ?>
-                <a href="dashboard" class="<?php echo ($currentPage ?? '') === 'dashboard' ? 'active' : ''; ?>">Dashboard</a>
+                <a href="dashboard"
+                    class="<?php echo ($currentPage ?? '') === 'dashboard' ? 'active' : ''; ?>">Dashboard</a>
                 <a href="orders" class="<?php echo ($currentPage ?? '') === 'orders' ? 'active' : ''; ?>">My Orders</a>
                 <?php if (!empty($user['is_admin'])): ?>
-                    <a href="admin" class="<?php echo ($currentPage ?? '') === 'admin' ? 'active' : ''; ?>"><i class="ri-settings-4-line"></i> Admin</a>
+                    <a href="admin" class="<?php echo ($currentPage ?? '') === 'admin' ? 'active' : ''; ?>"><i
+                            class="ri-settings-4-line"></i> Admin</a>
                 <?php endif; ?>
                 <a href="profile" class="user-greeting <?php echo ($currentPage ?? '') === 'profile' ? 'active' : ''; ?>">
                     <i class="ri-user-line"></i> Hi, <?php echo htmlspecialchars(explode(' ', $user['name'])[0]); ?>

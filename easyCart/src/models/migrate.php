@@ -62,15 +62,15 @@ try {
         $stmtProd->bindValue(':sku', $sku, PDO::PARAM_STR);
         $stmtProd->bindValue(':name', $p['name'], PDO::PARAM_STR);
         $stmtProd->bindValue(':price', $p['price']); // Defaults to string, but decimal accepts it
-        $stmtProd->bindValue(':stock', (int)$p['stock_count'], PDO::PARAM_INT);
+        $stmtProd->bindValue(':stock', (int) $p['stock_count'], PDO::PARAM_INT);
         $stmtProd->execute();
         $productId = $stmtProd->fetchColumn();
         echo "Saved ($productId)\n";
 
         // Category link
         if (isset($categoryMap[$p['cat_id']])) {
-            $stmtCat->bindValue(':cat_id', (int)$categoryMap[$p['cat_id']], PDO::PARAM_INT);
-            $stmtCat->bindValue(':prod_id', (int)$productId, PDO::PARAM_INT);
+            $stmtCat->bindValue(':cat_id', (int) $categoryMap[$p['cat_id']], PDO::PARAM_INT);
+            $stmtCat->bindValue(':prod_id', (int) $productId, PDO::PARAM_INT);
             $stmtCat->execute();
         }
 
@@ -83,21 +83,21 @@ try {
             'brand_id' => $p['brand_id'] ?? ''
         ];
         foreach ($attrs as $k => $v) {
-            $stmtAttr->bindValue(':prod_id', (int)$productId, PDO::PARAM_INT);
+            $stmtAttr->bindValue(':prod_id', (int) $productId, PDO::PARAM_INT);
             $stmtAttr->bindValue(':key', $k, PDO::PARAM_STR);
-            $stmtAttr->bindValue(':val', (string)$v, PDO::PARAM_STR);
+            $stmtAttr->bindValue(':val', (string) $v, PDO::PARAM_STR);
             $stmtAttr->execute();
         }
 
         // Images
-        $stmtImg->bindValue(':prod_id', (int)$productId, PDO::PARAM_INT);
+        $stmtImg->bindValue(':prod_id', (int) $productId, PDO::PARAM_INT);
         $stmtImg->bindValue(':url', $p['image'], PDO::PARAM_STR);
         $stmtImg->bindValue(':is_main', true, PDO::PARAM_BOOL);
         $stmtImg->execute();
         if (isset($p['images'])) {
             foreach ($p['images'] as $img) {
                 if ($img !== $p['image']) {
-                    $stmtImg->bindValue(':prod_id', (int)$productId, PDO::PARAM_INT);
+                    $stmtImg->bindValue(':prod_id', (int) $productId, PDO::PARAM_INT);
                     $stmtImg->bindValue(':url', $img, PDO::PARAM_STR);
                     $stmtImg->bindValue(':is_main', false, PDO::PARAM_BOOL);
                     $stmtImg->execute();
@@ -131,7 +131,7 @@ try {
                 foreach ($u['orders'] as $order) {
                     $subtotal = round($order['total'] / 1.18, 2);
                     $tax = round($order['total'] - $subtotal, 2);
-                    $stmtOrder->bindValue(':u_id', (int)$customerId, PDO::PARAM_INT);
+                    $stmtOrder->bindValue(':u_id', (int) $customerId, PDO::PARAM_INT);
                     $stmtOrder->bindValue(':o_num', $order['order_id'], PDO::PARAM_STR);
                     $stmtOrder->bindValue(':sub', $subtotal);
                     $stmtOrder->bindValue(':ship', $order['total'] > 500 ? 50 : 0);
@@ -143,15 +143,15 @@ try {
                     $orderId = $stmtOrder->fetchColumn();
 
                     foreach ($order['items'] as $item) {
-                        $stmtOrderItem->bindValue(':o_id', (int)$orderId, PDO::PARAM_INT);
+                        $stmtOrderItem->bindValue(':o_id', (int) $orderId, PDO::PARAM_INT);
                         $stmtOrderItem->bindValue(':p_name', 'Product #' . $item['id'], PDO::PARAM_STR);
                         $stmtOrderItem->bindValue(':price', $item['price']);
-                        $stmtOrderItem->bindValue(':qty', (int)$item['qty'], PDO::PARAM_INT);
+                        $stmtOrderItem->bindValue(':qty', (int) $item['qty'], PDO::PARAM_INT);
                         $stmtOrderItem->execute();
                     }
 
                     if (isset($order['address'])) {
-                        $stmtOrderAddr->bindValue(':o_id', (int)$orderId, PDO::PARAM_INT);
+                        $stmtOrderAddr->bindValue(':o_id', (int) $orderId, PDO::PARAM_INT);
                         $stmtOrderAddr->bindValue(':name', $order['address']['name'], PDO::PARAM_STR);
                         $stmtOrderAddr->bindValue(':addr', $order['address']['address'], PDO::PARAM_STR);
                         $stmtOrderAddr->bindValue(':city', $order['address']['city'], PDO::PARAM_STR);
@@ -166,7 +166,8 @@ try {
     $conn->commit();
     echo "Migration completed successfully!\n";
 } catch (Exception $e) {
-    if ($conn->inTransaction()) $conn->rollBack();
+    if ($conn->inTransaction())
+        $conn->rollBack();
     echo "Migration failed: " . $e->getMessage() . "\n";
     exit(1);
 }

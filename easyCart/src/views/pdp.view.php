@@ -7,13 +7,15 @@ require_once __DIR__ . '/../partials/header.view.php';
 <div class="layout">
     <div class="gallery">
         <div class="main-img-container">
-            <img id="main-product-image" src="assets/<?php echo $product['image']; ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
+            <img id="main-product-image" src="assets/<?php echo $product['image']; ?>"
+                alt="<?php echo htmlspecialchars($product['name']); ?>">
         </div>
 
         <?php if (isset($product['images']) && count($product['images']) > 1): ?>
             <div class="thumbnails">
                 <?php foreach ($product['images'] as $idx => $imgSrc): ?>
-                    <div class="thumb-item <?php echo $idx === 0 ? 'active' : ''; ?>" onclick="switchImage('assets/<?php echo $imgSrc; ?>', this)">
+                    <div class="thumb-item <?php echo $idx === 0 ? 'active' : ''; ?>"
+                        onclick="switchImage('assets/<?php echo $imgSrc; ?>', this)">
                         <img src="assets/<?php echo $imgSrc; ?>" alt="Thumbnail">
                     </div>
                 <?php endforeach; ?>
@@ -59,7 +61,8 @@ require_once __DIR__ . '/../partials/header.view.php';
 
             <?php if ($currentQtyInCart > 0): ?>
                 <div class="pdp-cart-status">
-                    <i class="ri-shopping-cart-fill"></i> You have <strong><?php echo $currentQtyInCart; ?></strong> in your cart.
+                    <i class="ri-shopping-cart-fill"></i> You have <strong><?php echo $currentQtyInCart; ?></strong> in your
+                    cart.
                 </div>
             <?php endif; ?>
         </div>
@@ -80,14 +83,15 @@ require_once __DIR__ . '/../partials/header.view.php';
             <?php elseif ($currentQtyInCart > 0): ?>
                 <!-- Quantity Controls if already in cart -->
                 <div class="pdp-qty-control">
-                    <button type="button" class="btn-qty minus js-pdp-qty-btn pdp-qty-btn" data-action="minus" data-id="<?php echo $productId; ?>">
+                    <button type="button" class="btn-qty minus js-pdp-qty-btn pdp-qty-btn" data-action="minus"
+                        data-id="<?php echo $productId; ?>">
                         <i class="ri-subtract-line"></i>
                     </button>
                     <span class="js-pdp-qty-value pdp-qty-value">
                         <?php echo $currentQtyInCart; ?>
                     </span>
-                    <button type="button" class="btn-qty plus js-pdp-qty-btn pdp-qty-btn" data-action="plus" data-id="<?php echo $productId; ?>"
-                        <?php echo $currentQtyInCart >= $product['stock_count'] ? 'disabled' : ''; ?>>
+                    <button type="button" class="btn-qty plus js-pdp-qty-btn pdp-qty-btn" data-action="plus"
+                        data-id="<?php echo $productId; ?>" <?php echo $currentQtyInCart >= $product['stock_count'] ? 'disabled' : ''; ?>>
                         <i class="ri-add-line"></i>
                     </button>
                 </div>
@@ -105,7 +109,8 @@ require_once __DIR__ . '/../partials/header.view.php';
                         <button type="submit" id="add-to-cart-btn" class="btn btn-success pdp-add-to-cart-btn">
                             <i class="ri-shopping-cart-line"></i> Add to Cart
                         </button>
-                        <button type="button" id="buy-now-btn" class="btn btn-primary pdp-add-to-cart-btn" style="background-color: #f59e0b; border-color: #d97706;">
+                        <button type="button" id="buy-now-btn" class="btn btn-primary pdp-add-to-cart-btn"
+                            style="background-color: #f59e0b; border-color: #d97706;">
                             <i class="ri-flashlight-line"></i> Buy Now
                         </button>
                     </div>

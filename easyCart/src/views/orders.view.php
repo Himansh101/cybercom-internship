@@ -14,7 +14,7 @@ require_once __DIR__ . '/../partials/header.view.php';
             <div class="success-content">
                 <h3>Order Placed Successfully!</h3>
                 <p><?php echo $_SESSION['order_success'];
-                    unset($_SESSION['order_success']); ?></p>
+                unset($_SESSION['order_success']); ?></p>
             </div>
         </div>
     <?php endif; ?>

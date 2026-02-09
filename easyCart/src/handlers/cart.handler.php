@@ -7,7 +7,7 @@ $action = $_POST['action'] ?? '';
 
 switch ($action) {
     case 'add':
-        $productId = isset($_POST['product_id']) ? (int)$_POST['product_id'] : null;
+        $productId = isset($_POST['product_id']) ? (int) $_POST['product_id'] : null;
         if (!$productId) {
             echo json_encode(['status' => 'error', 'message' => 'Invalid product']);
             exit();
@@ -30,8 +30,8 @@ switch ($action) {
         // Get current quantity from DB
         $stmt = $pdo->prepare("SELECT quantity FROM sales_cart_product WHERE cart_id = ? AND product_id = ?");
         $stmt->execute([$cartId, $productId]);
-        $currentQty = (int)$stmt->fetchColumn();
-        
+        $currentQty = (int) $stmt->fetchColumn();
+
         $newQty = $currentQty + 1;
 
         if ($newQty <= $availableStock) {
@@ -43,7 +43,7 @@ switch ($action) {
         break;
 
     case 'update':
-        $productId = isset($_POST['product_id']) ? (int)$_POST['product_id'] : null;
+        $productId = isset($_POST['product_id']) ? (int) $_POST['product_id'] : null;
         $qtyAction = $_POST['qty_action'] ?? '';
 
         if (!$productId || !$cartId) {
@@ -57,7 +57,7 @@ switch ($action) {
 
         $stmt = $pdo->prepare("SELECT quantity FROM sales_cart_product WHERE cart_id = ? AND product_id = ?");
         $stmt->execute([$cartId, $productId]);
-        $currentQty = (int)$stmt->fetchColumn();
+        $currentQty = (int) $stmt->fetchColumn();
 
         if ($qtyAction === 'plus') {
             if ($currentQty < $availableStock) {
@@ -75,7 +75,7 @@ switch ($action) {
         break;
 
     case 'remove':
-        $productId = isset($_POST['product_id']) ? (int)$_POST['product_id'] : null;
+        $productId = isset($_POST['product_id']) ? (int) $_POST['product_id'] : null;
         if ($productId && $cartId) {
             updateCartItemDb($pdo, $cartId, $productId, 0); // 0 quantity deletes the record
         }
@@ -86,11 +86,11 @@ switch ($action) {
         $localCart = $_POST['cart_data'] ?? [];
         if (!empty($localCart) && is_array($localCart) && $cartId) {
             foreach ($localCart as $pid => $qty) {
-                $pid = (int)$pid;
+                $pid = (int) $pid;
                 $stmt = $pdo->prepare("SELECT entity_id FROM catalog_product_entity WHERE entity_id = ?");
                 $stmt->execute([$pid]);
                 if ($stmt->fetch()) {
-                    updateCartItemDb($pdo, $cartId, $pid, (int)$qty);
+                    updateCartItemDb($pdo, $cartId, $pid, (int) $qty);
                 }
             }
             echo json_encode(['status' => 'success', 'message' => 'Cart restored']);
@@ -114,7 +114,7 @@ function sendCartUpdates($pdo)
         echo json_encode([
             'status' => 'success',
             'cart_count' => 0,
-            'cart_data' => [], 
+            'cart_data' => [],
             'subtotal' => 0,
             'cart_html' => '<tr><td colspan="6" class="empty-msg">Your cart is empty.</td></tr>'
         ]);
@@ -165,7 +165,7 @@ function sendCartUpdates($pdo)
     echo json_encode([
         'status' => 'success',
         'cart_count' => count($cartItems),
-        'cart_data' => $cartItems, 
+        'cart_data' => $cartItems,
         'subtotal' => '₹' . number_format($subtotal),
         'shipping' => $methodNames[$shippingMethod] . ' - ₹' . number_format($subtotal > 0 ? $shipping_fee : 0),
         'shipping_method' => $shippingMethod,

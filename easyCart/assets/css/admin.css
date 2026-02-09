@@ -167,9 +167,17 @@
     border-bottom: none;
 }
 
-.import-results .success { color: #10b981; }
-.import-results .warning { color: #f59e0b; }
-.import-results .error { color: #ef4444; }
+.import-results .success {
+    color: #10b981;
+}
+
+.import-results .warning {
+    color: #f59e0b;
+}
+
+.import-results .error {
+    color: #ef4444;
+}
 
 /* Export Info */
 .export-info {
@@ -253,7 +261,7 @@
     .admin-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .file-upload-area {
         padding: 25px;
     }

@@ -13,19 +13,19 @@ $action = $_GET['action'] ?? $_POST['action'] ?? '';
 switch ($action) {
     case 'import_products':
         header('Content-Type: application/json');
-        
+
         if (!isset($_FILES['csv_file']) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK) {
             echo json_encode(['status' => 'error', 'message' => 'No file uploaded or upload error.']);
             exit();
         }
 
         $file = $_FILES['csv_file'];
-        
+
         // Validate file type
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mimeType = finfo_file($finfo, $file['tmp_name']);
         finfo_close($finfo);
-        
+
         if (!in_array($mimeType, ['text/csv', 'text/plain', 'application/vnd.ms-excel'])) {
             echo json_encode(['status' => 'error', 'message' => 'Invalid file type. Please upload a CSV file.']);
             exit();
@@ -34,10 +34,10 @@ switch ($action) {
         // Parse CSV
         $handle = fopen($file['tmp_name'], 'r');
         $header = fgetcsv($handle); // First row is header
-        
+
         // Normalize header
         $header = array_map('strtolower', array_map('trim', $header));
-        
+
         $required = ['sku', 'name', 'price'];
         foreach ($required as $col) {
             if (!in_array($col, $header)) {
@@ -54,7 +54,7 @@ switch ($action) {
         while (($row = fgetcsv($handle)) !== false) {
             $rowNum++;
             $data = array_combine($header, array_pad($row, count($header), ''));
-            
+
             $sku = trim($data['sku'] ?? '');
             $name = trim($data['name'] ?? '');
             $price = floatval($data['price'] ?? 0);
@@ -94,7 +94,7 @@ switch ($action) {
 
                 // 2. Insert attributes
                 $stmtAttr = $pdo->prepare("INSERT INTO catalog_product_attribute (entity_id, attribute_key, attribute_value) VALUES (?, ?, ?)");
-                
+
                 if (!empty($description)) {
                     $stmtAttr->execute([$productId, 'description', $description]);
                 }
@@ -113,7 +113,7 @@ switch ($action) {
                     $stmtAttr->execute([$productId, 'brand_id', $brandId]);
                 }
                 $stmtAttr->execute([$productId, 'shipping_type', $shippingType]);
-                $stmtAttr->execute([$productId, 'in_stock', (string)$inStock]);
+                $stmtAttr->execute([$productId, 'in_stock', (string) $inStock]);
 
                 // 3. Insert category link
                 if (!empty($category)) {
@@ -121,13 +121,13 @@ switch ($action) {
                     $stmtCat = $pdo->prepare("SELECT entity_id FROM catalog_category_entity WHERE LOWER(name) = LOWER(?)");
                     $stmtCat->execute([$category]);
                     $catId = $stmtCat->fetchColumn();
-                    
+
                     if (!$catId) {
                         $stmtCat = $pdo->prepare("INSERT INTO catalog_category_entity (name) VALUES (?) RETURNING entity_id");
                         $stmtCat->execute([$category]);
                         $catId = $stmtCat->fetchColumn();
                     }
-                    
+
                     $pdo->prepare("INSERT INTO catalog_category_product (category_id, product_id) VALUES (?, ?)")->execute([$catId, $productId]);
                 }
 
@@ -140,7 +140,8 @@ switch ($action) {
                 $inserted++;
 
             } catch (Exception $e) {
-                if ($pdo->inTransaction()) $pdo->rollBack();
+                if ($pdo->inTransaction())
+                    $pdo->rollBack();
                 $errors[] = "Row $rowNum: " . $e->getMessage();
             }
         }
@@ -158,12 +159,12 @@ switch ($action) {
     case 'export_products':
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="products_export_' . date('Ymd_His') . '.csv"');
-        
+
         $output = fopen('php://output', 'w');
-        
+
         // Header row
         fputcsv($output, ['sku', 'name', 'price', 'stock_count', 'category', 'brand_name', 'description', 'image_url', 'shipping_type', 'in_stock']);
-        
+
         // Fetch all products with related data
         $sql = "SELECT 
                     p.sku, p.name, p.price, p.stock_count,
@@ -180,7 +181,7 @@ switch ($action) {
                 LEFT JOIN catalog_brand_entity b ON b_attr.attribute_value = b.entity_id
                 LEFT JOIN catalog_product_image i ON p.entity_id = i.product_id AND i.is_main_image = true
                 ORDER BY p.entity_id";
-        
+
         $stmt = $pdo->query($sql);
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             fputcsv($output, [
@@ -196,7 +197,7 @@ switch ($action) {
                 $row['in_stock'] ?? '1'
             ]);
         }
-        
+
         fclose($output);
         exit();
         break;
@@ -204,7 +205,7 @@ switch ($action) {
     case 'download_template':
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="product_import_template.csv"');
-        
+
         $output = fopen('php://output', 'w');
         fputcsv($output, ['sku', 'name', 'price', 'stock_count', 'category', 'brand_name', 'description', 'image_url', 'shipping_type', 'in_stock']);
         fputcsv($output, ['SKU-SAMPLE', 'Sample Product', '999.00', '10', 'Electronics', 'Aurora', 'Product description here', 'images/sample.jpg', 'standard', '1']);

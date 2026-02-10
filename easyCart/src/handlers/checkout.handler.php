@@ -199,14 +199,10 @@ switch ($action) {
             exit();
         }
 
-        // Check if email belongs to existing user (Security for guest checkout)
+        // Strict Security: Order placement requires logged-in user
         if (!$userId) {
-            $stmt = $pdo->prepare("SELECT entity_id FROM customer_entity WHERE email = ?");
-            $stmt->execute([$shipping_email]);
-            if ($stmt->fetch()) {
-                echo json_encode(['status' => 'error', 'message' => 'This email is already registered. Please login to place your order.']);
-                exit();
-            }
+            echo json_encode(['status' => 'error', 'message' => 'Login required to place order. Please login or signup to continue.']);
+            exit();
         }
 
         // Verify Stripe Payment if applicable

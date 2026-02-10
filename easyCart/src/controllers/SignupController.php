@@ -46,7 +46,8 @@ class SignupController extends BaseController
                         'password' => $hashedPassword
                     ]);
 
-                    header("Location: login?registered=true");
+                    $redirect = $_GET['redirect'] ?? 'index';
+                    header("Location: login?registered=true&redirect=" . urlencode($redirect));
                     exit();
                 }
             }

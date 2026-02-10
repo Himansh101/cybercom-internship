@@ -29,12 +29,18 @@ class LoginController extends BaseController
                     } else {
                         $_SESSION['user_id'] = $dbUser['entity_id'];
 
-                        // Helper function from cartsync.utils.php
+                        // Merge cart items
                         if (function_exists('mergeCartOnLogin')) {
                             $_SESSION['cart_id'] = mergeCartOnLogin($pdo, $dbUser['entity_id']);
                         }
 
-                        header("Location: index");
+                        $redirect = $_GET['redirect'] ?? 'index';
+                        // Basic security: don't allow absolute URLs to prevent open redirect
+                        if (strpos($redirect, 'http') === 0 || strpos($redirect, '//') === 0) {
+                            $redirect = 'index';
+                        }
+
+                        header("Location: " . $redirect);
                         exit();
                     }
                 } else {

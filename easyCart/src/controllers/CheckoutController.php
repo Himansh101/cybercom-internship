@@ -10,10 +10,12 @@ class CheckoutController extends BaseController
     {
         global $pdo, $cartId, $userId;
 
+        /* 
         if (!isset($_SESSION['user_id'])) {
             header("Location: login");
             exit();
         }
+        */
 
         $cartModel = new Cart();
         $productModel = new Product();

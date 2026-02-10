@@ -257,40 +257,7 @@ require_once __DIR__ . '/../partials/header.view.php';
 <script>
     const STRIPE_PUBLISHABLE_KEY = "<?php require_once __DIR__ . '/../config/stripe.php'; echo STRIPE_PUBLISHABLE_KEY; ?>";
     const USER_SAVED_ADDRESS = <?php echo json_encode($userAddress); ?>;
-    const IS_LOGGED_IN = <?php echo $isLoggedIn ? 'true' : 'false'; ?>;
-
-    // Email existence check for guest users
-    const emailInput = document.getElementById('shipping_email');
-    const emailWarning = document.getElementById('email-warning');
-    const submitBtn = document.getElementById('submit-btn');
-
-    if (emailInput && !IS_LOGGED_IN) {
-        emailInput.addEventListener('blur', function() {
-            const email = this.value.trim();
-            if (email && email.includes('@')) {
-                fetch('src/handlers/checkout.handler', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `action=check_email&email=${encodeURIComponent(email)}&is_ajax=1`
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'success' && data.exists) {
-                        emailWarning.classList.remove('hidden');
-                        submitBtn.disabled = true;
-                        submitBtn.style.opacity = '0.5';
-                        submitBtn.style.cursor = 'not-allowed';
-                    } else {
-                        emailWarning.classList.add('hidden');
-                        submitBtn.disabled = false;
-                        submitBtn.style.opacity = '1';
-                        submitBtn.style.cursor = 'pointer';
-                    }
-                })
-                .catch(err => console.error('Email check error:', err));
-            }
-        });
-    }
+    const IS_LOGGED_IN = <?php echo isset($isLoggedIn) && $isLoggedIn ? 'true' : 'false'; ?>;
 </script>
 <?php
 require_once __DIR__ . '/../partials/footer.view.php';

@@ -205,7 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 1. Validate Fields
         let isFormValid = true;
-        // Re-query inputs to make sure we check the correct required state
         const currentInputs = form.querySelectorAll('input, textarea');
         currentInputs.forEach(input => {
             if (!validateField(input)) {
@@ -216,6 +215,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isFormValid) {
             const firstError = form.querySelector('.error-message[style*="display: block"]');
             if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        // --- GUEST LOGIN REDIRECT ---
+        if (typeof IS_LOGGED_IN !== 'undefined' && !IS_LOGGED_IN) {
+            window.location.href = `login?redirect=checkout`;
             return;
         }
 

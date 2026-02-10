@@ -23,15 +23,20 @@ class LoginController extends BaseController
                 $dbUser = $customerModel->findByEmail($email);
 
                 if ($dbUser && password_verify($password, $dbUser['password'])) {
-                    $_SESSION['user_id'] = $dbUser['entity_id'];
+                    // Check if account is active
+                    if (isset($dbUser['is_active']) && $dbUser['is_active'] === false) {
+                        $error = "Your account is deactivated. Please contact support.";
+                    } else {
+                        $_SESSION['user_id'] = $dbUser['entity_id'];
 
-                    // Helper function from cartsync.utils.php
-                    if (function_exists('mergeCartOnLogin')) {
-                        $_SESSION['cart_id'] = mergeCartOnLogin($pdo, $dbUser['entity_id']);
+                        // Helper function from cartsync.utils.php
+                        if (function_exists('mergeCartOnLogin')) {
+                            $_SESSION['cart_id'] = mergeCartOnLogin($pdo, $dbUser['entity_id']);
+                        }
+
+                        header("Location: index");
+                        exit();
                     }
-
-                    header("Location: index");
-                    exit();
                 } else {
                     $error = "Invalid email or password.";
                 }

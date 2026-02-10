@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 1. Common Validation Function
+    // --- 2. Common Validation Function ---
     function validateField(input) {
         const errorSpan = document.getElementById(input.id + '-error');
         if (!errorSpan) return true;
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     break;
                 case 'password':
-                    if (input.form.id === 'signupForm') {
+                    if (input.form && input.form.id === 'signupForm') {
                         if (val.length < 8) {
                             errorMessage = "Password must be at least 8 characters long.";
                         } else if (!/[a-z]/.test(val)) {
@@ -95,24 +95,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return !errorMessage;
     }
 
-    // 2. Identify which form is present
+    // Identify which form is present
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
 
-    if (loginForm) {
-        setupValidation(loginForm);
-    }
-    if (signupForm) {
-        setupValidation(signupForm);
-    }
+    if (loginForm) setupValidation(loginForm);
+    if (signupForm) setupValidation(signupForm);
 
     function setupValidation(form) {
         const inputs = form.querySelectorAll('input');
 
         inputs.forEach(input => {
-            input.addEventListener('blur', () => {
-                validateField(input);
-            });
+            input.addEventListener('blur', () => validateField(input));
             input.addEventListener('input', () => {
                 const errorSpan = document.getElementById(input.id + '-error');
                 if (errorSpan && errorSpan.style.display === 'block') {
@@ -124,19 +118,33 @@ document.addEventListener('DOMContentLoaded', () => {
         form.addEventListener('submit', (e) => {
             let isFormValid = true;
             inputs.forEach(input => {
-                if (!validateField(input)) {
-                    isFormValid = false;
-                }
+                if (!validateField(input)) isFormValid = false;
             });
 
             if (!isFormValid) {
                 e.preventDefault();
-                // Find first error and scroll to it
                 const firstError = form.querySelector('.error-message[style*="display: block"]');
                 if (firstError) {
                     firstError.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             }
+        });
+    }
+
+    // --- 3. Deactivation Popup Logic (for login page) ---
+    if (document.body.classList.contains('deactivated-trigger') && typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Logged Out',
+            text: 'You have been logged out because your account was deactivated.',
+            icon: 'warning',
+            timer: 4000,
+            timerProgressBar: true,
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#10b981',
+            allowOutsideClick: false
+        }).then((result) => {
+            // Optional: clean URL after popup
+            window.history.replaceState({}, document.title, window.location.pathname);
         });
     }
 });

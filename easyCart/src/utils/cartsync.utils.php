@@ -13,7 +13,16 @@ function getOrCreateCartId($pdo, $userId = null, $createIfMissing = false)
 
     // 1. Check session first
     if (isset($_SESSION['cart_id'])) {
-        return $_SESSION['cart_id'];
+        $id = $_SESSION['cart_id'];
+        // Verify it still exists, is active, and NOT already used in an order
+        // (Note: transaction_id query was simplified as cart_id is the primary key)
+        $stmt = $pdo->prepare("SELECT cart_id FROM sales_cart WHERE cart_id = ? AND is_active = TRUE");
+        $stmt->execute([$id]);
+        if ($stmt->fetch()) {
+            return (int) $id;
+        } else {
+            unset($_SESSION['cart_id']);
+        }
     }
 
     // 2. Check DB by user_id if logged in

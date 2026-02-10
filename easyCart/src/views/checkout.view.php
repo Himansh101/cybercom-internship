@@ -62,6 +62,9 @@ require_once __DIR__ . '/../partials/header.view.php';
                         <label for="shipping_email">Email Address</label>
                         <input type="email" id="shipping_email" name="shipping_email" value="<?php echo htmlspecialchars($_POST['shipping_email'] ?? ''); ?>" placeholder="john@example.com" required>
                         <span class="error-message" id="shipping_email-error">Enter a valid email.</span>
+                        <div id="email-warning" class="hidden" style="margin-top: 8px; font-size: 0.85rem; color: #b91c1c; background: #fee2e2; padding: 8px; border-radius: 4px; border: 1px solid #fecaca;">
+                            <i class="ri-information-line"></i> This email is registered. <a href="login.php" style="color: #b91c1c; font-weight: 600; text-decoration: underline;">Login here</a> to continue.
+                        </div>
                     </div>
                 </div>
 
@@ -254,8 +257,41 @@ require_once __DIR__ . '/../partials/header.view.php';
 <script>
     const STRIPE_PUBLISHABLE_KEY = "<?php require_once __DIR__ . '/../config/stripe.php'; echo STRIPE_PUBLISHABLE_KEY; ?>";
     const USER_SAVED_ADDRESS = <?php echo json_encode($userAddress); ?>;
-</script>
+    const IS_LOGGED_IN = <?php echo $isLoggedIn ? 'true' : 'false'; ?>;
 
+    // Email existence check for guest users
+    const emailInput = document.getElementById('shipping_email');
+    const emailWarning = document.getElementById('email-warning');
+    const submitBtn = document.getElementById('submit-btn');
+
+    if (emailInput && !IS_LOGGED_IN) {
+        emailInput.addEventListener('blur', function() {
+            const email = this.value.trim();
+            if (email && email.includes('@')) {
+                fetch('src/handlers/checkout.handler', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `action=check_email&email=${encodeURIComponent(email)}&is_ajax=1`
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success' && data.exists) {
+                        emailWarning.classList.remove('hidden');
+                        submitBtn.disabled = true;
+                        submitBtn.style.opacity = '0.5';
+                        submitBtn.style.cursor = 'not-allowed';
+                    } else {
+                        emailWarning.classList.add('hidden');
+                        submitBtn.disabled = false;
+                        submitBtn.style.opacity = '1';
+                        submitBtn.style.cursor = 'pointer';
+                    }
+                })
+                .catch(err => console.error('Email check error:', err));
+            }
+        });
+    }
+</script>
 <?php
 require_once __DIR__ . '/../partials/footer.view.php';
 ?>

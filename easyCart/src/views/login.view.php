@@ -14,7 +14,8 @@
     <script src="assets/js/auth.js" defer></script>
 </head>
 
-<body class="page-auth page-login">
+<body
+    class="page-auth page-login <?php echo (isset($_GET['error']) && $_GET['error'] === 'account_deactivated') ? 'deactivated-trigger' : ''; ?>">
     <div class="auth-card">
         <h1 class="auth-title">Login</h1>
 

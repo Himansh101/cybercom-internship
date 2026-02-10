@@ -103,3 +103,5 @@
     color: var(--color-primary-end);
     text-decoration: underline;
 }
+
+/* Deactivation Overlay - Handled by SweetAlert in auth.js */

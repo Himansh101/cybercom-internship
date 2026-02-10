@@ -153,6 +153,7 @@ create table customer_entity (
     city varchar(100),
     pincode varchar(20),
     is_admin boolean default false,
+    is_active boolean default true,
     created_at timestamp default current_timestamp
 );
 

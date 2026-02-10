@@ -1,17 +1,15 @@
 <?php
 require_once __DIR__ . '/../init.php';
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['status' => 'error', 'message' => 'User not logged in']);
-    exit();
-}
+// Guest checkout is allowed. Login check removed from top.
+require_once __DIR__ . '/../utils/Validator.php';
+use App\Utils\Validator;
 
 $action = $_POST['action'] ?? '';
 error_log("Checkout Handler Action: " . $action);
 error_log("POST Data: " . print_r($_POST, true));
 
-$userId = $_SESSION['user_id'];
+$userId = $_SESSION['user_id'] ?? null;
 global $products;
 
 // Ensure is_ajax is detected
@@ -150,6 +148,24 @@ switch ($action) {
         }
         break;
 
+    case 'check_email':
+        $email = trim($_POST['email'] ?? '');
+        if (!Validator::email($email)) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid email format']);
+            exit();
+        }
+
+        $stmt = $pdo->prepare("SELECT entity_id FROM customer_entity WHERE email = ?");
+        $stmt->execute([$email]);
+        $exists = $stmt->fetch();
+
+        echo json_encode([
+            'status' => 'success',
+            'exists' => (bool) $exists,
+            'message' => $exists ? 'Email already registered. Please login to continue.' : 'New email.'
+        ]);
+        break;
+
     case 'place_order':
         $errors = [];
         $dbCartItems = loadCartArrayFromDb($pdo, $cartId);
@@ -166,17 +182,31 @@ switch ($action) {
         $paymentMethod = $_POST['payment_method'] ?? 'cod';
         $paymentIntentId = $_POST['payment_intent_id'] ?? null;
 
-        // (Validations)
-        if (strlen($shipping_name) < 3)
-            $errors[] = "Invalid name.";
-        if (!preg_match("/^(\+91)[6-9][0-9]{9}$/", $shipping_mobile))
-            $errors[] = "Invalid mobile.";
-        if (strlen($shipping_address) < 10)
-            $errors[] = "Address too short.";
+        // Using Validator
+        if (!Validator::name($shipping_name))
+            $errors[] = "Please enter a valid name (min 3 letters).";
+        if (!Validator::phone($shipping_mobile))
+            $errors[] = "Invalid mobile number. Use +91 format.";
+        if (!Validator::email($shipping_email))
+            $errors[] = "Invalid email address.";
+        if (!Validator::address($shipping_address))
+            $errors[] = "Address must be at least 10 characters.";
+        if (!Validator::pincode($shipping_pincode))
+            $errors[] = "Invalid 6-digit pincode.";
 
         if (!empty($errors)) {
             echo json_encode(['status' => 'error', 'message' => implode("\n", $errors)]);
             exit();
+        }
+
+        // Check if email belongs to existing user (Security for guest checkout)
+        if (!$userId) {
+            $stmt = $pdo->prepare("SELECT entity_id FROM customer_entity WHERE email = ?");
+            $stmt->execute([$shipping_email]);
+            if ($stmt->fetch()) {
+                echo json_encode(['status' => 'error', 'message' => 'This email is already registered. Please login to place your order.']);
+                exit();
+            }
         }
 
         // Verify Stripe Payment if applicable
@@ -203,7 +233,6 @@ switch ($action) {
         try {
             $pdo->beginTransaction();
 
-            $userId = $_SESSION['user_id'];
             $orderNumber = strtoupper(substr(uniqid('ORD'), -8));
 
             // 1. Calculate totals again securely
@@ -215,9 +244,9 @@ switch ($action) {
                 throw new Exception("Your cart is empty.");
             }
 
-            foreach ($cartItems as $id => $quantity) {
+            foreach ($cartItems as $pid => $quantity) {
                 $stmt = $pdo->prepare("SELECT entity_id, name, price, stock_count FROM catalog_product_entity WHERE entity_id = ?");
-                $stmt->execute([$id]);
+                $stmt->execute([$pid]);
                 $p = $stmt->fetch(PDO::FETCH_ASSOC);
                 if ($p) {
                     $subtotal += $p['price'] * $quantity;
@@ -238,7 +267,7 @@ switch ($action) {
             $gst = $discounted_subtotal * 0.18;
             $finalTotal = $discounted_subtotal + $shipping + $gst;
 
-            // 2. Insert Order (Updated Schema)
+            // 2. Insert Order
             $stmt = $pdo->prepare("INSERT INTO sales_order (user_id, order_number, subtotal, shipping_cost, tax_amount, final_amount, status, created_at, payment_method, transaction_id, payment_status) 
                                    VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?) RETURNING order_id");
             $stmt->execute([$userId, $orderNumber, $discounted_subtotal, $shipping, $gst, $finalTotal, 'placed', $paymentMethod, $paymentIntentId, $paymentStatus]);
@@ -255,33 +284,26 @@ switch ($action) {
                 $stmtStock->execute([$item['qty'], $item['id']]);
                 $newStock = $stmtStock->fetchColumn();
 
-                // If stock hits 0, update attribute to '0'
                 if ($newStock <= 0) {
                     $stmtAttr->execute(['0', $item['id']]);
                 }
             }
 
-            // 4. Insert Addresses (Shipping & Billing)
+            // 4. Insert Addresses
             $stmtAddr = $pdo->prepare("INSERT INTO sales_order_address (order_id, full_name, email, mobile, street_address, city, pincode, address_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-
-            // Insert Shipping Address
             $stmtAddr->execute([$orderId, $shipping_name, $shipping_email, $shipping_mobile, $shipping_address, $shipping_city, $shipping_pincode, 'shipping']);
 
-            // Insert Billing Address
             if (isset($_POST['billing_same_as_shipping']) && $_POST['billing_same_as_shipping'] == '1') {
-                // Duplicate shipping as billing
                 $stmtAddr->execute([$orderId, $shipping_name, $shipping_email, $shipping_mobile, $shipping_address, $shipping_city, $shipping_pincode, 'billing']);
             } else {
-                // Use separate billing details
                 $billing_name = trim($_POST['billing_name'] ?? '');
                 $billing_address = trim($_POST['billing_address'] ?? '');
                 $billing_city = trim($_POST['billing_city'] ?? '');
                 $billing_pincode = trim($_POST['billing_pincode'] ?? '');
-                // Billing email/mobile not in form, reuse shipping or make optional. Using shipping for contact for now.
                 $stmtAddr->execute([$orderId, $billing_name, $shipping_email, $shipping_mobile, $billing_address, $billing_city, $billing_pincode, 'billing']);
             }
 
-            // 5. Deactivate Cart & Clear Database Cart Items
+            // 5. Deactivate Cart
             if (isset($cartId) && $cartId) {
                 $pdo->prepare("UPDATE sales_cart SET is_active = FALSE WHERE cart_id = ?")->execute([$cartId]);
                 $pdo->prepare("DELETE FROM sales_cart_product WHERE cart_id = ?")->execute([$cartId]);
@@ -289,9 +311,11 @@ switch ($action) {
 
             $pdo->commit();
 
-            // 6. Save Shipping Address to User Profile for future use
-            $stmtSaveAddr = $pdo->prepare("UPDATE customer_entity SET street_address = ?, city = ?, pincode = ? WHERE entity_id = ?");
-            $stmtSaveAddr->execute([$shipping_address, $shipping_city, $shipping_pincode, $userId]);
+            // 6. Save Address to User Profile if logged in
+            if ($userId) {
+                $stmtSaveAddr = $pdo->prepare("UPDATE customer_entity SET street_address = ?, city = ?, pincode = ? WHERE entity_id = ?");
+                $stmtSaveAddr->execute([$shipping_address, $shipping_city, $shipping_pincode, $userId]);
+            }
 
             unset($_SESSION['cart']);
             unset($_SESSION['cart_id']);

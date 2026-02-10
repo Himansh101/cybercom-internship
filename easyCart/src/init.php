@@ -48,20 +48,25 @@ $user = null;
 
 if ($isLoggedIn) {
     // Fetch full user record from DB (but keep session minimal)
-    $stmtUser = $pdo->prepare("SELECT entity_id as id, name, email, mobile, is_admin FROM customer_entity WHERE entity_id = ?");
+    $stmtUser = $pdo->prepare("SELECT entity_id as id, name, email, mobile, is_active, is_admin FROM customer_entity WHERE entity_id = ?");
     $stmtUser->execute([$userId]);
     $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
-    // Safety: If user deleted from DB but session exists
-    if (!$user) {
-        unset($_SESSION['user_id']);
-        $isLoggedIn = false;
-        $userId = null;
+    // Safety: If user deleted from DB or DEACTIVATED
+    if (!$user || (isset($user['is_active']) && $user['is_active'] === false)) {
+        session_destroy();
+        header("Location: login?error=account_deactivated");
+        exit();
     }
 }
 
 // Ensure cart_id is tracked (Lazy: don't create if missing)
 $cartId = getOrCreateCartId($pdo, $userId, false);
+
+// Security Check: If cart exists in session but was deleted from DB
+if (isset($_SESSION['cart_id']) && !$cartId) {
+    unset($_SESSION['cart_id']);
+}
 
 // Calculate total cart quantity (Distinct Items from DB)
 $cartQuantity = 0;

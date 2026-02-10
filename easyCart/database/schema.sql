@@ -31,6 +31,7 @@ create table catalog_product_entity (
     name varchar(255) not null,
     price decimal(12, 2) not null,
     stock_count int default 0,
+    url_key varchar(255) unique,
     created_at timestamp default current_timestamp
 );
 

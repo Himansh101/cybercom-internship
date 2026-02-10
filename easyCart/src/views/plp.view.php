@@ -48,7 +48,7 @@ function renderProductGrid($paginatedProducts, $categories = [], $brands = [])
                             Unavailable
                         </button>
                     <?php else: ?>
-                        <a class="btn-view" href="pdp?id=<?php echo $id; ?>">
+                        <a class="btn-view" href="pdp?slug=<?php echo $product['url_key']; ?>">
                             View Details <i class="ri-arrow-right-line"></i>
                         </a>
                     <?php endif; ?>

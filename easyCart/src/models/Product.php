@@ -28,12 +28,47 @@ class Product extends BaseModel
                 'name' => $row['name'],
                 'price' => $row['price'],
                 'image' => $row['image'],
+                'url_key' => $row['url_key'],
                 'in_stock' => ($row['in_stock'] === '1' && (int) $row['stock_count'] > 0),
                 'cat_id' => $row['cat_id'],
                 'item_shipping_type' => $row['shipping_type']
             ];
         }
         return $featuredProducts;
+    }
+
+    public function findByUrlKey($urlKey)
+    {
+        $stmt = $this->pdo->prepare("SELECT p.*, 
+            (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'description') as description,
+            (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'in_stock') as in_stock,
+            (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'brand_id') as brand_id,
+            (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'shipping_type') as shipping_type
+            FROM catalog_product_entity p WHERE p.url_key = :url_key");
+        $stmt->execute([':url_key' => $urlKey]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row)
+            return null;
+
+        // Fetch images
+        $stmtImg = $this->pdo->prepare("SELECT image_url, is_main_image FROM catalog_product_image WHERE product_id = :id ORDER BY is_main_image DESC");
+        $stmtImg->execute([':id' => $row['entity_id']]);
+        $dbImages = $stmtImg->fetchAll(PDO::FETCH_ASSOC);
+
+        return [
+            'id' => $row['entity_id'],
+            'name' => $row['name'],
+            'price' => $row['price'],
+            'url_key' => $row['url_key'],
+            'image' => $dbImages[0]['image_url'] ?? '',
+            'images' => array_map(fn($i) => $i['image_url'], $dbImages),
+            'description' => $row['description'],
+            'in_stock' => ($row['in_stock'] === '1'),
+            'stock_count' => (int) $row['stock_count'],
+            'brand_id' => $row['brand_id'],
+            'item_shipping_type' => $row['shipping_type']
+        ];
     }
 
     public function findById($id)
@@ -59,6 +94,7 @@ class Product extends BaseModel
             'id' => $row['entity_id'],
             'name' => $row['name'],
             'price' => $row['price'],
+            'url_key' => $row['url_key'],
             'image' => $dbImages[0]['image_url'] ?? '',
             'images' => array_map(fn($i) => $i['image_url'], $dbImages),
             'description' => $row['description'],
@@ -161,6 +197,7 @@ class Product extends BaseModel
                 'name' => $row['name'],
                 'price' => $row['price'],
                 'image' => $row['image'],
+                'url_key' => $row['url_key'],
                 'in_stock' => ($row['in_stock'] === '1' && (int) $row['stock_count'] > 0),
                 'brand_id' => $row['brand_id'],
                 'cat_id' => $row['cat_id'],

@@ -11,23 +11,24 @@ class PdpController extends BaseController
     {
         global $pdo, $cartId;
 
-        $productId = isset($_GET['id']) ? (int) $_GET['id'] : null;
+        $slug = isset($_GET['slug']) ? (string) $_GET['slug'] : null;
 
-        if ($productId === null) {
+        if ($slug === null) {
             header("Location: plp");
             exit();
         }
 
         $productModel = new Product();
         $brandModel = new Brand();
-        // Categorization logic usually lives in model, but for now we'll use DB directly or extend Category model
 
-        $product = $productModel->findById($productId);
+        $product = $productModel->findByUrlKey($slug);
 
         if (!$product) {
             header("Location: plp");
             exit();
         }
+
+        $productId = $product['id'];
 
         // Fetch display names
         $stmtCat = $pdo->prepare("SELECT name FROM catalog_category_entity WHERE entity_id = (SELECT category_id FROM catalog_category_product WHERE product_id = :id LIMIT 1)");

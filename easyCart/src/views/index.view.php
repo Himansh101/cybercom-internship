@@ -36,7 +36,7 @@ require_once __DIR__ . '/../partials/header.view.php';
                         <div class="category-badge"><?php echo $categoryName; ?></div>
                         <h3><?php echo $product['name']; ?></h3>
                         <div class="price">₹<?php echo number_format($product['price']); ?></div>
-                        <a class="btn btn-primary btn-sm btn-inline mt-18" href="pdp?id=<?php echo $id; ?>">
+                        <a class="btn btn-primary btn-sm btn-inline mt-18" href="pdp?slug=<?php echo $product['url_key']; ?>">
                             View Details
                         </a>
                     </div>

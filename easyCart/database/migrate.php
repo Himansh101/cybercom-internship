@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/data.php';
+require_once __DIR__ . '/../src/config/database.php';
+require_once __DIR__ . '/seeds.php';
 
 $db = new Database();
 $conn = $db->getConnection();
@@ -108,7 +108,7 @@ try {
 
     // 3. Migrate Customers & Orders
     echo "Migrating customers...\n";
-    $usersFile = __DIR__ . '/../../users.json';
+    $usersFile = __DIR__ . '/../users.json';
     if (file_exists($usersFile)) {
         $users = json_decode(file_get_contents($usersFile), true) ?? [];
         $stmtUser = $conn->prepare("INSERT INTO customer_entity (name, email, mobile, password, created_at) VALUES (:name, :email, :mobile, :pass, :created)");

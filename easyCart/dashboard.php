@@ -1,5 +1,8 @@
 <?php
-/**
- * Root shim for User Dashboard
- */
-require_once __DIR__ . '/src/controllers/dashboard.controller.php';
+require_once __DIR__ . '/src/init.php';
+
+use App\Controllers\DashboardController;
+
+$controller = new DashboardController();
+$controller->index();
+?>

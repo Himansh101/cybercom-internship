@@ -16,7 +16,7 @@ require_once __DIR__ . '/../partials/header.view.php';
     <?php unset($_SESSION['checkout_errors']); ?>
 <?php endif; ?>
 
-<form action="/../handlers/checkout.handler" id="checkout-form" method="POST" data-subtotal="<?php echo $subtotal; ?>">
+<form action="src/handlers/checkout.handler" id="checkout-form" method="POST" data-subtotal="<?php echo $subtotal; ?>">
     <input type="hidden" name="action" value="place_order">
     <div class="checkout-layout">
 
@@ -34,7 +34,7 @@ require_once __DIR__ . '/../partials/header.view.php';
                             <div>
                                 <span style="font-weight: 600; color: #0369a1; display: block;">Use Saved Address</span>
                                 <span style="font-size: 0.9rem; color: #334155; display: block; margin-top: 4px;">
-                                    <?php echo htmlspecialchars($userAddress['address'] . ', ' . $userAddress['city'] . ' - ' . $userAddress['pincode']); ?>
+                                    <?php echo htmlspecialchars($userAddress['street_address'] . ', ' . $userAddress['city'] . ' - ' . $userAddress['pincode']); ?>
                                 </span>
                             </div>
                         </label>
@@ -167,7 +167,7 @@ require_once __DIR__ . '/../partials/header.view.php';
                 <?php foreach ($checkoutItems as $id => $item): ?>
                     <div class="summary-product-row">
                         <div class="summary-img-wrapper">
-                            <img src="<?php echo $item['image']; ?>" alt="">
+                            <img src="assets/<?php echo $item['image']; ?>" alt="">
                             <?php if ($item['quantity'] > 1): ?><span class="qty-badge"><?php echo $item['quantity']; ?></span><?php endif; ?>
                         </div>
                         <div class="summary-product-info">

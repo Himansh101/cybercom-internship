@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'shipping_name': 'name',
             'shipping_mobile': 'mobile',
             'shipping_email': 'email',
-            'shipping_address': 'address',
+            'shipping_address': 'street_address',
             'shipping_city': 'city',
             'shipping_pincode': 'pincode'
         };

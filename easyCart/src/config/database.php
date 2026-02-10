@@ -2,7 +2,7 @@
 class Database
 {
     private $host = "localhost";
-    private $db_name = "easyCart";
+    private $db_name = "easycart_schema_test";
     private $username = "postgres";
     private $password = "Himanshu@2912";
     private $port = "5432";

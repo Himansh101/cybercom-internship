@@ -11,7 +11,7 @@ class PdpController extends BaseController
     {
         global $pdo, $cartId;
 
-        $slug = isset($_GET['slug']) ? (string) $_GET['slug'] : null;
+        $slug = $_GET['slug'] ?? $_GET['url_key'] ?? null;
 
         if ($slug === null) {
             header("Location: plp");

@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function placeOrder(paymentMethod, paymentIntentId = null) {
+    function placeOrder(paymentMethod, payentIntentId = null) {
         const formData = new FormData(form);
         formData.append('action', 'place_order');
         formData.append('is_ajax', '1');

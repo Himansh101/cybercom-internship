@@ -48,7 +48,7 @@ function renderProductGrid($paginatedProducts, $categories = [], $brands = [])
                             Unavailable
                         </button>
                     <?php else: ?>
-                        <a class="btn-view" href="pdp?slug=<?php echo $product['url_key']; ?>">
+                        <a class="btn-view" href="url_key=<?php echo $product['url_key']; ?>">
                             View Details <i class="ri-arrow-right-line"></i>
                         </a>
                     <?php endif; ?>
@@ -75,7 +75,7 @@ function renderPagination($pageNumber, $totalPages)
     ?>
     <div class="pagination">
         <?php if ($pageNumber > 1): ?>
-            <a href="?<?php echo $queryString; ?>page=<?php echo $pageNumber - 1; ?>" class="pagination-btn pagination-prev" data-page="<?php echo $pageNumber - 1; ?>">
+            <a href="<?php echo $queryString . ($queryString ? '&' : ''); ?>page=<?php echo $pageNumber - 1; ?>" class="pagination-btn pagination-prev" data-page="<?php echo $pageNumber - 1; ?>">
                 <i class="ri-arrow-left-line"></i> Previous
             </a>
         <?php endif; ?>
@@ -92,14 +92,14 @@ function renderPagination($pageNumber, $totalPages)
             }
 
             if ($startPage > 1): ?>
-                <a href="?<?php echo $queryString; ?>page=1" class="pagination-btn" data-page="1">1</a>
+                <a href="<?php echo $queryString . ($queryString ? '&' : ''); ?>page=1" class="pagination-btn" data-page="1">1</a>
                 <?php if ($startPage > 2): ?>
                     <span class="pagination-dots">...</span>
                 <?php endif; ?>
             <?php endif; ?>
 
             <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
-                <a href="?<?php echo $queryString; ?>page=<?php echo $i; ?>"
+                <a href="<?php echo $queryString . ($queryString ? '&' : ''); ?>page=<?php echo $i; ?>"
                     class="pagination-btn <?php echo ($i == $pageNumber) ? 'active' : ''; ?>" data-page="<?php echo $i; ?>">
                     <?php echo $i; ?>
                 </a>
@@ -109,12 +109,12 @@ function renderPagination($pageNumber, $totalPages)
                 <?php if ($endPage < $totalPages - 1): ?>
                     <span class="pagination-dots">...</span>
                 <?php endif; ?>
-                <a href="?<?php echo $queryString; ?>page=<?php echo $totalPages; ?>" class="pagination-btn" data-page="<?php echo $totalPages; ?>"><?php echo $totalPages; ?></a>
+                <a href="<?php echo $queryString . ($queryString ? '&' : ''); ?>page=<?php echo $totalPages; ?>" class="pagination-btn" data-page="<?php echo $totalPages; ?>"><?php echo $totalPages; ?></a>
             <?php endif; ?>
         </div>
 
         <?php if ($pageNumber < $totalPages): ?>
-            <a href="?<?php echo $queryString; ?>page=<?php echo $pageNumber + 1; ?>" class="pagination-btn pagination-next" data-page="<?php echo $pageNumber + 1; ?>">
+            <a href="<?php echo $queryString . ($queryString ? '&' : ''); ?>page=<?php echo $pageNumber + 1; ?>" class="pagination-btn pagination-next" data-page="<?php echo $pageNumber + 1; ?>">
                 Next <i class="ri-arrow-right-line"></i>
             </a>
         <?php endif; ?>
@@ -137,7 +137,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
 }
 ?>
 
-<form id="filter-form" action="plp" method="GET">
+<form id="filter-form" action="" method="GET">
     <input type="hidden" name="page" value="<?php echo $pageNumber; ?>">
     <div class="shop-container">
         <aside class="sidebar-filters">
@@ -232,7 +232,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
                 <div class="sort-wrapper">
                     <label for="sort" style="font-size: 0.9rem; font-weight: 600; color: #64748b;">Sort By:</label>
                     <div class="sort-select-container">
-                        <select name="sort" id="sort" onchange="this.form.submit()">
+                        <select name="sort" id="sort">
                             <option value="newest" <?php echo $sortBy === 'newest' ? 'selected' : ''; ?>>Newest First</option>
                             <option value="price_low" <?php echo $sortBy === 'price_low' ? 'selected' : ''; ?>>Price: Low to High</option>
                             <option value="price_high" <?php echo $sortBy === 'price_high' ? 'selected' : ''; ?>>Price: High to Low</option>

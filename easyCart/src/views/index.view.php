@@ -36,7 +36,7 @@ require_once __DIR__ . '/../partials/header.view.php';
                         <div class="category-badge"><?php echo $categoryName; ?></div>
                         <h3><?php echo $product['name']; ?></h3>
                         <div class="price">₹<?php echo number_format($product['price']); ?></div>
-                        <a class="btn btn-primary btn-sm btn-inline mt-18" href="pdp?slug=<?php echo $product['url_key']; ?>">
+                        <a class="btn btn-primary btn-sm btn-inline mt-18" href="url_key=<?php echo $product['url_key']; ?>">
                             View Details
                         </a>
                     </div>
@@ -54,7 +54,7 @@ require_once __DIR__ . '/../partials/header.view.php';
         <?php
         if (isset($categories)): ?>
             <?php foreach ($categories as $cat_id => $name): ?>
-                <a class="pill indexPill" href="plp?categories[]=<?php echo $cat_id; ?>"><?php echo $name; ?></a>
+                <a class="pill indexPill" href="categories[]=<?php echo $cat_id; ?>"><?php echo $name; ?></a>
             <?php endforeach; ?>
         <?php endif; ?>
     </div>
@@ -66,7 +66,7 @@ require_once __DIR__ . '/../partials/header.view.php';
         <?php
         if (isset($brands)): ?>
             <?php foreach ($brands as $brand_id => $brand): ?>
-                <a class="card brandCard" href="plp?brands[]=<?php echo $brand_id; ?>">
+                <a class="card brandCard" href="brands[]=<?php echo $brand_id; ?>">
                     <h3><?php echo $brand['name']; ?></h3>
                 </a>
             <?php endforeach; ?>

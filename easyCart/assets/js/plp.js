@@ -22,7 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const formData = new FormData(filterForm);
         const params = new URLSearchParams(formData);
-        const url = `plp?${params.toString()}`;
+        // Use params string directly (clean URL) or fallback to 'plp' if empty
+        const url = params.toString() ? params.toString() : 'plp';
 
         // Show loading state
         if (loadingOverlay) loadingOverlay.style.display = 'flex';

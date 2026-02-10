@@ -44,7 +44,7 @@ class PlpController extends BaseController
         $pageTitle = 'EasyCart | Shop';
         $currentPage = 'products';
         $extraStyles = ['plp.css'];
-        $extraScripts = ['plp.js'];
+        $extraScripts = ['plp.js?v=' . time()];
 
         // 4. Handle AJAX Response
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {

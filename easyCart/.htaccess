@@ -8,4 +8,13 @@ RewriteRule ^(.+)\.php$ $1 [R=301,L]
 # 2. Internally map /page to /page.php if it exists
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}\.php -f
+
 RewriteRule ^(.*)$ $1.php [L]
+
+# 3. Handle PDP URL: easyCart/url_key={product_name}
+RewriteRule ^url_key=([^/]+)$ pdp.php?slug=$1 [L,QSA]
+
+# 4. Handle PLP Filters: any other path containing '=' -> plp.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*=.*)$ plp.php?$1 [L,QSA]

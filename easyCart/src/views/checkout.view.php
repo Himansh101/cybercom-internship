@@ -146,7 +146,7 @@ require_once __DIR__ . '/../partials/header.view.php';
 
                 <div class="shipping-options">
                     <?php 
-                    $allMethods = get_all_shipping_methods($pdo, $subtotal);
+                    // $allMethods is passed from Controller now
                     foreach ($allMethods as $code => $m): 
                         $isAllowed = in_array($code, $allowedShippingMethods);
                     ?>

@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/src/init.php';
+require_once 'src/init.php';
 
-use App\Controllers\CartController;
+use App\Controller\Cart;
 
-$controller = new CartController();
-$controller->index();
-?>
+$controller = new Cart();
+$controller->indexAction();

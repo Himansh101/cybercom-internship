@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/src/init.php';
+require_once 'src/init.php';
 
-use App\Controllers\IndexController;
+use App\Controller\Home;
 
-$controller = new IndexController();
-$controller->index();
-?>
+$controller = new Home();
+$controller->indexAction();

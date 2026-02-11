@@ -10,12 +10,14 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/config/database.php';
-require_once __DIR__ . '/utils/shipping.utils.php';
-require_once __DIR__ . '/utils/coupon.utils.php';
-require_once __DIR__ . '/utils/cartsync.utils.php';
-require_once __DIR__ . '/config/stripe.php';
-require_once __DIR__ . '/utils/stripe.utils.php';
+// Config/Constants (Stripe) - keeping as require or moving to class?
+// Utils\Stripe checks for it, but better to load it here if it defines constants.
+if (file_exists(__DIR__ . '/config/stripe.php')) {
+    require_once __DIR__ . '/config/stripe.php';
+}
+
+use App\Database;
+use App\Utils\Cart;
 
 // Database initialization
 $database = new Database();
@@ -61,7 +63,7 @@ if ($isLoggedIn) {
 }
 
 // Ensure cart_id is tracked (Lazy: don't create if missing)
-$cartId = getOrCreateCartId($pdo, $userId, false);
+$cartId = Cart::getOrCreateId($pdo, $userId, false);
 
 // Security Check: If cart exists in session but was deleted from DB
 if (isset($_SESSION['cart_id']) && !$cartId) {
@@ -75,4 +77,3 @@ if ($cartId) {
     $stmt->execute([$cartId]);
     $cartQuantity = (int) $stmt->fetchColumn();
 }
-?>

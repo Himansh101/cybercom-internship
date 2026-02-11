@@ -28,7 +28,8 @@ require_once __DIR__ . '/../partials/header.view.php';
                 </thead>
                 <tbody>
                     <?php if (!empty($cartItems)): ?>
-                        <?php foreach ($cartItems as $id => $item):
+                        <?php foreach ($cartItems as $item):
+                            $id = $item['entity_id'];
                             $isMaxed = ($item['quantity'] >= $item['stock_count']);
                         ?>
                             <tr data-id="<?php echo $id; ?>">
@@ -87,7 +88,7 @@ require_once __DIR__ . '/../partials/header.view.php';
                 <span>Shipping</span>
                 <span id="cart-shipping" data-method="<?php echo $defaultShippingMethod; ?>">
                     <?php
-                    $allMethods = get_all_shipping_methods($pdo, $subtotal);
+                    // Uses data passed from Controller
                     $methodName = $allMethods[$defaultShippingMethod]['name'] ?? 'Unknown';
                     echo $methodName . ' - ₹' . number_format($subtotal > 0 ? $shipping_fee : 0);
                     ?>

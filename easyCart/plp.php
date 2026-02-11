@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/src/init.php';
+require_once 'src/init.php';
 
-use App\Controllers\PlpController;
+use App\Controller\Product;
 
-$controller = new PlpController();
-$controller->index();
-?>
+$controller = new Product();
+$controller->indexAction();

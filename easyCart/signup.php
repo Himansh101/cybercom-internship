@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/src/init.php';
+require_once 'src/init.php';
 
-use App\Controllers\SignupController;
+use App\Controller\Customer;
 
-$controller = new SignupController();
-$controller->index();
-?>
+$controller = new Customer();
+$controller->signupAction();

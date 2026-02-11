@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/src/init.php';
+require_once 'src/init.php';
 
-use App\Controllers\ProfileController;
+use App\Controller\Profile;
 
-$controller = new ProfileController();
-$controller->index();
-?>
+$controller = new Profile();
+$controller->indexAction();

@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/src/init.php';
+require_once 'src/init.php';
 
-use App\Controllers\CheckoutController;
+use App\Controller\Checkout;
 
-$controller = new CheckoutController();
-$controller->index();
-?>
+$controller = new Checkout();
+$controller->indexAction();

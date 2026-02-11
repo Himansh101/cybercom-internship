@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/src/init.php';
+require_once 'src/init.php';
 
-use App\Controllers\OrderController;
+use App\Controller\Order;
 
-$controller = new OrderController();
-$controller->index();
-?>
+$controller = new Order();
+$controller->indexAction();

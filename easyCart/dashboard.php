@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/src/init.php';
+require_once 'src/init.php';
 
-use App\Controllers\DashboardController;
+use App\Controller\Dashboard;
 
-$controller = new DashboardController();
-$controller->index();
-?>
+$controller = new Dashboard();
+$controller->indexAction();

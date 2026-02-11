@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/src/init.php';
+require_once 'src/init.php';
 
-use App\Controllers\AdminController;
+use App\Controller\Admin;
 
-$controller = new AdminController();
-$controller->index();
-?>
+$controller = new Admin();
+$controller->indexAction();

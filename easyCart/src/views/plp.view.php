@@ -19,7 +19,8 @@ function renderProductGrid($paginatedProducts, $categories = [], $brands = [])
     } else {
         foreach ($paginatedProducts as $id => $product) {
             $catName   = $categories[$product['cat_id']] ?? 'Uncategorized';
-            $brandName = $brands[$product['brand_id']]['name'] ?? 'Generic';
+            $brandId   = $product['brand_id'] ?? null;
+            $brandName = ($brandId && isset($brands[$brandId])) ? $brands[$brandId]['name'] : 'Generic';
             $isOut     = !$product['in_stock'];
 ?>
             <div class="card product-card <?php echo $isOut ? 'is-out-of-stock' : ''; ?>">
@@ -48,7 +49,7 @@ function renderProductGrid($paginatedProducts, $categories = [], $brands = [])
                             Unavailable
                         </button>
                     <?php else: ?>
-                        <a class="btn-view" href="url_key=<?php echo $product['url_key']; ?>">
+                        <a class="btn-view" href="<?php echo $product['url_key']; ?>">
                             View Details <i class="ri-arrow-right-line"></i>
                         </a>
                     <?php endif; ?>

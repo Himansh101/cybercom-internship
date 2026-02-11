@@ -38,9 +38,13 @@ require_once __DIR__ . '/../partials/header.view.php';
                     <span class="pdp-stock-badge in-stock">
                         <i class="ri-checkbox-circle-fill"></i> In Stock
                     </span>
-                    <p class="pdp-stock-info-text">
-                        <strong><?php echo $product['stock_count']; ?></strong> units available in warehouse
-                    </p>
+                    <?php if ($product['stock_count'] < 999): ?>
+                        <p class="pdp-stock-info-text">
+                            <strong><?php echo $product['stock_count']; ?></strong> units available in warehouse
+                        </p>
+                    <?php else: ?>
+                        <p class="pdp-stock-info-text">Available for immediate shipping.</p>
+                    <?php endif; ?>
                 </div>
             <?php else: ?>
                 <div class="stock-info">

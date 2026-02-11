@@ -18,3 +18,8 @@ RewriteRule ^url_key=([^/]+)$ pdp.php?slug=$1 [L,QSA]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*=.*)$ plp.php?$1 [L,QSA]
+
+# 5. Handle Generic PDP (Catch-all for clean slugs like /sample-product)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([a-zA-Z0-9-]+)$ pdp.php?url_key=$1 [L,QSA]

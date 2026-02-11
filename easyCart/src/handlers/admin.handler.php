@@ -77,20 +77,90 @@ switch ($action) {
             }
 
             // Check for duplicate SKU
-            $stmt = $pdo->prepare("SELECT entity_id FROM catalog_product_entity WHERE sku = ?");
+            $stmt = $pdo->prepare("SELECT entity_id, url_key FROM catalog_product_entity WHERE sku = ?");
             $stmt->execute([$sku]);
-            if ($stmt->fetch()) {
-                $skipped++;
-                continue;
-            }
+            $existingProduct = $stmt->fetch(PDO::FETCH_ASSOC);
+            $productId = null;
 
             try {
                 $pdo->beginTransaction();
 
-                // 1. Insert product
-                $stmt = $pdo->prepare("INSERT INTO catalog_product_entity (sku, name, price, stock_count) VALUES (?, ?, ?, ?) RETURNING entity_id");
-                $stmt->execute([$sku, $name, $price, $stockCount]);
-                $productId = $stmt->fetchColumn();
+                if ($existingProduct) {
+                    // Update existing product
+                    $productId = $existingProduct['entity_id'];
+                    $stmt = $pdo->prepare("UPDATE catalog_product_entity SET name = ?, price = ?, stock_count = ? WHERE entity_id = ?");
+                    $stmt->execute([$name, $price, $stockCount, $productId]);
+
+                    // Logic to update/generate URL Key
+                    $newUrlKey = trim($data['url_key'] ?? '');
+                    if (empty($newUrlKey) && empty($existingProduct['url_key'])) {
+                        // Generate if both new and old are empty
+                        $newUrlKey = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name)));
+                        // Ensure Uniqueness
+                        $baseKey = $newUrlKey;
+                        $counter = 1;
+                        while (true) {
+                            $stmtCheck = $pdo->prepare("SELECT entity_id FROM catalog_product_entity WHERE url_key = ? AND entity_id != ?");
+                            $stmtCheck->execute([$newUrlKey, $productId]);
+                            if (!$stmtCheck->fetch()) {
+                                break;
+                            }
+                            $newUrlKey = $baseKey . '-' . $counter;
+                            $counter++;
+                        }
+                    }
+
+                    if (!empty($newUrlKey)) {
+                        $stmtUrl = $pdo->prepare("UPDATE catalog_product_entity SET url_key = ? WHERE entity_id = ?");
+                        $stmtUrl->execute([$newUrlKey, $productId]);
+                    }
+
+                    // Remove old attributes/relations to replace?
+                    // Or UPSERT attributes.
+                    // Easiest is to DELETE old attributes and re-insert?
+                    // "replace older ones" implies full overwrite of provided fields.
+                    // But deleting everything might lose data not in CSV?
+                    // CSV has all main fields. EAV Attributes: description, brand, shipping, in_stock.
+                    // I will delete these specific attributes and re-insert.
+
+                    $pdo->prepare("DELETE FROM catalog_product_attribute WHERE entity_id = ? AND attribute_key IN ('description', 'brand_id', 'shipping_type', 'in_stock')")->execute([$productId]);
+
+                    // Categories?
+                    // If category is provided, should we switch category?
+                    if (!empty($category)) {
+                        $pdo->prepare("DELETE FROM catalog_category_product WHERE product_id = ?")->execute([$productId]);
+                    }
+
+                    // Image?
+                    if (!empty($imageUrl)) {
+                        $pdo->prepare("DELETE FROM catalog_product_image WHERE product_id = ? AND is_main_image = true")->execute([$productId]);
+                    }
+
+                } else {
+                    // Generate URL Key
+                    $urlKey = trim($data['url_key'] ?? '');
+                    if (empty($urlKey)) {
+                        $urlKey = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name)));
+                    }
+
+                    // Ensure Uniqueness
+                    $baseKey = $urlKey;
+                    $counter = 1;
+                    while (true) {
+                        $stmtCheck = $pdo->prepare("SELECT entity_id FROM catalog_product_entity WHERE url_key = ?");
+                        $stmtCheck->execute([$urlKey]);
+                        if (!$stmtCheck->fetch()) {
+                            break;
+                        }
+                        $urlKey = $baseKey . '-' . $counter;
+                        $counter++;
+                    }
+
+                    // 1. Insert product
+                    $stmt = $pdo->prepare("INSERT INTO catalog_product_entity (sku, name, price, stock_count, url_key) VALUES (?, ?, ?, ?, ?) RETURNING entity_id");
+                    $stmt->execute([$sku, $name, $price, $stockCount, $urlKey]);
+                    $productId = $stmt->fetchColumn();
+                }
 
                 // 2. Insert attributes
                 $stmtAttr = $pdo->prepare("INSERT INTO catalog_product_attribute (entity_id, attribute_key, attribute_value) VALUES (?, ?, ?)");
@@ -151,7 +221,12 @@ switch ($action) {
         echo json_encode([
             'status' => 'success',
             'inserted' => $inserted,
-            'skipped' => $skipped,
+            'updated' => $skipped, // Renaming skipped to updated in variable meaning, but keeping variable name to minimize diff, or better rename it.
+            // Let's rely on logic context: we track "inserted" for new.
+            // But I used $skipped variable for duplicates.
+            // Now duplicates are updates.
+            'skipped' => 0, // No longer skipping
+            'updated_count' => $skipped, // I'll use separate key if client reads it
             'errors' => array_slice($errors, 0, 10) // Limit errors shown
         ]);
         break;
@@ -163,7 +238,7 @@ switch ($action) {
         $output = fopen('php://output', 'w');
 
         // Header row
-        fputcsv($output, ['sku', 'name', 'price', 'stock_count', 'category', 'brand_name', 'description', 'image_url', 'shipping_type', 'in_stock']);
+        fputcsv($output, ['sku', 'name', 'price', 'stock_count', 'category', 'brand_name', 'description', 'image_url', 'shipping_type', 'in_stock', 'url_key']);
 
         // Fetch all products with related data
         $sql = "SELECT 
@@ -173,7 +248,8 @@ switch ($action) {
                     (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'description') as description,
                     i.image_url,
                     (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'shipping_type') as shipping_type,
-                    (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'in_stock') as in_stock
+                    (SELECT attribute_value FROM catalog_product_attribute WHERE entity_id = p.entity_id AND attribute_key = 'in_stock') as in_stock,
+                    p.url_key
                 FROM catalog_product_entity p
                 LEFT JOIN catalog_category_product cp ON p.entity_id = cp.product_id
                 LEFT JOIN catalog_category_entity c ON cp.category_id = c.entity_id
@@ -194,7 +270,8 @@ switch ($action) {
                 $row['description'] ?? '',
                 $row['image_url'] ?? '',
                 $row['shipping_type'] ?? 'standard',
-                $row['in_stock'] ?? '1'
+                $row['in_stock'] ?? '1',
+                $row['url_key'] ?? ''
             ]);
         }
 
@@ -207,8 +284,8 @@ switch ($action) {
         header('Content-Disposition: attachment; filename="product_import_template.csv"');
 
         $output = fopen('php://output', 'w');
-        fputcsv($output, ['sku', 'name', 'price', 'stock_count', 'category', 'brand_name', 'description', 'image_url', 'shipping_type', 'in_stock']);
-        fputcsv($output, ['SKU-SAMPLE', 'Sample Product', '999.00', '10', 'Electronics', 'Aurora', 'Product description here', 'images/sample.jpg', 'standard', '1']);
+        fputcsv($output, ['sku', 'name', 'price', 'stock_count', 'category', 'brand_name', 'description', 'image_url', 'shipping_type', 'in_stock', 'url_key']);
+        fputcsv($output, ['SKU-SAMPLE', 'Sample Product', '999.00', '10', 'Electronics', 'Aurora', 'Product description here', 'images/sample.jpg', 'standard', '1', 'sample-product']);
         fclose($output);
         exit();
 

@@ -75,8 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="success"><strong>${data.inserted}</strong></span>
                     </div>
                     <div class="result-row">
-                        <span>Duplicates Skipped</span>
-                        <span class="warning"><strong>${data.skipped}</strong></span>
+                        <span>Duplicates Updated</span>
+                        <span class="warning" style="color: #f59e0b;"><strong>${data.updated || data.updated_count || 0}</strong></span>
                     </div>
                     ${data.errors.length > 0 ? `
                     <div class="result-row">
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     Swal.fire({
                         icon: data.inserted > 0 ? 'success' : 'warning',
                         title: data.inserted > 0 ? 'Import Successful' : 'No Products Added',
-                        text: `${data.inserted} products imported, ${data.skipped} skipped.`,
+                        text: `${data.inserted} products inserted, ${data.updated || data.updated_count || 0} updated.`,
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,

@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const modal = document.getElementById('orderModal');
     const closeBtn = document.querySelector('.close-modal');
     const modalContent = document.getElementById('modalContent');
+    // Ensure price rows are flex
+    document.querySelectorAll('.price-row').forEach(row => row.style.display = 'flex');
     const modalLoading = document.getElementById('modalLoading');
     const modalItems = document.getElementById('modalItems');
     const modalOrderNo = document.getElementById('modalOrderNo');
@@ -10,6 +12,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const detailSubtotal = document.getElementById('detailSubtotal');
     const detailShipping = document.getElementById('detailShipping');
     const detailTax = document.getElementById('detailTax');
+    const detailDiscountRow = document.getElementById('detailDiscountRow');
+    const detailDiscount = document.getElementById('detailDiscount');
+    const detailCouponCode = document.getElementById('detailCouponCode');
     const detailTotal = document.getElementById('detailTotal');
     const detailAddress = document.getElementById('detailAddress');
 
@@ -86,6 +91,15 @@ document.addEventListener('DOMContentLoaded', function () {
         detailSubtotal.textContent = '₹' + numberFormat(data.subtotal);
         detailShipping.textContent = '₹' + numberFormat(data.shipping);
         detailTax.textContent = '₹' + numberFormat(data.tax);
+
+        if (data.discount > 0) {
+            detailDiscountRow.style.display = 'flex';
+            detailDiscount.textContent = '-₹' + numberFormat(data.discount);
+            detailCouponCode.textContent = data.coupon ? `(${data.coupon})` : '';
+        } else {
+            detailDiscountRow.style.display = 'none';
+        }
+
         detailTotal.textContent = '₹' + numberFormat(data.total);
 
         // Update Address

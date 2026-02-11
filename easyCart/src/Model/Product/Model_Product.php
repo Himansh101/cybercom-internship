@@ -47,7 +47,7 @@ class Model_Product
         $query = new Query();
         $query->select(['*'])
             ->from($this->resource->tableName)
-            ->where("url_key = ?", $urlKey);
+            ->where("LOWER(url_key) = LOWER(?)", $urlKey);
 
         $stmt = $this->pdo->prepare((string) $query);
         $stmt->execute($query->getBinds());

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../partials/header.view.php';
+$this->partial('header', ['pageTitle' => $pageTitle]);
 ?>
 
 <a href="cart" class="back-btn"><i class="ri-arrow-left-line"></i> Back to Cart</a>
@@ -260,5 +260,5 @@ require_once __DIR__ . '/../partials/header.view.php';
     const IS_LOGGED_IN = <?php echo isset($isLoggedIn) && $isLoggedIn ? 'true' : 'false'; ?>;
 </script>
 <?php
-require_once __DIR__ . '/../partials/footer.view.php';
+$this->partial('footer');
 ?>

@@ -1,21 +1,14 @@
 <?php
 namespace App\View;
 
-class View_Dashboard
+class View_Dashboard extends BaseView
 {
     public function toHtml($template, $data = [])
     {
-        extract($data);
-        ob_start();
-        $pageTitle = $data['pageTitle'] ?? 'EasyCart';
-
         if ($template === 'index') {
-            $extraStyles = $data['extraStyles'] ?? [];
-            $extraScripts = $data['extraScripts'] ?? [];
-            $currentPage = $data['currentPage'] ?? 'dashboard';
-            require __DIR__ . '/../../src/Views/dashboard.view.php';
+            return $this->render('dashboard', $data);
         }
 
-        return ob_get_clean();
+        return '';
     }
 }

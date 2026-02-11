@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../partials/header.view.php';
+$this->partial('header', ['pageTitle' => $pageTitle, 'currentPage' => $currentPage]);
 ?>
 
 <div class="orders-container">
@@ -109,6 +109,10 @@ require_once __DIR__ . '/../partials/header.view.php';
                         <h3>Order Summary</h3>
                         <div class="price-breakup">
                             <div class="price-row"><span>Subtotal</span> <span id="detailSubtotal"></span></div>
+                            <div class="price-row" id="detailDiscountRow" style="display: none; color: #10b981;">
+                                <span>Discount <small id="detailCouponCode"></small></span>
+                                <span id="detailDiscount"></span>
+                            </div>
                             <div class="price-row"><span>Shipping</span> <span id="detailShipping"></span></div>
                             <div class="price-row"><span>GST (18%)</span> <span id="detailTax"></span></div>
                             <div class="price-row total"><span>Total Amount</span> <span id="detailTotal"></span></div>
@@ -125,5 +129,5 @@ require_once __DIR__ . '/../partials/header.view.php';
 </div>
 
 <?php
-require_once __DIR__ . '/../partials/footer.view.php';
+$this->partial('footer', ['extraScripts' => $extraScripts ?? []]);
 ?>

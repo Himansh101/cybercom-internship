@@ -18,6 +18,9 @@ class Model_OrderResource
         'updated_at',
         'payment_method',
         'transaction_id',
-        'payment_status'
+        'payment_status',
+        'shipping_method',
+        'discount_amount',
+        'coupon_code'
     ];
 }

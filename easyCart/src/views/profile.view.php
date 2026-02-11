@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../partials/header.view.php';
+$this->partial('header', ['pageTitle' => $pageTitle, 'extraStyles' => $extraStyles ?? []]);
 ?>
 
 <div class="profile-container">
@@ -101,5 +101,5 @@ require_once __DIR__ . '/../partials/header.view.php';
 </div>
 
 <?php
-require_once __DIR__ . '/../partials/footer.view.php';
+$this->partial('footer', ['extraScripts' => $extraScripts ?? []]);
 ?>

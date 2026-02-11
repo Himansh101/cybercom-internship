@@ -62,6 +62,8 @@ if ($action === 'get_details') {
                 'subtotal' => (float) $order['subtotal'],
                 'shipping' => (float) $order['shipping_cost'],
                 'tax' => (float) $order['tax_amount'],
+                'discount' => (float) $order['discount_amount'],
+                'coupon' => $order['coupon_code'],
                 'total' => (float) $order['final_amount'],
                 'address' => $address,
                 'items' => $formattedItems

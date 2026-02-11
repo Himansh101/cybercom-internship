@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../partials/header.view.php';
+$this->partial('header', ['pageTitle' => $pageTitle, 'extraStyles' => $extraStyles ?? []]);
 ?>
 
 <div class="admin-container">
@@ -77,5 +77,5 @@ SKU-002,Office Desk,8999.00,10,Furniture,ZenStyle,Modern ergonomic office desk,i
 </div>
 
 <?php
-require_once __DIR__ . '/../partials/footer.view.php';
+$this->partial('footer', ['extraScripts' => $extraScripts ?? []]);
 ?>

@@ -40,6 +40,7 @@
                     pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
                     title="Please enter a valid email address with a domain extension (e.g., .com, .org, .net)" required
                     value="<?php echo htmlspecialchars($email ?? ''); ?>">
+
                 <span class="error-message" id="email-error">Please enter a valid email address with domain
                     extension.</span>
             </div>

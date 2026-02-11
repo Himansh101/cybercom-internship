@@ -319,7 +319,10 @@ class Controller_Checkout
             'created_at' => date('Y-m-d H:i:s'),
             'payment_method' => $_POST['payment_method'] ?? 'cod',
             'transaction_id' => $_POST['payment_intent_id'] ?? null,
-            'payment_status' => 'pending' // Check stripe if needed
+            'payment_status' => 'pending',
+            'shipping_method' => $shippingMethod,
+            'discount_amount' => $discountAmount,
+            'coupon_code' => $couponCode
         ];
 
         // Addresses

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../partials/header.view.php';
+$this->partial('header', ['pageTitle' => $pageTitle]);
 ?>
 
 <form action="plp" method="GET" class="content-search-bar">
@@ -75,5 +75,5 @@ require_once __DIR__ . '/../partials/header.view.php';
 </section>
 
 <?php
-require_once __DIR__ . '/../partials/footer.view.php';
+$this->partial('footer');
 ?>

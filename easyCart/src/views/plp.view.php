@@ -1,7 +1,7 @@
 <?php
 // Note: This view handles both full page and AJAX grid/pagination updates
 if (!(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest')) {
-    require_once __DIR__ . '/../partials/header.view.php';
+    $this->partial('header', ['pageTitle' => 'EasyCart | Products']);
 }
 
 /** Helper functions for rendering encapsulated within the view for this task **/
@@ -260,6 +260,6 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
 
 <?php
 if (!(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest')) {
-    require_once __DIR__ . '/../partials/footer.view.php';
+    $this->partial('footer');
 }
 ?>

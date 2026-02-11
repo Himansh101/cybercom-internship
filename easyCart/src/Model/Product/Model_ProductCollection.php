@@ -50,7 +50,15 @@ class Model_ProductCollection
     {
         if (empty($search))
             return $this;
-        $this->query->where("(p.name LIKE ? OR p.sku LIKE ?)", ["%$search%", "%$search%"]);
+
+        // Search in product name, SKU, and also in brand name via subquery (to avoid complex joins in collection)
+        $brandSubquery = "p.entity_id IN (SELECT entity_id FROM catalog_product_attribute WHERE attribute_key = 'brand_id' AND attribute_value IN (SELECT CAST(entity_id AS CHAR) FROM catalog_brand_entity WHERE LOWER(name) LIKE LOWER(?)))";
+
+        $this->query->where("(LOWER(p.name) LIKE LOWER(?) OR LOWER(p.sku) LIKE LOWER(?) OR $brandSubquery)", [
+            "%$search%",
+            "%$search%",
+            "%$search%"
+        ]);
         return $this;
     }
 

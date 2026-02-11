@@ -45,7 +45,7 @@ class Model_OrderCollection
                 'date' => $order['created_at'],
                 'total' => $order['final_amount'],
                 'status' => $order['status'],
-                'shipping_method' => 'Standard',
+                'shipping_method' => $order['shipping_method'] ?? 'Standard',
                 'items' => $items
             ];
         }

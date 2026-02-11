@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../partials/header.view.php';
+$this->partial('header', ['pageTitle' => 'EasyCart | Your Cart']);
 ?>
 
 <a href="plp" class="back-btn"><i class="ri-arrow-left-line"></i> Continue Shopping</a>
@@ -102,5 +102,5 @@ require_once __DIR__ . '/../partials/header.view.php';
 </div>
 
 <?php
-require_once __DIR__ . '/../partials/footer.view.php';
+$this->partial('footer');
 ?>

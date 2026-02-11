@@ -1,7 +1,7 @@
 <?php
 require_once 'src/init.php';
 
-use App\Controller\Admin;
+use App\Controller\Controller_Admin;
 
-$controller = new Admin();
+$controller = new Controller_Admin();
 $controller->indexAction();

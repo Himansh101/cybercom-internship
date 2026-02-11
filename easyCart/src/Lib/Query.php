@@ -67,6 +67,24 @@ class Query
         return $this;
     }
 
+    public function resetOrder()
+    {
+        $this->order = [];
+        return $this;
+    }
+
+    public function resetLimit()
+    {
+        $this->limit = null;
+        return $this;
+    }
+
+    public function resetOffset()
+    {
+        $this->offset = null;
+        return $this;
+    }
+
     public function insert($table, $data)
     {
         $this->type = 'insert';

@@ -1,7 +1,7 @@
 <?php
 require_once 'src/init.php';
 
-use App\Controller\Profile;
+use App\Controller\Controller_Profile;
 
-$controller = new Profile();
+$controller = new Controller_Profile();
 $controller->indexAction();

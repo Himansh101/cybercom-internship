@@ -1,7 +1,7 @@
 <?php
 require_once 'src/init.php';
 
-use App\Controller\Product;
+use App\Controller\Controller_Product;
 
-$controller = new Product();
+$controller = new Controller_Product();
 $controller->indexAction();

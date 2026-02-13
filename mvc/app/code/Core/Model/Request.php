@@ -25,28 +25,23 @@ class Core_Model_Request
         // return $_SERVER['REQUEST_URI'];
     }
 
-    public function getParams()
-    {
+    public function getParams(){
         return $_REQUEST;
     }
 
-    public function isPost()
-    {
+    public function isPost(){
         return (isset($_POST)) ? true : false;
     }
 
-    public function getQuery()
-    {
+    public function getQuery(){
         return $_GET;
     }
 
-    public function getPost()
-    {
+    public function getPost(){
         return $_POST;
     }
 
-    public function getBaseUrl()
-    {
+    public function getBaseUrl(){
         return "http://localhost/cybercom-internship/mvc/";
     }
 

@@ -10,9 +10,9 @@ class Core_Model_Request
         $uri = str_replace($this->getBaseUrl(), "", $uri);
         $uri = explode("/", $uri);
 
-        $this -> _module = $uri[0];
-        $this -> _controllers = $uri[1];
-        $this -> _action = $uri[2];
+        $this->_module = $uri[0];
+        $this->_controllers = $uri[1];
+        $this->_action = $uri[2];
         // echo "<pre>";
         // print_r($uri);
     }
@@ -51,14 +51,14 @@ class Core_Model_Request
     }
 
     public function getModuleName(){
-        return $this -> _module;
+        return $this->_module;
     }
 
     public function getControllerName(){
-        return $this -> _controllers;
+        return $this->_controllers;
     }
 
     public function getActionName(){
-        return $this -> _action;
+        return $this->_action;
     }
 }

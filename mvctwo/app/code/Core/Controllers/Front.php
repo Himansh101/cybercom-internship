@@ -3,14 +3,18 @@
 class Core_Controllers_Front{
     protected $_request;
 
-    public function __construct()
-    {
-        $admin = new Core_Controllers_Admin();
+    public function run(){
+        // $request = new Core_Model_Request();
+        $request = Sdp::getModel("core/request");
 
-        echo "<pre>";
-        print_r($admin);
-        echo "</pre>";
-
+        $className = sprintf(
+            "%s_Controllers_%s",
+            ucfirst($request->getModuleName()),
+            ucfirst($request->getControllerName())  
+        );
+        $action = $request->getActionName();
+        $classObj = new $className();
+        $classObj->$action();
     }
 }
 

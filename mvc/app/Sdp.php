@@ -14,4 +14,13 @@ class Sdp
         $modelObj   = new $model();
         return $modelObj;
     }
+    public static function getBlock($blockName)
+    {
+        $block      = array_map('ucfirst', explode('/', $blockName));
+        $block      = sprintf("%s_Block_%s", $block[0], $block[1]);
+        $blockObj   = new $block();
+        return $blockObj;
+    }
+
+    
 }

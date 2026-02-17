@@ -1,6 +1,6 @@
 <?php
 
-class Admin_Controllers_Catalog_Category
+class Admin_Controllers_Catalog_Category extends Core_Controllers_Admin
 {
     public function newAction()
     {

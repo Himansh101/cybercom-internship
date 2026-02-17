@@ -1,6 +1,6 @@
 <?php
 
-class Catalog_Controllers_Product
+class Catalog_Controllers_Product extends Core_Controllers_Front
 {
     public function listAction()
     {

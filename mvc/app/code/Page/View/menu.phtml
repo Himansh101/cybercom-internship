@@ -1,0 +1,12 @@
+<?php $menu = $this->getMenuArray(); ?>
+
+<ul>
+    <?php foreach ($menu as $url => $category) :?>
+    
+    <li>
+        <a href="<?php echo htmlspecialchars($url); ?>">
+            <?php echo htmlspecialchars($category); ?>
+        </a>
+    </li>
+    <?php endforeach ?>
+</ul>

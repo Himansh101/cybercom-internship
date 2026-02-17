@@ -1,6 +1,6 @@
 <?php
 
-class Admin_Controllers_Customer
+class Admin_Controllers_Customer extends Core_Controllers_Admin
 {
     public function newAction()
     {

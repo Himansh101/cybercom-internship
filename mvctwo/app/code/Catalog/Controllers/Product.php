@@ -2,10 +2,15 @@
 
 class Catalog_Controllers_Product{
     public function listAction(){
-        echo "List Action";
+        $root = Sdp::getBlock('page/root');
+        $root->toHtml();
     }
 
     public function viewAction(){
-        echo "View Action";
+        $root = Sdp::getBlock("page/root");
+        $view = Sdp::getBlock("catalog/product_View");
+        $root->getChild("content")->addChild("view", $view);   
+
+        $root->toHtml();
     }
 }

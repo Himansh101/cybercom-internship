@@ -12,7 +12,7 @@ class Core_Controllers_Front{
             ucfirst($request->getModuleName()),
             ucfirst($request->getControllerName())  
         );
-        $action = $request->getActionName();
+        $action = $request->getActionName() . "Action";
         $classObj = new $className();
         $classObj->$action();
     }

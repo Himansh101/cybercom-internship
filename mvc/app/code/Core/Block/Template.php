@@ -35,10 +35,9 @@ class Core_Block_Template
 
     public function getChildHtml($name = "")
     {
-        // print_r($this->_child);
-        if (isset($this->_child[$name])) {
+        if(isset($this->_child[$name])){
             $this->_child[$name]->toHtml();
-        } else {
+        }else{
             if(count($this->_child)){
                 foreach($this->_child as $child){
                     $child->toHtml();

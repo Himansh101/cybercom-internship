@@ -14,7 +14,9 @@ class Catalog_Controllers_Product extends Core_Controllers_Front
     {
         $root = Sdp::getBlock("page/root");
         $view = Sdp::getBlock("catalog/product_View");
-        $root->getChild("content")->addChild("view", $view);   
+        $root->getChild("content")->addChild("view", $view); 
+        $root->getChild("head")->addJs("js/catalog/product.js");
+        $root->getChild("head")->addCss("css/catalog/product.css");
         $root->toHtml();
     }
 }

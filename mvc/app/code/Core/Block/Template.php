@@ -6,6 +6,7 @@ class Core_Block_Template
     protected $_parent = null;
     protected $_template = null;
 
+
     public function __construct()
     {
         $this->_construct();
@@ -45,4 +46,5 @@ class Core_Block_Template
             }
         }
     }
+
 }

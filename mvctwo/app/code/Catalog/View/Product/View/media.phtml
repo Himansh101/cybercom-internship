@@ -1,0 +1,16 @@
+<?php $product = $this->getProduct(); ?>
+<div class="product-images">
+    <div class="main-image-wrapper">
+        <img src="<?php echo $product->image; ?>" alt="<?php echo $product->name; ?>">
+    </div>
+
+    <?php if ($product->gallery_images): ?>
+        <div class="image-gallery">
+            <?php foreach ($product->gallery_images as $image): ?>
+                <div class="gallery-item">
+                    <img src="<?php echo $image; ?>" alt="Gallery Image">
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</div>

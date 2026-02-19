@@ -17,8 +17,6 @@ class Core_Controllers_Front extends Core_Controllers_Front_Action
         $classObj = new $className();
         $classObj->$action();
     }
-
-    
 }
 
 ?>

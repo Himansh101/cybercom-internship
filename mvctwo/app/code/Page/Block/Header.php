@@ -11,5 +11,4 @@ class Page_Block_Header extends Core_Block_Template{
         $menu = Sdp::getBlock("page/menu");
         $this->addChild("menu", $menu);
     }
-
 }

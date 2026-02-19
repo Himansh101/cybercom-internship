@@ -1,1 +1,10 @@
-head
+<?php $js = $this->getJs(); ?>
+<?php $css = $this->getCss(); ?>
+
+<?php foreach($js as $_js): ?>
+    <script src="<?php echo $_js ?>"></script>
+<?php endforeach ?>
+
+<?php foreach($css as $_css): ?>
+    <link rel="stylesheet" href="<?php echo $_css ?>">
+<?php endforeach ?>

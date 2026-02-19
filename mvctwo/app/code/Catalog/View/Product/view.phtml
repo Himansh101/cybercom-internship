@@ -1,1 +1,18 @@
-product view content
+<?php $product = $this->getProduct(); ?>
+
+<div class="product-view-container">
+    <div class="product-main-section">
+        <!-- Left Column -->
+        <?php echo $this->getChildHtml('media'); ?>
+
+        <!-- Right Column -->
+        <div class="product-info-wrapper">
+            <?php echo $this->getChildHtml('info'); ?>
+            <?php echo $this->getChildHtml('actions'); ?>
+            <?php echo $this->getChildHtml('specs'); ?>
+        </div>
+    </div>
+
+    <!-- Long Description Section -->
+    <?php echo $this->getChildHtml('description'); ?>
+</div>

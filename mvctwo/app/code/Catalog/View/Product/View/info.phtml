@@ -4,25 +4,25 @@
         <span class="product-badge">New Arrival</span>
     <?php endif; ?>
     <span class="product-sku">SKU:
-        <?php echo $product->sku; ?>
+        <?php echo $product->getSku(); ?>
     </span>
 </div>
 
 <h1 class="product-title">
-    <?php echo $product->name; ?>
+    <?php echo $product->getName(); ?>
 </h1>
 
 <div class="price-section">
-    <?php if ($product->special_price): ?>
+    <?php if ($product->getSpecial_price()): ?>
         <span class="current-price">₹
-            <?php echo number_format($product->special_price, 2); ?>
+            <?php echo number_format($product->getSpecial_price(), 2); ?>
         </span>
         <span class="original-price">₹
-            <?php echo number_format($product->price, 2); ?>
+            <?php echo number_format($product->getPrice(), 2); ?>
         </span>
     <?php else: ?>
         <span class="current-price">₹
-            <?php echo number_format($product->price, 2); ?>
+            <?php echo number_format($product->getPrice(), 2); ?>
         </span>
     <?php endif; ?>
 </div>

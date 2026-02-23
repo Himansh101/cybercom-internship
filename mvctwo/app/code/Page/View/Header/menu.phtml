@@ -1,0 +1,5 @@
+<nav class="header-nav">
+    <?php foreach ($this->getNavLinks() as $url => $label): ?>
+        <a href="<?php echo $url; ?>" class="nav-link"><?php echo $label; ?></a>
+    <?php endforeach; ?>
+</nav>

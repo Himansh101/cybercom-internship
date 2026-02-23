@@ -1,0 +1,356 @@
+/* ============================================================
+   Footer Stylesheet
+   Path: css/footer.css
+   Same color design as the header (main stylesheet).
+   ============================================================ */
+
+/* ── Google Font (same as main stylesheet) ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ── Same :root design tokens as main stylesheet ── */
+:root {
+    --color-bg: #f5f7fa;
+    --color-surface: #ffffff;
+    --color-surface-2: #eef1f6;
+    --color-border: rgba(0, 0, 0, 0.09);
+    --color-primary: #5b52e8;
+    --color-primary-glow: rgba(91, 82, 232, 0.22);
+    --color-accent: #7c6ff7;
+    --color-text: #1e2130;
+    --color-text-muted: #6b7280;
+    --color-white: #ffffff;
+    --color-danger: #ef4444;
+    --color-success: #10b981;
+
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --shadow-glow: 0 2px 16px rgba(91, 82, 232, 0.10);
+    --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.12);
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Reset & Base ── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+/* ============================================================
+   FOOTER WRAPPER — same light surface as header
+   ============================================================ */
+
+.footer {
+    /* same background + blur style as .site-header */
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    border-top: 1px solid var(--color-border);
+    box-shadow: 0 -2px 16px rgba(91, 82, 232, 0.06);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── Inner container — matches .header-inner max-width ── */
+.footer-grid {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 56px 24px 44px;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1.2fr;
+    gap: 48px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* ============================================================
+   COMPANY INFO — Left Column
+   ============================================================ */
+
+.footer-company-info {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* Logo — identical to .header-logo */
+.footer-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.footer-logo .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-white);
+    box-shadow: 0 0 14px var(--color-primary-glow);
+    flex-shrink: 0;
+    transition: var(--transition);
+}
+
+.footer-logo:hover .logo-icon {
+    transform: rotate(-6deg) scale(1.08);
+    box-shadow: 0 0 22px var(--color-primary-glow);
+}
+
+/* same gradient text as .header-logo .logo-text */
+.footer-logo .logo-text {
+    background: linear-gradient(135deg, var(--color-primary) 30%, var(--color-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.footer-desc {
+    font-size: 0.875rem;
+    line-height: 1.8;
+    color: var(--color-text-muted);
+    max-width: 300px;
+}
+
+/* ============================================================
+   FOOTER NAV — Center Column
+   ============================================================ */
+
+.footer-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Section heading */
+.footer-section-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    position: relative;
+    padding-bottom: 12px;
+    width: 100%;
+    text-align: center;
+}
+
+/* accent underline — same gradient as logo */
+.footer-section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 28px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    border-radius: 2px;
+}
+
+/* Nav links — identical style to .nav-link in header */
+.footer-nav-list {
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+}
+
+.footer-nav-list li a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    /* same as .nav-link */
+    transition: var(--transition);
+    white-space: nowrap;
+    width: 100%;
+}
+
+/* same as .nav-link:hover */
+.footer-nav-list li a:hover {
+    color: var(--color-primary);
+    background: var(--color-surface-2);
+}
+
+/* ============================================================
+   CONTACT US — Right Column
+   ============================================================ */
+
+.footer-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.footer-contact .footer-section-title {
+    text-align: left;
+}
+
+.footer-contact .footer-section-title::after {
+    left: 0;
+    transform: translateX(0);
+}
+
+.footer-contact-list {
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.footer-contact-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    line-height: 1.65;
+}
+
+.contact-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.footer-contact-list li a {
+    color: var(--color-text-muted);
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+/* same as .nav-link:hover */
+.footer-contact-list li a:hover {
+    color: var(--color-primary);
+}
+
+/* ============================================================
+   TRADEMARK BAR — same surface-2 as header inner elements
+   ============================================================ */
+
+.footer-trademark {
+    background: var(--color-surface-2);
+    border-top: 1px solid var(--color-border);
+    padding: 18px 0;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.footer-trademark p {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--color-text-muted);
+    letter-spacing: 0.02em;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ============================================================
+   RESPONSIVE — mirrors main stylesheet breakpoints exactly
+   ============================================================ */
+
+@media (max-width: 900px) {
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 36px;
+    }
+
+    .footer-company-info {
+        grid-column: 1 / -1;
+    }
+
+    .footer-desc {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+        padding: 40px 20px 32px;
+        gap: 28px;
+    }
+
+    .footer-nav {
+        align-items: flex-start;
+    }
+
+    .footer-section-title {
+        text-align: left;
+    }
+
+    .footer-section-title::after {
+        left: 0;
+        transform: translateX(0);
+    }
+
+    .footer-nav-list {
+        align-items: flex-start;
+    }
+
+    .footer-nav-list li a {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-grid {
+        padding: 32px 16px 24px;
+    }
+
+    .footer-trademark {
+        padding: 14px 0;
+    }
+}

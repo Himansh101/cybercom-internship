@@ -34,4 +34,13 @@ class Admin_Controllers_Catalog_Product extends Core_Controllers_Admin
         $root->toHtml();
     }
 
+    public function saveAction()
+    {
+        $product = Sdp::getModel('catalog/product');
+        echo "<pre>";
+        $product->load(1);
+        print_r($product);
+        print_r($product->getUrl());
+    }
+
 }

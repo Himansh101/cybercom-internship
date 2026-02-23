@@ -1,0 +1,8 @@
+<div class="footer-nav">
+    <h4 class="footer-section-title">Quick Links</h4>
+    <ul class="footer-nav-list">
+        <?php foreach ($this->getNavLinks() as $url => $label): ?>
+            <li><a href="<?php echo $url; ?>"><?php echo $label; ?></a></li>
+        <?php endforeach; ?>
+    </ul>
+</div>

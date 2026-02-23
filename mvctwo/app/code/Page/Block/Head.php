@@ -1,6 +1,7 @@
 <?php
 
-class Page_Block_Head extends Core_Block_Template{
+class Page_Block_Head extends Core_Block_Template
+{
     protected $request;
     protected $base;
     protected $_js = [];
@@ -12,9 +13,12 @@ class Page_Block_Head extends Core_Block_Template{
         $this->base = $this->request->getBaseUrl();
         $this->setTemplate("Page/View/head.phtml");
         $this->addJs($this->base."js/default.js")
-            ->addJs($this->base."js/default1.js");
-
-        $this->addCss($this->base."css/main.css");
+            ->addJs($this->base."js/default1.js")
+            ->addJs($this->base."js/home.js")
+            ->addCss($this->base."css/header.css")
+            ->addCss($this->base."css/footer.css")
+            ->addCss($this->base."css/default1.css")
+            ->addCss($this->base."css/home.css");
     }
 
     public function addJs($file)

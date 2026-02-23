@@ -1,6 +1,7 @@
 <?php
 
-class Page_Block_Header extends Core_Block_Template{
+class Page_Block_Header extends Core_Block_Template
+{
     public function __construct()
     {
         parent::__construct();
@@ -8,7 +9,13 @@ class Page_Block_Header extends Core_Block_Template{
     }
 
     public function _construct(){
-        $menu = Sdp::getBlock("page/menu");
-        $this->addChild("menu", $menu);
+
+        $icon   = Sdp::getBlock("page/header_icon");
+        $menu   = Sdp::getBlock("page/header_menu");
+        $search = Sdp::getBlock("page/header_search");
+
+        $this->addChild("icon",   $icon);
+        $this->addChild("menu",   $menu);
+        $this->addChild("search", $search);
     }
 }

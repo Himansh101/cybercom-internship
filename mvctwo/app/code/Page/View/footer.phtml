@@ -1,1 +1,8 @@
-Footer
+<div class="footer-grid">
+    <?php $this->getChildHtml("company_info"); ?>
+    <?php $this->getChildHtml("footer_nav"); ?>
+    <?php $this->getChildHtml("contact_us"); ?>
+</div>
+<div class="footer-trademark">
+    <p>&copy; <?php echo date('Y'); ?> MVC1 Store. All Rights Reserved.</p>
+</div>

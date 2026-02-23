@@ -6,7 +6,8 @@
 
     <?php if ($product->gallery_images): ?>
         <div class="image-gallery">
-            <?php foreach ($product->gallery_images as $image): ?>
+            <?php $productImages = json_decode($product->gallery_images, true); ?>
+            <?php foreach ($productImages as $image): ?>
                 <div class="gallery-item">
                     <img src="<?php echo $image; ?>" alt="Gallery Image">
                 </div>

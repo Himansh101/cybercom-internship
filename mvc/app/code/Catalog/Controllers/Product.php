@@ -19,4 +19,6 @@ class Catalog_Controllers_Product extends Core_Controllers_Front
         $root->getChild("head")->addCss("css/catalog/product.css");
         $root->toHtml();
     }
+
+    
 }

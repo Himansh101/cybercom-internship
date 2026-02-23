@@ -21,5 +21,10 @@ class Core_Model_Abstract{
         return $this;
     }
 
+
+    public function load($value, $field = null)
+    {   
+        $query = "SELECT * FROM catalog_product";
+    }
     
 }

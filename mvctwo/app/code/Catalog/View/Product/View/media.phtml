@@ -1,12 +1,12 @@
 <?php $product = $this->getProduct(); ?>
 <div class="product-images">
     <div class="main-image-wrapper">
-        <img src="<?php echo $product->image; ?>" alt="<?php echo $product->name; ?>">
+        <img src="<?php echo $product->getImage(); ?>" alt="<?php echo $product->getName(); ?>">
     </div>
 
-    <?php if ($product->gallery_images): ?>
+    <?php if ($product->getGallery_images()): ?>
         <div class="image-gallery">
-            <?php $productImages = json_decode($product->gallery_images, true); ?>
+            <?php $productImages = json_decode($product->getGallery_images(), true); ?>
             <?php foreach ($productImages as $image): ?>
                 <div class="gallery-item">
                     <img src="<?php echo $image; ?>" alt="Gallery Image">

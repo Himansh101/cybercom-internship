@@ -1,6 +1,6 @@
 <?php $product = $this->getProduct(); ?>
 <div class="product-meta-top">
-    <?php if ($product->is_new): ?>
+    <?php if ($product->getIs_new()): ?>
         <span class="product-badge">New Arrival</span>
     <?php endif; ?>
     <span class="product-sku">SKU:
@@ -27,11 +27,11 @@
     <?php endif; ?>
 </div>
 
-<div class="stock-status <?php echo $product->stock_status == 'in_stock' ? 'stock-in' : 'stock-out'; ?>">
+<div class="stock-status <?php echo $product->getStock_status() == 'in_stock' ? 'stock-in' : 'stock-out'; ?>">
     ●
-    <?php echo $product->stock_status == 'in_stock' ? 'In Stock' : 'Out of Stock'; ?>
+    <?php echo $product->getStock_status() == 'in_stock' ? 'In Stock' : 'Out of Stock'; ?>
 </div>
 
 <p class="short-description">
-    <?php echo $product->short_description; ?>
+    <?php echo $product->getShort_description(); ?>
 </p>

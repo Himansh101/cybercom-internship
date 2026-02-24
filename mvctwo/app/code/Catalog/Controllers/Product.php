@@ -28,16 +28,18 @@ class Catalog_Controllers_Product extends Core_Controllers_Front
         // $view->addChild("actions", $actions);
         // $view->addChild("specs", $specs);
         // $view->addChild("description", $description);
+        $product = Sdp::getModel('catalog/product');
+        // echo "<pre>";
+        $product->load(1);
+
 
         $root->getChild("content")->addChild("view", $view);
         $root->getChild("head")->addJs( "./../../js/catalog/product.js");
         $root->getChild("head")->addCss("./../../css/catalog/product.css");
         $root->toHtml();
 
-        $product = Sdp::getModel('catalog/product');
-        // echo "<pre>";
-        $product->load(1);
-        print_r($product);
-        print_r($product->getUrl());
+        
+        // print_r($product);
+        // print_r($product->getUrl());
     }
 }

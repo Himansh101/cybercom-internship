@@ -8,10 +8,12 @@ class Page_Block_Header_Menu extends Core_Block_Template
 
     public function getNavLinks()
     {
+        $homeurl = Sdp::getModel("Page/Home")->getBaseUrl();
+        $productUrl = "catalog/product/list";
         return [
-            "/"        => "Home",
-            "/product" => "Products",
-            "/cart"    => "Cart",
+            $homeurl => "Home",
+            $productUrl => "Products",
+            "/cart" => "Cart",
             "/profile" => "Profile",
         ];
     }

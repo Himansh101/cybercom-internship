@@ -3,6 +3,12 @@
 class Core_Model_Abstract
 {
     protected $_data = [];
+    protected $_resource = null;
+
+    public function init($resourceModel)
+    {
+        $this->_resource = Sdp::getResourceModel($resourceModel);
+    }
 
     public function __set($key, $value)
     {
@@ -36,14 +42,22 @@ class Core_Model_Abstract
         return $this;
     }
 
+    public function getResource()
+    {
+        return $this->_resource;
+    }
+
     public function load($value, $field = null)
     {
-        $mysql = Sdp::getModel('core/connection_Mysql');
-        $query = "SELECT * FROM catalog_product";
-        $data = $mysql->fetchOne();
+        
+        $data = $this->getResource()->load($this, $value, $field);
         
         $this->_data = $data;
     }
+
+
+
+    
 
     
 }

@@ -9,8 +9,8 @@ class Catalog_Block_Product_View extends Core_Block_Template
     {
         parent::__construct();
         $this->setTemplate("Catalog/View/Product/view.phtml");
-        $this->request = Sdp::getModel("core/request");
-        $this->base = $this->request->getBaseUrl();
+        // $this->request = Sdp::getModel("core/request");
+        // $this->base = $this->request->getBaseUrl();
     }
 
     public function _construct()
@@ -31,6 +31,7 @@ class Catalog_Block_Product_View extends Core_Block_Template
     public function getProduct()
     {
         $product = Sdp::getModel("catalog/product");
+
         // $mysql = Sdp::getModel("core/connection_Mysql");
         // $data = $mysql->fetchOne();
         // $product->addData(

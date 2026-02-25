@@ -13,6 +13,14 @@ class Sdp{
         return $modelObj;
     }
 
+    public static function getResourceModel($resourceModel)
+    {
+        $resource = array_map("ucfirst", explode("/", $resourceModel));
+        $resource = sprintf("%s_Model_Resource_%s", $resource[0], $resource[1]);
+        $resourceObj = new $resource();
+        return $resourceObj;
+    }
+
     public static function getBlock($blockName){
         $block = array_map("ucfirst", explode("/", $blockName));
         $block = sprintf("%s_Block_%s", $block[0], $block[1]);

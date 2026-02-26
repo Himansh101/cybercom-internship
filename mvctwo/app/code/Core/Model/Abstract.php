@@ -49,15 +49,17 @@ class Core_Model_Abstract
 
     public function load($value, $field = null)
     {
-        
         $data = $this->getResource()->load($this, $value, $field);
         
         $this->_data = $data;
     }
 
-
-
+    //new added
     
+    public function isEmpty()
+    {
+        return empty($this->_data);
+    }
 
     
 }

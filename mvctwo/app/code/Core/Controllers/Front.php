@@ -7,6 +7,7 @@ class Core_Controllers_Front extends Core_Controllers_Front_Action
     public function run(){
         // $request = new Core_Model_Request();
         $request = $this->getRequest();
+        
 
         $className = sprintf(
             "%s_Controllers_%s",

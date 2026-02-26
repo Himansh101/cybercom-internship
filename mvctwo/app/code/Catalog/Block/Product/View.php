@@ -32,7 +32,7 @@ class Catalog_Block_Product_View extends Core_Block_Template
     {
         $product = Sdp::getModel("catalog/product");
         $id = $this->request->getParams();
-        $productId = isset($id['id']) ? $id['id'] : 1;
+        $productId = isset($id['id']) ? (int)$id['id'] : 1;
 
         // $productId = isset($id['id'])
         //         ? (int)$id['id']

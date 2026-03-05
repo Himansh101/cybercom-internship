@@ -18,9 +18,7 @@ CREATE TABLE products (
     CONSTRAINT fk_category_product FOREIGN KEY (category_id) REFERENCES categories(category_id)
 );
 
--- =========================================================================
--- 2. DATA INSERTION (Including Edge Cases)
--- =========================================================================
+
 INSERT INTO categories (category_id, category_name) VALUES 
 (1, 'Electronics'),
 (2, 'Apparel'),
@@ -30,10 +28,10 @@ INSERT INTO products (product_id, category_id, product_name, revenue) VALUES
 -- Electronics: Has clear top 3, plus a tie, plus a NULL revenue edge case
 (101, 1, 'Laptop Pro', 2500.00),
 (102, 1, 'Smartphone X', 1200.00),
-(103, 1, 'Tablet S', 1200.00),        -- Tie for 2nd place
-(104, 1, 'Wireless Earbuds', 800.00),   -- Will be rank 3 due to DENSE_RANK
-(105, 1, 'Smartwatch', 300.00),         -- Rank 4, should be filtered out
-(106, 1, 'VR Headset', NULL),           -- Edge case: NULL revenue (Hasn't sold yet)
+(103, 1, 'Tablet S', 1200.00),        
+(104, 1, 'Wireless Earbuds', 800.00),   
+(105, 1, 'Smartwatch', 300.00),         
+(106, 1, 'VR Headset', NULL),           -- Edge case: NULL revenue 
 
 -- Apparel: Has exactly 2 products (fewer than 3 edge case)
 (201, 2, 'Leather Jacket', 350.00),
@@ -46,9 +44,8 @@ INSERT INTO products (product_id, category_id, product_name, revenue) VALUES
 (304, 3, 'Algorithms', 30.00);
 
 
--- =========================================================================
--- 3. QUERY: TOP 3 PRODUCTS BY REVENUE PER CATEGORY
--- =========================================================================
+-- PRODUCTS RANKING BASED ON REVENUE
+
 WITH RankedProducts AS (
     SELECT 
         p.product_id,
@@ -56,7 +53,6 @@ WITH RankedProducts AS (
         p.product_name,
         p.revenue,
         -- DENSE_RANK assigns the same rank to duplicate values without skipping subsequent ranks.
-        -- e.g., if two items share Rank 2, the next item is Rank 3.
         -- COALESCE handles the NULL edge case, treating missing revenue as 0 so it ranks last.
         DENSE_RANK() OVER (
             PARTITION BY p.category_id 
@@ -67,9 +63,7 @@ WITH RankedProducts AS (
     INNER JOIN 
         categories c ON p.category_id = c.category_id
 )
--- -------------------------------------------------------------------------
--- FINAL SELECTION: Filter out anything ranked 4th or lower
--- -------------------------------------------------------------------------
+
 SELECT 
     product_id,
     category_name,
@@ -79,7 +73,7 @@ SELECT
 FROM 
     RankedProducts
 WHERE 
-    -- Filtering must happen outside the window function context (hence the CTE)
+    -- Filtering outside the window function context 
     category_rank <= 3
 ORDER BY 
     category_name, 

@@ -24,8 +24,7 @@ class SavedViewController
      */
     public function index(): void
     {
-        $userId = (int) ($_REQUEST['auth_user_id'] ?? 0);
-        $views  = $this->model->findByUser($userId);
+        $views  = $this->model->findAllVisible();
         $this->json(true, $views, null, ['count' => count($views)]);
     }
 
@@ -35,6 +34,12 @@ class SavedViewController
      */
     public function store(): void
     {
+        if (!$this->canManageViews()) {
+            http_response_code(403);
+            $this->json(false, null, 'Viewers can only apply saved views');
+            return;
+        }
+
         $userId = (int) ($_REQUEST['auth_user_id'] ?? 0);
         $body   = json_decode(file_get_contents('php://input'), true) ?? [];
 
@@ -85,6 +90,12 @@ class SavedViewController
      */
     public function update(int $id): void
     {
+        if (!$this->canManageViews()) {
+            http_response_code(403);
+            $this->json(false, null, 'Viewers can only apply saved views');
+            return;
+        }
+
         $userId = (int) ($_REQUEST['auth_user_id'] ?? 0);
         $view   = $this->model->findById($id);
 
@@ -131,6 +142,12 @@ class SavedViewController
      */
     public function destroy(int $id): void
     {
+        if (!$this->canManageViews()) {
+            http_response_code(403);
+            $this->json(false, null, 'Viewers can only apply saved views');
+            return;
+        }
+
         $userId = (int) ($_REQUEST['auth_user_id'] ?? 0);
         $view   = $this->model->findById($id);
 
@@ -147,5 +164,10 @@ class SavedViewController
     private function json(bool $success, mixed $data, ?string $error = null, array $meta = []): void
     {
         echo json_encode(['success' => $success, 'data' => $data, 'error' => $error, 'meta' => $meta]);
+    }
+
+    private function canManageViews(): bool
+    {
+        return (string) ($_REQUEST['auth_user_role'] ?? 'viewer') === 'admin';
     }
 }

@@ -37,6 +37,19 @@ class QueryBuilderService
                 }
             }
         }
+
+        $dateField = $this->resolveDateField($payload);
+        if ($dateField !== '') {
+            $dateRangeFq = $this->buildDate(
+                $dateField,
+                $payload['date_range']['start'] ?? null,
+                $payload['date_range']['end'] ?? null
+            );
+            if ($dateRangeFq !== '') {
+                $fqList[] = $dateRangeFq;
+            }
+        }
+
         if (!empty($fqList)) {
             $groupOperator = strtoupper((string) ($payload['filter_groups_operator'] ?? 'AND'));
             $groupOperator = in_array($groupOperator, ['AND', 'OR'], true) ? $groupOperator : 'AND';
@@ -310,5 +323,21 @@ class QueryBuilderService
             $value = str_replace($char, '\\' . $char, $value);
         }
         return $value;
+    }
+
+    /**
+     * Resolve which date field the toolbar range should target.
+     *
+     * @param array $payload
+     * @return string
+     */
+    private function resolveDateField(array $payload): string
+    {
+        $requested = $this->sanitizeField((string) ($payload['date_field'] ?? ''));
+        if ($requested !== '') {
+            return $requested;
+        }
+
+        return 'date_dt';
     }
 }

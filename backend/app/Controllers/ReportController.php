@@ -115,16 +115,32 @@ class ReportController
     public function export(): void
     {
         $payload = json_decode($_GET['payload'] ?? '{}', true) ?? [];
+        if (!is_array($payload)) {
+            http_response_code(400);
+            header('Content-Type: application/json');
+            $this->json(false, null, 'Invalid export payload');
+            return;
+        }
+
         $solrParams = $this->queryBuilder->build($payload);
         $solrParams['rows'] = 500;
+        $requestedColumns = array_values(array_filter(
+            array_map(
+                fn(mixed $column): string => $this->sanitizeField((string) $column),
+                is_array($payload['columns'] ?? null) ? $payload['columns'] : []
+            ),
+            fn(string $column): bool => $column !== ''
+        ));
 
         $filename = 'report_export_' . date('Y-m-d_His') . '.csv';
         header('Content-Type: text/csv; charset=UTF-8');
         header("Content-Disposition: attachment; filename=\"{$filename}\"");
 
         $output = fopen('php://output', 'w');
+        fwrite($output, "\xEF\xBB\xBF");
         $wroteHeader = false;
         $cursor = '*';
+        $columns = [];
 
         do {
             $result = $this->solr->queryCursor($solrParams, $cursor);
@@ -133,11 +149,18 @@ class ReportController
 
             if (!empty($docs)) {
                 if (!$wroteHeader) {
-                    fputcsv($output, array_keys($docs[0]));
+                    $columns = array_keys($docs[0]);
+                    fputcsv($output, $columns);
                     $wroteHeader = true;
                 }
                 foreach ($docs as $doc) {
-                    fputcsv($output, $doc);
+                    $row = [];
+                    foreach ($columns as $column) {
+                        $value = $doc[$column] ?? '';
+                        $row[] = is_array($value) ? json_encode($value, JSON_UNESCAPED_SLASHES) : $value;
+                    }
+
+                    fputcsv($output, $row);
                 }
             }
 
@@ -146,6 +169,10 @@ class ReportController
             }
             $cursor = $nextCursor;
         } while (true);
+
+        if (!$wroteHeader && $requestedColumns !== []) {
+            fputcsv($output, $requestedColumns);
+        }
 
         fclose($output);
     }
@@ -316,6 +343,10 @@ class ReportController
      */
     private function buildLabel(string $name): string
     {
+        if ($name === 'source_file_s') {
+            return 'Source File Name';
+        }
+
         $label = preg_replace('/(_dt|_s|_i|_f|_b|_l)$/', '', $name);
         $label = str_replace('_', ' ', (string) $label);
         return ucwords(trim($label));
@@ -358,6 +389,7 @@ class ReportController
             ['name' => 'margin', 'type' => 'pfloat', 'label' => 'Margin', 'faceted' => false],
             ['name' => 'region', 'type' => 'string', 'label' => 'Region', 'faceted' => true],
             ['name' => 'is_active', 'type' => 'boolean', 'label' => 'Is Active', 'faceted' => true],
+            ['name' => 'source_file_s', 'type' => 'string', 'label' => 'Source File Name', 'faceted' => true],
             ['name' => 'created_at', 'type' => 'pdate', 'label' => 'Created At', 'faceted' => false],
         ];
     }

@@ -9,6 +9,7 @@ import DataTable from '../components/DataTable/DataTable.jsx';
 import ColumnSelector from '../components/DataTable/ColumnSelector.jsx';
 import ChartRenderer from '../components/ChartRenderer/ChartRenderer.jsx';
 import SavedViews from '../components/SavedViews/SavedViews.jsx';
+import AdminUpload from '../components/AdminUpload/AdminUpload.jsx';
 
 /**
  * ReportPage — main orchestration page.
@@ -21,7 +22,14 @@ export default function ReportPage({ onLogout }) {
   const [filterOpen,  setFilterOpen]  = useState(false);
 
   const { setSchema, schema, total, isLoading } = useReportStore();
-  const { dateRange, setDateRange, compareMode, setCompareMode } = useFilterStore();
+  const {
+    dateRange,
+    setDateRange,
+    compareMode,
+    setCompareMode,
+    applyFilters,
+    hasUnappliedChanges,
+  } = useFilterStore();
 
   // Load schema on mount
   const { data: schemaRes } = useQuery({
@@ -38,12 +46,15 @@ export default function ReportPage({ onLogout }) {
   useReport();
 
   const user = (() => { try { return JSON.parse(localStorage.getItem('user') ?? '{}'); } catch { return {}; } })();
+  const isAdmin = user.role === 'admin';
 
   const handleExport = () => {
     const { toAppliedPayload } = useFilterStore.getState();
     const { getActiveColumns } = useReportStore.getState();
     api.exportReport({ ...toAppliedPayload(), columns: getActiveColumns() });
   };
+
+  const hasPendingFilterChanges = hasUnappliedChanges();
 
   if (schema.length === 0) {
     return (
@@ -118,9 +129,19 @@ export default function ReportPage({ onLogout }) {
           ⚙ Filters {filterOpen ? '▲' : '▼'}
         </button>
 
+        <button
+          className={`btn-primary text-xs ${hasPendingFilterChanges ? '' : 'opacity-60'}`}
+          onClick={applyFilters}
+          disabled={!hasPendingFilterChanges}
+        >
+          Apply
+        </button>
+
         <button className="btn-secondary text-xs" onClick={handleExport}>
           ⬇ CSV
         </button>
+
+        {isAdmin && <AdminUpload />}
 
         {/* User / logout */}
         <div className="flex items-center gap-2 text-xs text-gray-500 ml-auto">

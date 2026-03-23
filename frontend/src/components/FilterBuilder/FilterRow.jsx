@@ -3,7 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { api } from '../../services/api.js';
 
-const FACETED_FIELDS = ['category', 'sub_category', 'region'];
+const FACETED_FIELDS = ['category', 'sub_category', 'region', 'source_file_s'];
 
 /**
  * FilterRow — renders a single filter rule with field selector,
@@ -19,12 +19,16 @@ export default function FilterRow({ groupId, rule, schema, onUpdate, onRemove })
     isDragging,
   } = useSortable({ id: rule.id });
   const fieldDef = schema.find((f) => f.name === rule.field);
+  const isFacetedField = (fieldName) => {
+    const schemaField = schema.find((s) => s.name === fieldName);
+    return FACETED_FIELDS.includes(fieldName) || Boolean(schemaField?.faceted);
+  };
 
   // Fetch facet values for dropdown fields
   const { data: facetRes } = useQuery({
     queryKey:  ['facets', rule.field],
     queryFn:   () => api.getFacets(rule.field).then((r) => r.data),
-    enabled:   !!rule.field && FACETED_FIELDS.includes(rule.field),
+    enabled:   !!rule.field && isFacetedField(rule.field),
     staleTime: 60_000,
   });
   const facetOptions = facetRes ?? [];
@@ -33,7 +37,7 @@ export default function FilterRow({ groupId, rule, schema, onUpdate, onRemove })
   const inferType = (fieldName) => {
     const f = schema.find((s) => s.name === fieldName);
     if (!f) return 'text';
-    if (FACETED_FIELDS.includes(fieldName)) return 'dropdown';
+    if (isFacetedField(fieldName)) return 'dropdown';
     if (f.type === 'pfloat' || f.type === 'pint') return 'range';
     if (f.type === 'pdate')    return 'date';
     if (f.type === 'boolean')  return 'boolean';

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controllers\AuthController;
+use App\Controllers\IngestionController;
 use App\Controllers\ReportController;
 use App\Controllers\FilterController;
 use App\Controllers\SavedViewController;
@@ -62,6 +63,7 @@ $reports     = new ReportController();
 $filters     = new FilterController();
 $savedViews  = new SavedViewController();
 $authCtrl    = new AuthController();
+$ingestion   = new IngestionController();
 
 $params = [];
 
@@ -110,6 +112,14 @@ if (matchRoute('/facets/{field}', $uri, $params)) {
     if ($method !== 'GET') { methodNotAllowed(); }
     // $auth->handle();
     $filters->facets($params['field']);
+    exit;
+}
+
+// POST /ingestion/upload
+if (matchRoute('/ingestion/upload', $uri)) {
+    if ($method !== 'POST') { methodNotAllowed(); }
+    $auth->handle();
+    $ingestion->uploadCsv();
     exit;
 }
 

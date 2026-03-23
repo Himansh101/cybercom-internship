@@ -160,4 +160,14 @@ class RedisService
             return false;
         }
     }
+
+    public function flushAll(): bool
+    {
+        if ($this->redis === null) return false;
+        try {
+            return (bool) $this->redis->flushDB();
+        } catch (\Exception) {
+            return false;
+        }
+    }
 }

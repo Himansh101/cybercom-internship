@@ -137,7 +137,7 @@ class SolrService
     public function queryCursor(array $params, string $cursorMark = '*'): array
     {
         $params['cursorMark'] = $cursorMark;
-        $params['sort']       = $params['sort'] ?? 'id asc';
+        $params['sort']       = $this->normalizeCursorSort($params['sort'] ?? 'id asc');
         unset($params['start']);
 
         $response = $this->httpGet($this->config->getSelectUrl(), $params);
@@ -149,6 +149,32 @@ class SolrService
             'docs'           => $data['response']['docs']  ?? [],
             'nextCursorMark' => $data['nextCursorMark']    ?? $cursorMark,
         ];
+    }
+
+    /**
+     * Index documents into Solr using the JSON update API.
+     *
+     * @param array $documents
+     * @return bool
+     */
+    public function addDocuments(array $documents): bool
+    {
+        if ($documents === []) {
+            return true;
+        }
+
+        $response = $this->httpPostJson(
+            $this->config->getUpdateUrl() . '/json/docs?commit=true',
+            $documents
+        );
+
+        if ($response === null) {
+            return false;
+        }
+
+        $this->redis->flushAll();
+
+        return true;
     }
 
     /**
@@ -245,6 +271,53 @@ class SolrService
         curl_close($ch);
 
         return $errno === 0 ? $response : null;
+    }
+
+    /**
+     * Perform an HTTP POST request with a JSON body.
+     *
+     * @param string $url
+     * @param mixed $payload
+     * @return string|null
+     */
+    private function httpPostJson(string $url, mixed $payload): ?string
+    {
+        $body = json_encode($payload, JSON_UNESCAPED_SLASHES);
+        if ($body === false) {
+            return null;
+        }
+
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 60,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $body,
+            CURLOPT_HTTPHEADER => [
+                'Accept: application/json',
+                'Content-Type: application/json',
+            ],
+        ]);
+
+        $response = curl_exec($ch);
+        $errno = curl_errno($ch);
+        curl_close($ch);
+
+        return $errno === 0 ? $response : null;
+    }
+
+    private function normalizeCursorSort(string $sort): string
+    {
+        $sort = trim($sort);
+        if ($sort === '') {
+            return 'id asc';
+        }
+
+        if (preg_match('/(^|,)\s*id\s+(asc|desc)\s*$/i', $sort) === 1 || str_contains(strtolower($sort), ',id ')) {
+            return $sort;
+        }
+
+        return $sort . ',id asc';
     }
 
     /**

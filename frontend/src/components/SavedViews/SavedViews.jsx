@@ -13,6 +13,8 @@ export default function SavedViews() {
   const [showModal, setShowModal] = useState(false);
   const [viewName, setViewName]   = useState('');
   const [saveError, setSaveError] = useState('');
+  const user = (() => { try { return JSON.parse(localStorage.getItem('user') ?? '{}'); } catch { return {}; } })();
+  const canManageViews = user.role === 'admin';
 
   const qc = useQueryClient();
 
@@ -120,15 +122,17 @@ export default function SavedViews() {
             >
               Original
             </button>
-            <button
-              className="btn-primary py-1 text-xs"
-              onClick={() => {
-                setShowModal(true);
-                setSaveError('');
-              }}
-            >
-              + Save
-            </button>
+            {canManageViews && (
+              <button
+                className="btn-primary py-1 text-xs"
+                onClick={() => {
+                  setShowModal(true);
+                  setSaveError('');
+                }}
+              >
+                + Save
+              </button>
+            )}
           </div>
         </div>
 
@@ -141,6 +145,7 @@ export default function SavedViews() {
                 key={view.id}
                 view={view}
                 isActive={view.id === activeViewId}
+                canManage={canManageViews}
                 onLoad={handleLoad}
                 onDelete={(id) => deleteMutation.mutate(id)}
                 onSetDefault={(v) => defaultMutation.mutate(v)}
@@ -149,7 +154,7 @@ export default function SavedViews() {
           )}
         </div>
       </div>
-      {typeof document !== 'undefined' ? createPortal(modal, document.body) : null}
+      {canManageViews && typeof document !== 'undefined' ? createPortal(modal, document.body) : null}
     </>
   );
 }

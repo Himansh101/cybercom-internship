@@ -41,6 +41,27 @@ class SavedViewModel
     }
 
     /**
+     * Get all saved views that can be applied by any authenticated user.
+     *
+     * @return array
+     */
+    public function findAllVisible(): array
+    {
+        $stmt = $this->db->query(
+            'SELECT sv.*, u.name AS owner_name
+             FROM saved_views sv
+             INNER JOIN users u ON u.id = sv.user_id
+             ORDER BY sv.is_default DESC, sv.created_at DESC'
+        );
+        $rows = $stmt->fetchAll();
+
+        return array_map(function (array $row) {
+            $row['config'] = json_decode($row['config'], true) ?? [];
+            return $row;
+        }, $rows);
+    }
+
+    /**
      * Find a single saved view by ID.
      *
      * @param int $id

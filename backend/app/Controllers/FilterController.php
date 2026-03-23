@@ -27,7 +27,7 @@ class FilterController
     public function facets(string $field): void
     {
         // Whitelist allowed facet fields to prevent abuse
-        $allowed = ['category', 'sub_category', 'region', 'is_active'];
+        $allowed = ['category', 'sub_category', 'region', 'is_active', 'source_file_s', 'type_s', 'brand_name_s', 'stock_s'];
 
         if (!in_array($field, $allowed, true)) {
             http_response_code(400);

@@ -1,0 +1,11 @@
+{
+    "name": "reporting/kafka-producer",
+    "require": {
+        "php": "^8.2",
+        "vlucas/phpdotenv": "^5.5",
+        "longlang/phpkafka": "^1.2"
+    },
+    "config": {
+        "allow-plugins": {}
+    }
+}

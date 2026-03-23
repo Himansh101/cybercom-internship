@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schema name="report_data" version="1.6">
+
+  <!-- Field types -->
+  <fieldType name="string"       class="solr.StrField"        sortMissingLast="true" docValues="true"/>
+  <fieldType name="text_general" class="solr.TextField"       positionIncrementGap="100">
+    <analyzer type="index">
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+    </analyzer>
+    <analyzer type="query">
+      <tokenizer class="solr.StandardTokenizerFactory"/>
+      <filter class="solr.LowerCaseFilterFactory"/>
+    </analyzer>
+  </fieldType>
+  <fieldType name="pfloat"   class="solr.FloatPointField"  docValues="true"/>
+  <fieldType name="pint"     class="solr.IntPointField"    docValues="true"/>
+  <fieldType name="plong"    class="solr.LongPointField"   docValues="true"/>
+  <fieldType name="pdate"    class="solr.DatePointField"   docValues="true"/>
+  <fieldType name="boolean"  class="solr.BoolField"        sortMissingLast="true"/>
+
+  <!-- Fixed fields -->
+  <field name="id"            type="string"       indexed="true" stored="true" required="true" multiValued="false"/>
+  <field name="source_file_s" type="string"       indexed="true" stored="true"/>
+  <field name="_version_"     type="plong"        indexed="false" stored="false"/>
+
+  <!-- Dynamic fields matching your consumer suffix pattern -->
+  <dynamicField name="*_s"   type="string"   indexed="true" stored="true"/>
+  <dynamicField name="*_i"   type="pint"     indexed="true" stored="true"/>
+  <dynamicField name="*_f"   type="pfloat"   indexed="true" stored="true"/>
+  <dynamicField name="*_b"   type="boolean"  indexed="true" stored="true"/>
+  <dynamicField name="*_dt"  type="pdate"    indexed="true" stored="true"/>
+  <dynamicField name="*_t"   type="text_general" indexed="true" stored="true"/>
+  <dynamicField name="*_l"   type="plong"    indexed="true" stored="true"/>
+
+  <uniqueKey>id</uniqueKey>
+
+</schema>

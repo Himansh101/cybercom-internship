@@ -65,6 +65,19 @@ export const useReportStore = create((set, get) => ({
     });
   },
 
+  resetToBaseView: () => {
+    const schema = get().schema;
+    const defaults = schema.map((field) => field.name);
+
+    set({
+      activeViewId: null,
+      visibleColumns: defaults,
+      columnOrder: defaults,
+      columnWidths: {},
+      page: 1,
+    });
+  },
+
   /** Build the columns portion of the API payload */
   getActiveColumns: () => {
     const { columnOrder, visibleColumns } = get();

@@ -1,5 +1,10 @@
 const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api';
 
+const clearAuth = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+};
+
 /** Retrieve the JWT from localStorage. */
 const getToken = () => localStorage.getItem('token');
 
@@ -18,7 +23,15 @@ const headers = (extra = {}) => {
 const unwrap = async (res) => {
   const json = await res.json();
   if (!res.ok || !json.success) {
-    throw new Error(json.error ?? `HTTP ${res.status}`);
+    const message = json.error ?? `HTTP ${res.status}`;
+    const isAuthError = res.status === 401 || /token has expired|invalid token|missing or malformed authorization/i.test(message);
+
+    if (isAuthError) {
+      clearAuth();
+      window.location.reload();
+    }
+
+    throw new Error(message);
   }
   return json;
 };
@@ -36,7 +49,13 @@ const getBlob = async (path, payload) => {
   const t   = getToken();
   const url = `${BASE}${path}?payload=${encodeURIComponent(JSON.stringify(payload))}`;
   const res = await fetch(url, { headers: { Authorization: `Bearer ${t}` } });
-  if (!res.ok) throw new Error('Export failed');
+  if (!res.ok) {
+    if (res.status === 401) {
+      clearAuth();
+      window.location.reload();
+    }
+    throw new Error('Export failed');
+  }
   const blob = await res.blob();
   const a    = document.createElement('a');
   a.href     = URL.createObjectURL(blob);

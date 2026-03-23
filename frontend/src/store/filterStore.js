@@ -166,14 +166,28 @@ export const useFilterStore = create((set, get) => ({
   })),
 
   // ── Sorting ─────────────────────────────────────────────────────────────────
-  setSort: (field, direction) => set({ sorting: { field, direction } }),
-
-  toggleSort: (field) => set((s) => ({
-    sorting: {
-      field,
-      direction: s.sorting.field === field && s.sorting.direction === 'asc' ? 'desc' : 'asc',
+  setSort: (field, direction) => set((s) => ({
+    sorting: { field, direction },
+    appliedConfig: {
+      ...s.appliedConfig,
+      sorting: { field, direction },
     },
   })),
+
+  toggleSort: (field) => set((s) => {
+    const nextSorting = {
+      field,
+      direction: s.sorting.field === field && s.sorting.direction === 'asc' ? 'desc' : 'asc',
+    };
+
+    return {
+      sorting: nextSorting,
+      appliedConfig: {
+        ...s.appliedConfig,
+        sorting: nextSorting,
+      },
+    };
+  }),
 
   // ── Date range ──────────────────────────────────────────────────────────────
   setDateRange: (start, end) => set({ dateRange: { start, end } }),

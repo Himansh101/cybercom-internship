@@ -115,7 +115,7 @@ if (matchRoute('/facets/{field}', $uri, $params)) {
 
 // GET /saved-views
 if (matchRoute('/saved-views', $uri) && $method === 'GET') {
-    // $auth->handle();
+    $auth->handle();
     $savedViews->index();
     exit;
 }

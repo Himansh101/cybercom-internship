@@ -13,10 +13,10 @@ import { useDebounce } from './useDebounce.js';
  */
 export function useReport() {
   const { page, perPage, getActiveColumns, setData, setLoading, setError } = useReportStore();
-  const { toPayload } = useFilterStore();
+  const { toAppliedPayload } = useFilterStore();
 
   // Build payload from stores
-  const filterPayload  = toPayload();
+  const filterPayload  = toAppliedPayload();
   const activeColumns  = getActiveColumns();
 
   const payload = {

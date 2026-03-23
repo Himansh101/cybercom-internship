@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { api } from '../../services/api.js';
 
 const FACETED_FIELDS = ['category', 'sub_category', 'region'];
@@ -8,6 +10,14 @@ const FACETED_FIELDS = ['category', 'sub_category', 'region'];
  * type-appropriate value input, and a remove button.
  */
 export default function FilterRow({ groupId, rule, schema, onUpdate, onRemove }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: rule.id });
   const fieldDef = schema.find((f) => f.name === rule.field);
 
   // Fetch facet values for dropdown fields
@@ -35,7 +45,24 @@ export default function FilterRow({ groupId, rule, schema, onUpdate, onRemove })
   };
 
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    <div
+      ref={setNodeRef}
+      className="flex items-center gap-2 flex-wrap rounded-md"
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.7 : 1,
+      }}
+    >
+      <button
+        type="button"
+        className="cursor-grab text-gray-400 hover:text-gray-600 active:cursor-grabbing"
+        aria-label="Drag filter"
+        {...attributes}
+        {...listeners}
+      >
+        ::
+      </button>
       {/* Field selector */}
       <select
         className="input w-36"

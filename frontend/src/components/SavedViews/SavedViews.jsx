@@ -15,8 +15,8 @@ export default function SavedViews() {
 
   const qc = useQueryClient();
 
-  const { activeViewId, loadView, visibleColumns, columnWidths } = useReportStore();
-  const { searchQuery, filterGroups, sorting, dateRange, compareMode } = useFilterStore();
+  const { activeViewId, loadView, visibleColumns, columnOrder, columnWidths } = useReportStore();
+  const { serializeForSavedView } = useFilterStore();
 
   // Fetch saved views
   const { data: viewsRes } = useQuery({
@@ -51,15 +51,13 @@ export default function SavedViews() {
 
   const handleSave = () => {
     if (!viewName.trim()) { setSaveError('Please enter a name'); return; }
+    const filterConfig = serializeForSavedView();
     saveMutation.mutate({
       name:          viewName.trim(),
       columns:       visibleColumns,
+      column_order:  columnOrder,
       column_widths: columnWidths,
-      search_query:  searchQuery,
-      filters:       filterGroups,
-      sorting,
-      date_range:    dateRange,
-      compare_mode:  compareMode,
+      ...filterConfig,
     });
   };
 

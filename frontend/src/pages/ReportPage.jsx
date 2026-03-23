@@ -15,7 +15,9 @@ import SavedViews from '../components/SavedViews/SavedViews.jsx';
  * Loads schema, wires all components together, handles date compare toolbar.
  */
 export default function ReportPage({ onLogout }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => (
+    typeof window === 'undefined' ? true : window.innerWidth >= 768
+  ));
   const [filterOpen,  setFilterOpen]  = useState(false);
 
   const { setSchema, schema, total, isLoading } = useReportStore();
@@ -38,9 +40,9 @@ export default function ReportPage({ onLogout }) {
   const user = (() => { try { return JSON.parse(localStorage.getItem('user') ?? '{}'); } catch { return {}; } })();
 
   const handleExport = () => {
-    const { toPayload } = useFilterStore.getState();
+    const { toAppliedPayload } = useFilterStore.getState();
     const { getActiveColumns } = useReportStore.getState();
-    api.exportReport({ ...toPayload(), columns: getActiveColumns() });
+    api.exportReport({ ...toAppliedPayload(), columns: getActiveColumns() });
   };
 
   if (schema.length === 0) {
@@ -57,7 +59,7 @@ export default function ReportPage({ onLogout }) {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* ── Top bar ───────────────────────────────────────────────────────── */}
-      <header className="bg-white border-b border-gray-200 px-4 py-2 flex items-center gap-3 shadow-sm">
+      <header className="bg-white border-b border-gray-200 px-4 py-2 flex flex-wrap items-center gap-3 shadow-sm">
         <button
           className="text-gray-500 hover:text-gray-700"
           onClick={() => setSidebarOpen((v) => !v)}
@@ -67,10 +69,10 @@ export default function ReportPage({ onLogout }) {
         </button>
         <h1 className="font-semibold text-gray-800 text-base">Dynamic Reports</h1>
 
-        <div className="flex-1" />
+        <div className="hidden md:block flex-1" />
 
         {/* Date range */}
-        <div className="flex items-center gap-2 text-xs">
+        <div className="flex flex-wrap items-center gap-2 text-xs w-full md:w-auto">
           <span className="text-gray-500">From</span>
           <input
             type="date"
@@ -88,7 +90,7 @@ export default function ReportPage({ onLogout }) {
         </div>
 
         {/* Compare mode */}
-        <div className="flex rounded border border-gray-300 overflow-hidden text-xs">
+        <div className="flex rounded border border-gray-300 overflow-hidden text-xs w-full md:w-auto">
           {[
             { label: 'No compare', value: null },
             { label: 'Prev period', value: 'previous_period' },
@@ -108,7 +110,9 @@ export default function ReportPage({ onLogout }) {
           ))}
         </div>
 
-        <ColumnSelector schema={schema} />
+        <div className="w-full md:w-auto">
+          <ColumnSelector schema={schema} />
+        </div>
 
         <button className="btn-secondary text-xs" onClick={() => setFilterOpen((v) => !v)}>
           ⚙ Filters {filterOpen ? '▲' : '▼'}
@@ -119,23 +123,30 @@ export default function ReportPage({ onLogout }) {
         </button>
 
         {/* User / logout */}
-        <div className="flex items-center gap-2 text-xs text-gray-500">
+        <div className="flex items-center gap-2 text-xs text-gray-500 ml-auto">
           <span>{user.name ?? 'User'}</span>
           <button className="btn-secondary py-1 px-2" onClick={onLogout}>Logout</button>
         </div>
       </header>
 
       {/* ── Body ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="relative flex flex-1 overflow-hidden">
+        {sidebarOpen && (
+          <button
+            className="fixed inset-0 z-20 bg-black/20 md:hidden"
+            aria-label="Close saved views"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
         {/* Sidebar — saved views */}
         {sidebarOpen && (
-          <aside className="w-56 bg-white border-r border-gray-200 flex flex-col overflow-hidden">
+          <aside className="fixed inset-y-0 left-0 top-[57px] z-30 w-72 max-w-[85vw] bg-white border-r border-gray-200 flex flex-col overflow-hidden shadow-lg md:static md:top-auto md:z-0 md:w-56 md:max-w-none md:shadow-none">
             <SavedViews />
           </aside>
         )}
 
         {/* Main content */}
-        <main className="flex-1 overflow-auto p-4 space-y-4">
+        <main className="min-w-0 flex-1 overflow-auto p-4 space-y-4">
           {/* Loading indicator */}
           {isLoading && (
             <div className="flex items-center gap-2 text-xs text-blue-600">

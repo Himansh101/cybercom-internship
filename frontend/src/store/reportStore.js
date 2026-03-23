@@ -54,10 +54,12 @@ export const useReportStore = create((set, get) => ({
    */
   loadView: (view) => {
     const config = view.config ?? {};
+    const savedVisibleColumns = config.columns ?? get().visibleColumns;
+    const savedColumnOrder = config.column_order ?? config.columns ?? get().columnOrder;
     set({
       activeViewId:   view.id,
-      visibleColumns: config.columns     ?? get().visibleColumns,
-      columnOrder:    config.columns     ?? get().columnOrder,
+      visibleColumns: savedVisibleColumns,
+      columnOrder:    savedColumnOrder,
       columnWidths:   config.column_widths ?? {},
       page:           1,
     });

@@ -92,7 +92,7 @@ function normalizeCategoryValue(value) {
  */
 export default function ChartRenderer({ schema }) {
   const { total } = useReportStore();
-  const { addGroup, addFilter, filterGroups, toPayload } = useFilterStore();
+  const { addGroup, addFilter, applyFilters, filterGroups, toAppliedPayload } = useFilterStore();
   const chartRef = useRef(null);
 
   const xCandidates = schema.filter((field) => (
@@ -134,7 +134,7 @@ export default function ChartRenderer({ schema }) {
   }, [schema, xKey, yKey]);
 
   const chartPayload = {
-    ...toPayload(),
+    ...toAppliedPayload(),
     x_field: xKey,
     y_field: yKey,
     limit: 15,
@@ -168,6 +168,7 @@ export default function ChartRenderer({ schema }) {
 
     if (groupId) {
       addFilter(groupId, { field: xKey, type: 'dropdown', value: [value] });
+      applyFilters();
     }
   };
 

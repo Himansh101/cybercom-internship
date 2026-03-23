@@ -47,8 +47,10 @@ class SavedViewController
 
         $config = [
             'columns'       => $body['columns']       ?? [],
+            'column_order'  => $body['column_order']  ?? ($body['columns'] ?? []),
             'search_query'  => $body['search_query']  ?? '',
             'filters'       => $body['filters']       ?? [],
+            'filter_groups_operator' => $body['filter_groups_operator'] ?? 'AND',
             'sorting'       => $body['sorting']       ?? [],
             'column_widths' => $body['column_widths'] ?? [],
             'date_range'    => $body['date_range']    ?? [],
@@ -99,14 +101,17 @@ class SavedViewController
             $this->model->clearDefaults($userId);
         }
 
+        $existingConfig = json_decode($view['config'], true) ?? [];
         $config = [
-            'columns'       => $body['columns']       ?? json_decode($view['config'], true)['columns'] ?? [],
-            'search_query'  => $body['search_query']  ?? json_decode($view['config'], true)['search_query'] ?? '',
-            'filters'       => $body['filters']       ?? json_decode($view['config'], true)['filters'] ?? [],
-            'sorting'       => $body['sorting']       ?? json_decode($view['config'], true)['sorting'] ?? [],
-            'column_widths' => $body['column_widths'] ?? json_decode($view['config'], true)['column_widths'] ?? [],
-            'date_range'    => $body['date_range']    ?? json_decode($view['config'], true)['date_range'] ?? [],
-            'compare_mode'  => $body['compare_mode']  ?? json_decode($view['config'], true)['compare_mode'] ?? null,
+            'columns'       => $body['columns']       ?? ($existingConfig['columns'] ?? []),
+            'column_order'  => $body['column_order']  ?? ($existingConfig['column_order'] ?? ($body['columns'] ?? ($existingConfig['columns'] ?? []))),
+            'search_query'  => $body['search_query']  ?? ($existingConfig['search_query'] ?? ''),
+            'filters'       => $body['filters']       ?? ($existingConfig['filters'] ?? []),
+            'filter_groups_operator' => $body['filter_groups_operator'] ?? ($existingConfig['filter_groups_operator'] ?? 'AND'),
+            'sorting'       => $body['sorting']       ?? ($existingConfig['sorting'] ?? []),
+            'column_widths' => $body['column_widths'] ?? ($existingConfig['column_widths'] ?? []),
+            'date_range'    => $body['date_range']    ?? ($existingConfig['date_range'] ?? []),
+            'compare_mode'  => $body['compare_mode']  ?? ($existingConfig['compare_mode'] ?? null),
         ];
 
         $this->model->update($id, [

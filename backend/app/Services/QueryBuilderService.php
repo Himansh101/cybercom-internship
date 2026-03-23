@@ -38,7 +38,14 @@ class QueryBuilderService
             }
         }
         if (!empty($fqList)) {
-            $params['fq'] = $fqList;
+            $groupOperator = strtoupper((string) ($payload['filter_groups_operator'] ?? 'AND'));
+            $groupOperator = in_array($groupOperator, ['AND', 'OR'], true) ? $groupOperator : 'AND';
+
+            if ($groupOperator === 'AND') {
+                $params['fq'] = $fqList;
+            } else {
+                $params['fq'] = ['(' . implode(" {$groupOperator} ", $fqList) . ')'];
+            }
         }
 
         // ── Field list (fl) ────────────────────────────────────────────────

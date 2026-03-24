@@ -37,6 +37,37 @@ CREATE TABLE IF NOT EXISTS column_config (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- ─── Scheduled Reports ────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS scheduled_reports (
+  id               INT AUTO_INCREMENT PRIMARY KEY,
+  user_id          INT          NOT NULL,
+  report_name      VARCHAR(200) NOT NULL,
+  recipient_email  VARCHAR(150) NOT NULL,
+  frequency        ENUM('daily','weekly','monthly') NOT NULL DEFAULT 'daily',
+  send_time        CHAR(5)      NOT NULL,
+  day_of_week      TINYINT      NULL,
+  day_of_month     TINYINT      NULL,
+  timezone         VARCHAR(64)  NOT NULL DEFAULT 'UTC',
+  payload          JSON         NOT NULL,
+  is_active        TINYINT(1)   NOT NULL DEFAULT 1,
+  last_run_at      DATETIME     NULL,
+  created_at       TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+  updated_at       TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_schedule_active (is_active, frequency, send_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS scheduled_report_runs (
+  id                  INT AUTO_INCREMENT PRIMARY KEY,
+  scheduled_report_id INT          NOT NULL,
+  status              ENUM('success','failed') NOT NULL,
+  message             VARCHAR(255) NULL,
+  delivered_to        VARCHAR(150) NULL,
+  created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (scheduled_report_id) REFERENCES scheduled_reports(id) ON DELETE CASCADE,
+  INDEX idx_schedule_runs (scheduled_report_id, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- ─── Seed: Demo users ─────────────────────────────────────────────────────────
 -- Password: admin123   (bcrypt)
 INSERT INTO users (name, email, password_hash, role) VALUES

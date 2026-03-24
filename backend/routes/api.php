@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Controllers\AuthController;
 use App\Controllers\IngestionController;
 use App\Controllers\ReportController;
+use App\Controllers\ScheduledReportController;
 use App\Controllers\FilterController;
 use App\Controllers\SavedViewController;
 use App\Middleware\AuthMiddleware;
@@ -64,6 +65,7 @@ $filters     = new FilterController();
 $savedViews  = new SavedViewController();
 $authCtrl    = new AuthController();
 $ingestion   = new IngestionController();
+$scheduledReports = new ScheduledReportController();
 
 $params = [];
 
@@ -148,6 +150,27 @@ if (matchRoute('/saved-views/{id}', $uri, $params) && $method === 'PUT') {
 if (matchRoute('/saved-views/{id}', $uri, $params) && $method === 'DELETE') {
     $auth->handle();
     $savedViews->destroy((int) $params['id']);
+    exit;
+}
+
+// GET /scheduled-reports
+if (matchRoute('/scheduled-reports', $uri) && $method === 'GET') {
+    $auth->handle();
+    $scheduledReports->index();
+    exit;
+}
+
+// POST /scheduled-reports
+if (matchRoute('/scheduled-reports', $uri) && $method === 'POST') {
+    $auth->handle();
+    $scheduledReports->store();
+    exit;
+}
+
+// DELETE /scheduled-reports/{id}
+if (matchRoute('/scheduled-reports/{id}', $uri, $params) && $method === 'DELETE') {
+    $auth->handle();
+    $scheduledReports->destroy((int) $params['id']);
     exit;
 }
 

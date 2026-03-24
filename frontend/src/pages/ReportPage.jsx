@@ -11,6 +11,7 @@ import ColumnSelector from '../components/DataTable/ColumnSelector.jsx';
 import ChartRenderer from '../components/ChartRenderer/ChartRenderer.jsx';
 import SavedViews from '../components/SavedViews/SavedViews.jsx';
 import AdminUpload from '../components/AdminUpload/AdminUpload.jsx';
+import ScheduledReports from '../components/ScheduledReports/ScheduledReports.jsx';
 
 /**
  * ReportPage — main orchestration page.
@@ -144,6 +145,7 @@ export default function ReportPage({ onLogout }) {
         </button>
 
         {isAdmin && <AdminUpload />}
+        {isAdmin && <ScheduledReports defaultEmail={user.email ?? ''} />}
 
         <div className={`rounded border px-2 py-1 text-xs ${
           realtimeStatus === 'connected'

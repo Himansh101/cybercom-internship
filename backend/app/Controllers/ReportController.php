@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Services\QueryBuilderService;
+use App\Services\ReportExportService;
 use App\Services\SolrService;
 
 /**
@@ -14,11 +15,13 @@ class ReportController
 {
     private SolrService $solr;
     private QueryBuilderService $queryBuilder;
+    private ReportExportService $reportExport;
 
     public function __construct()
     {
         $this->solr = new SolrService();
         $this->queryBuilder = new QueryBuilderService();
+        $this->reportExport = new ReportExportService();
     }
 
     /**
@@ -121,60 +124,11 @@ class ReportController
             $this->json(false, null, 'Invalid export payload');
             return;
         }
-
-        $solrParams = $this->queryBuilder->build($payload);
-        $solrParams['rows'] = 500;
-        $requestedColumns = array_values(array_filter(
-            array_map(
-                fn(mixed $column): string => $this->sanitizeField((string) $column),
-                is_array($payload['columns'] ?? null) ? $payload['columns'] : []
-            ),
-            fn(string $column): bool => $column !== ''
-        ));
-
-        $filename = 'report_export_' . date('Y-m-d_His') . '.csv';
+        $export = $this->reportExport->buildCsv($payload);
+        $filename = $export['filename'];
         header('Content-Type: text/csv; charset=UTF-8');
         header("Content-Disposition: attachment; filename=\"{$filename}\"");
-
-        $output = fopen('php://output', 'w');
-        fwrite($output, "\xEF\xBB\xBF");
-        $wroteHeader = false;
-        $cursor = '*';
-        $columns = [];
-
-        do {
-            $result = $this->solr->queryCursor($solrParams, $cursor);
-            $docs = $result['docs'];
-            $nextCursor = $result['nextCursorMark'];
-
-            if (!empty($docs)) {
-                if (!$wroteHeader) {
-                    $columns = array_keys($docs[0]);
-                    fputcsv($output, $columns);
-                    $wroteHeader = true;
-                }
-                foreach ($docs as $doc) {
-                    $row = [];
-                    foreach ($columns as $column) {
-                        $value = $doc[$column] ?? '';
-                        $row[] = is_array($value) ? json_encode($value, JSON_UNESCAPED_SLASHES) : $value;
-                    }
-
-                    fputcsv($output, $row);
-                }
-            }
-
-            if ($nextCursor === $cursor || empty($docs)) {
-                break;
-            }
-            $cursor = $nextCursor;
-        } while (true);
-
-        if (!$wroteHeader && $requestedColumns !== []) {
-            fputcsv($output, $requestedColumns);
-        }
-
-        fclose($output);
+        echo $export['csv'];
     }
 
     /**

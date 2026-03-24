@@ -101,4 +101,7 @@ export const api = {
   saveView:       (data)      => post('/saved-views', data),
   updateView:     (id, data)  => put(`/saved-views/${id}`, data),
   deleteView:     (id)        => del(`/saved-views/${id}`),
+  getScheduledReports: ()     => get('/scheduled-reports'),
+  saveScheduledReport: (data) => post('/scheduled-reports', data),
+  deleteScheduledReport: (id) => del(`/scheduled-reports/${id}`),
 };

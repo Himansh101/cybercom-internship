@@ -56,6 +56,15 @@ services:
     networks:
       - reporting-net
 
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: mailhog
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - reporting-net
+
   mysql:
     image: mysql:8
     container_name: mysql
@@ -88,8 +97,28 @@ services:
       - solr
       - redis
       - kafka
+      - mailhog
     networks:
       - reporting-net
+
+  scheduled-reports-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: scheduled-reports-worker
+    working_dir: /var/www/html
+    command: php bin/scheduled_reports_worker.php
+    volumes:
+      - ./backend:/var/www/html
+    env_file:
+      - .env
+    depends_on:
+      - mysql
+      - solr
+      - mailhog
+    networks:
+      - reporting-net
+    restart: unless-stopped
 
   kafka-producer:
     build:

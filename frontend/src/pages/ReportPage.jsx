@@ -4,6 +4,7 @@ import { api } from '../services/api.js';
 import { useReportStore } from '../store/reportStore.js';
 import { useFilterStore } from '../store/filterStore.js';
 import { useReport } from '../hooks/useReport.js';
+import { useRealtimeUpdates } from '../hooks/useRealtimeUpdates.js';
 import FilterBuilder from '../components/FilterBuilder/FilterBuilder.jsx';
 import DataTable from '../components/DataTable/DataTable.jsx';
 import ColumnSelector from '../components/DataTable/ColumnSelector.jsx';
@@ -44,6 +45,7 @@ export default function ReportPage({ onLogout }) {
 
   // Activate the report query
   useReport();
+  const { status: realtimeStatus, lastEvent } = useRealtimeUpdates();
 
   const user = (() => { try { return JSON.parse(localStorage.getItem('user') ?? '{}'); } catch { return {}; } })();
   const isAdmin = user.role === 'admin';
@@ -142,6 +144,26 @@ export default function ReportPage({ onLogout }) {
         </button>
 
         {isAdmin && <AdminUpload />}
+
+        <div className={`rounded border px-2 py-1 text-xs ${
+          realtimeStatus === 'connected'
+            ? 'border-green-200 bg-green-50 text-green-700'
+            : realtimeStatus === 'connecting'
+              ? 'border-amber-200 bg-amber-50 text-amber-700'
+              : 'border-gray-200 bg-gray-50 text-gray-500'
+        }`}>
+          {realtimeStatus === 'connected'
+            ? 'Live updates on'
+            : realtimeStatus === 'connecting'
+              ? 'Connecting live updates'
+              : 'Live updates offline'}
+        </div>
+
+        {lastEvent && (
+          <div className="text-xs text-gray-500">
+            Updated from {lastEvent.source_file ?? 'import'} at {new Date(lastEvent.timestamp ?? Date.now()).toLocaleTimeString()}
+          </div>
+        )}
 
         {/* User / logout */}
         <div className="flex items-center gap-2 text-xs text-gray-500 ml-auto">

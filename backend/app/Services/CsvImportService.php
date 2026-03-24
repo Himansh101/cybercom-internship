@@ -12,10 +12,12 @@ class CsvImportService
     private const BATCH_SIZE = 200;
 
     private SolrService $solr;
+    private RealtimeNotifierService $realtimeNotifier;
 
     public function __construct()
     {
         $this->solr = new SolrService();
+        $this->realtimeNotifier = new RealtimeNotifierService();
     }
 
     /**
@@ -82,6 +84,13 @@ class CsvImportService
 
             $imported += count($documents);
         }
+
+        $this->realtimeNotifier->broadcast([
+            'type' => 'report_data_updated',
+            'source_file' => $originalName,
+            'imported' => $imported,
+            'timestamp' => gmdate('c'),
+        ]);
 
         return [
             'imported' => $imported,

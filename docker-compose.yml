@@ -137,3 +137,17 @@ services:
       - php-backend
     networks:
       - reporting-net
+
+  realtime-server:
+    image: node:20-alpine
+    container_name: realtime-server
+    working_dir: /app
+    volumes:
+      - ./realtime:/app
+    ports:
+      - "3001:3001"
+    command: sh -c "npm install && npm run start"
+    env_file:
+      - .env
+    networks:
+      - reporting-net

@@ -1,238 +1,479 @@
 # Dynamic Reporting System
 
-A full-stack reporting platform: CSV → Kafka → Solr → PHP API → React UI.
+Dynamic Reporting System is a full-stack reporting platform that lets teams ingest CSV data, index it in Solr, explore it in a React dashboard, save report configurations, receive realtime refreshes, and schedule report emails.
 
----
+This README is written as an onboarding guide for junior developers. The goal is not only to show how to run the project, but also to explain how the main workflows and features fit together.
 
-## Architecture
+## What This Project Does
 
+At a high level, the system supports these business flows:
+
+1. A CSV file is uploaded or ingested.
+2. The data is indexed into Solr.
+3. The frontend queries Solr through a PHP API.
+4. Users filter, sort, chart, export, and save report views.
+5. Realtime events notify the UI when new data is indexed.
+6. Admins can schedule report emails that are generated and delivered by a background worker.
+
+## Main Workflows
+
+### 1. Data ingestion workflow
+
+There are two supported ways data enters the system:
+
+1. Kafka pipeline:
+   - A CSV is sent to Kafka by the producer.
+   - The Kafka consumer reads the records.
+   - The consumer indexes them into Solr.
+
+2. Admin upload from the UI:
+   - An admin uploads a CSV from the frontend.
+   - The PHP backend parses the file.
+   - The backend indexes the data directly into Solr.
+   - A realtime event is broadcast so connected users see fresh data.
+
+### 2. Report viewing workflow
+
+1. The frontend loads the schema from the backend.
+2. The user builds filters, picks visible columns, and optionally chooses compare mode.
+3. The frontend sends a report payload to `/api/reports/query`.
+4. The PHP backend converts the payload into a Solr query.
+5. Solr returns matching documents and facet counts.
+6. The frontend renders:
+   - a table
+   - charts
+   - comparison data
+   - filter dropdown values
+
+### 3. Saved views workflow
+
+1. Admin users can save the current report configuration.
+2. The configuration is stored in MySQL.
+3. Viewers can only apply saved views, not create or delete them.
+4. Applying a saved view restores filters, sorting, date range, and selected columns.
+
+### 4. Export workflow
+
+1. The user clicks CSV export.
+2. The backend runs a full Solr export using cursor-based pagination.
+3. The CSV is streamed back to the browser.
+
+### 5. Realtime update workflow
+
+1. The frontend opens a WebSocket connection to the realtime service.
+2. When new data is indexed, the backend publishes a realtime event.
+3. Connected clients receive the event.
+4. The frontend invalidates report-related queries and refreshes the data.
+
+### 6. Scheduled report workflow
+
+1. An admin creates a scheduled report from the current report state.
+2. The schedule is stored in MySQL.
+3. A background worker checks schedules every minute.
+4. If a schedule is due, the worker generates a CSV export.
+5. The worker emails the CSV through SMTP.
+6. In local development, MailHog captures those emails for testing.
+
+## Architecture Overview
+
+```text
+CSV
+  -> Kafka Producer (optional path)
+  -> Kafka
+  -> Kafka Consumer
+  -> Solr
+  -> PHP Backend API
+  -> React Frontend
+
+Admin CSV Upload
+  -> PHP Backend API
+  -> Solr
+  -> Realtime WebSocket Service
+  -> React Frontend refresh
+
+Scheduled Report
+  -> MySQL scheduled_reports table
+  -> Scheduled Reports Worker
+  -> Solr export
+  -> SMTP
+  -> MailHog (local dev)
 ```
-CSV file
-  └─► Kafka Producer (PHP)
-        └─► Kafka Topic: report_data_topic
-              └─► Kafka Consumer (PHP)
-                    └─► Solr 9 (indexed, faceted)
-                          └─► PHP Backend API (MVC, pure PHP)
-                                └─► Redis Cache
-                                └─► MySQL (saved views, auth)
-                                      └─► React Frontend (Vite + Tailwind)
-```
 
----
+## Services In Docker
 
-## Prerequisites
+The project uses Docker Compose. Each service has a clear role:
 
-- **Docker Desktop 4.x+** (includes Docker Compose v2)
-- Port availability: 3000, 8080, 8983, 9092, 3306, 6379, 2181
+| Service | Purpose |
+|---|---|
+| `react-frontend` | React UI |
+| `php-backend` | REST API, auth, filters, export, upload |
+| `solr` | Search and faceting engine |
+| `mysql` | Users, saved views, scheduled reports |
+| `redis` | Cache for Solr responses |
+| `kafka` | Message broker for ingestion pipeline |
+| `kafka-producer` | Sends CSV rows into Kafka |
+| `kafka-consumer` | Reads Kafka records and indexes Solr |
+| `realtime-server` | WebSocket relay for live refresh |
+| `scheduled-reports-worker` | Cron-style loop for due schedules |
+| `mailhog` | Local email inbox for testing scheduled emails |
 
----
+## Local URLs
+
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:3000 |
+| PHP API | http://localhost:8080/api |
+| Solr Admin | http://localhost:8983/solr/#/report_data |
+| MailHog | http://localhost:8025 |
+| Realtime WebSocket | ws://localhost:3001 |
 
 ## Quick Start
 
+### Prerequisites
+
+- Docker Desktop
+- Docker Compose v2
+
+### Setup
+
 ```bash
-# 1. Clone the repo
 git clone <your-repo-url>
 cd reporting-system
-
-# 2. Copy environment file
-cp .env.example .env
-# Edit .env if you need custom passwords or ports
-
-# 3. Start all services
+copy .env.example .env
 docker compose up -d
-
-# 4. Wait ~30 seconds for all services to initialise
-# Watch readiness:
-docker compose logs -f solr mysql kafka
-
-# 5. Open the app
-open http://localhost:3000
 ```
 
-**Demo credentials:** `admin@demo.com` / `password`
+Open:
 
----
+- Frontend: `http://localhost:3000`
+- MailHog: `http://localhost:8025`
 
-## Load Sample Data
+### Demo credentials
 
-Once all services are running, ingest the 200-row sample CSV:
+- Admin: `admin@demo.com` / `password`
+- Viewer: `viewer@demo.com` / `password`
+
+## Environment Variables
+
+Important variables from `.env.example`:
+
+### Core services
+
+- `MYSQL_*` for database connection
+- `SOLR_*` for Solr collection connection
+- `REDIS_*` for cache
+- `KAFKA_*` for ingestion pipeline
+- `JWT_*` for login token signing
+
+### Frontend and realtime
+
+- `VITE_API_URL` points the frontend to the PHP API
+- `VITE_WS_URL` points the frontend to the WebSocket server
+- `REALTIME_BROADCAST_URL` is used by the backend to push realtime events
+
+### Scheduled reports
+
+- `SMTP_HOST`
+- `SMTP_PORT`
+- `SMTP_FROM`
+- `SCHEDULE_WORKER_INTERVAL_SECONDS`
+- `SCHEDULE_ATTACHMENT_MAX_BYTES`
+
+In local development, `SMTP_HOST=mailhog` and `SMTP_PORT=1025` are correct.
+
+## Important Features Explained
+
+### Authentication and roles
+
+Users authenticate through JWT.
+
+- `admin`
+  - can upload CSV files
+  - can save and manage views
+  - can create scheduled reports
+
+- `viewer`
+  - can apply saved views
+  - cannot create or delete saved views
+  - cannot manage schedules
+
+### Dynamic schema
+
+The frontend does not hardcode all report fields. It asks the backend for a schema, and the backend reads Solr field information to build that schema dynamically.
+
+This means:
+
+- new Solr fields can appear in the UI
+- filter controls can adapt to field types
+- columns can be chosen dynamically
+
+### Filters
+
+There are two filter areas:
+
+1. Toolbar filters:
+   - date range
+   - compare mode
+
+2. Filter builder:
+   - grouped rules
+   - AND/OR logic
+   - text, dropdown, range, date, boolean types
+
+The backend converts these filters into Solr query parameters.
+
+### Charts
+
+Charts are generated from the same filtered dataset. The user can choose grouping and metric fields. Clicking on a chart element adds a drill-down filter.
+
+### Saved views
+
+A saved view stores:
+
+- selected columns
+- column order
+- column widths
+- filters
+- sorting
+- date range
+- compare mode
+
+This is useful when the same report needs to be reopened frequently.
+
+### Realtime updates
+
+Realtime updates are used when data changes after indexing.
+
+Example:
+
+1. Admin uploads a CSV.
+2. Backend indexes it into Solr.
+3. Backend sends a `report_data_updated` event to the realtime service.
+4. Open dashboards refresh automatically.
+
+### Scheduled reports
+
+Scheduled reports are designed for recurring email delivery.
+
+An admin can create a schedule with:
+
+- report name
+- recipient email
+- frequency: daily / weekly / monthly
+- send time
+- timezone
+- current report payload
+
+The worker then generates the CSV and sends it by email.
+
+In local development, these emails appear in MailHog, not in Gmail.
+
+## API Overview
+
+All API responses follow this shape:
+
+```json
+{
+  "success": true,
+  "data": {},
+  "error": null,
+  "meta": {}
+}
+```
+
+### Main endpoints
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/api/auth/login` | Login |
+| `GET` | `/api/schema` | Load frontend field schema |
+| `POST` | `/api/reports/query` | Query table data |
+| `POST` | `/api/reports/chart` | Query chart data |
+| `GET` | `/api/reports/export` | Export CSV |
+| `GET` | `/api/facets/{field}` | Load dropdown values |
+| `GET` | `/api/saved-views` | List saved views |
+| `POST` | `/api/saved-views` | Create saved view |
+| `PUT` | `/api/saved-views/{id}` | Update saved view |
+| `DELETE` | `/api/saved-views/{id}` | Delete saved view |
+| `POST` | `/api/ingestion/upload` | Admin CSV upload |
+| `GET` | `/api/scheduled-reports` | List schedules |
+| `POST` | `/api/scheduled-reports` | Create schedule |
+| `DELETE` | `/api/scheduled-reports/{id}` | Delete schedule |
+
+## Folder Guide For Juniors
+
+### `backend/`
+
+Pure PHP MVC-style API.
+
+- `app/Controllers`
+  - receives HTTP requests
+  - validates input
+  - returns JSON or CSV
+
+- `app/Models`
+  - talks to MySQL
+  - stores users, views, schedules
+
+- `app/Services`
+  - contains reusable business logic
+  - examples: Solr query building, CSV import, SMTP mail, realtime notify
+
+- `app/Middleware`
+  - auth and CORS
+
+- `app/Config`
+  - reads DB, Solr, Kafka config from env
+
+- `public/index.php`
+  - entry point
+
+- `routes/api.php`
+  - route definitions
+
+### `frontend/`
+
+React application.
+
+- `src/pages`
+  - page-level containers
+
+- `src/components`
+  - reusable UI blocks like filters, table, charts, schedules
+
+- `src/store`
+  - Zustand state management
+
+- `src/hooks`
+  - custom hooks like report loading and realtime updates
+
+- `src/services/api.js`
+  - all HTTP requests
+
+### `kafka/`
+
+- `producer/`
+  - reads CSV and publishes rows
+
+- `consumer/`
+  - consumes Kafka messages and indexes Solr
+
+### `mysql/`
+
+- `init.sql`
+  - creates tables
+  - seeds demo users
+
+### `solr/`
+
+- schema and configset files for the Solr collection
+
+### `realtime/`
+
+- minimal Node WebSocket relay server
+
+## Common Developer Tasks
+
+### Rebuild changed services
+
+```bash
+docker compose up -d --build php-backend
+docker compose up -d --build react-frontend
+docker compose up -d --build realtime-server
+docker compose up -d --build scheduled-reports-worker
+```
+
+### Watch logs
+
+```bash
+docker compose logs -f php-backend
+docker compose logs -f react-frontend
+docker compose logs -f kafka-consumer
+docker compose logs -f realtime-server
+docker compose logs -f scheduled-reports-worker
+```
+
+### Load sample data through Kafka
 
 ```bash
 docker exec kafka-producer php KafkaProducer.php --file=sample_data.csv
 ```
 
-Watch the consumer index the data into Solr:
+### Run scheduled worker once manually
 
 ```bash
-docker logs -f kafka-consumer
+docker exec -it scheduled-reports-worker php bin/scheduled_reports_worker.php --once
 ```
 
-Verify data in Solr Admin:
-
-```
-http://localhost:8983/solr/report_data/select?q=*:*&rows=5&wt=json
-```
-
----
-
-## Service URLs
-
-| Service         | URL                                    | Notes                        |
-|-----------------|----------------------------------------|------------------------------|
-| React Frontend  | http://localhost:3000                  | Main UI                      |
-| PHP API         | http://localhost:8080/api              | REST API                     |
-| Solr Admin      | http://localhost:8983/solr/#/report_data | Query browser, schema view |
-| Kafka           | localhost:9092                         | Internal broker              |
-| MySQL           | localhost:3306                         | DB: reporting_db             |
-| Redis           | localhost:6379                         | Cache                        |
-
----
-
-## API Reference
-
-All responses follow the shape:
-```json
-{ "success": true, "data": {}, "error": null, "meta": {} }
-```
-
-| Method   | Endpoint                  | Auth | Description                              |
-|----------|---------------------------|------|------------------------------------------|
-| `POST`   | `/api/auth/login`         | No   | Login, returns JWT                       |
-| `GET`    | `/api/schema`             | No   | Report field schema                      |
-| `POST`   | `/api/reports/query`      | Yes  | Query with filters, pagination, sorting  |
-| `GET`    | `/api/reports/export`     | Yes  | Stream full result as CSV download       |
-| `GET`    | `/api/facets/{field}`     | Yes  | Distinct values for dropdown filters     |
-| `GET`    | `/api/saved-views`        | Yes  | List saved views for authenticated user  |
-| `POST`   | `/api/saved-views`        | Yes  | Save current view configuration          |
-| `PUT`    | `/api/saved-views/{id}`   | Yes  | Update a saved view                      |
-| `DELETE` | `/api/saved-views/{id}`   | Yes  | Delete a saved view                      |
-
-### Example: Query request body
-```json
-{
-  "q": "oak",
-  "filters": [
-    {
-      "type": "group",
-      "operator": "AND",
-      "rules": [
-        { "field": "category",   "type": "dropdown", "value": ["Furniture"] },
-        { "field": "price",      "type": "range",    "from": 100, "to": 500 },
-        { "field": "is_active",  "type": "boolean",  "value": true },
-        { "field": "created_at", "type": "date",     "from": "2023-01-01", "to": "2024-12-31" }
-      ]
-    }
-  ],
-  "sort":     { "field": "price", "direction": "desc" },
-  "page":     1,
-  "per_page": 50,
-  "columns":  ["id", "name", "category", "price", "region", "created_at"]
-}
-```
-
----
-
-## Features
-
-### Column Selector
-Click **⊞ Columns** in the toolbar to show/hide any field. Drag column headers to reorder. Drag the right edge of any header to resize it.
-
-### Advanced Filters
-Click **⚙ Filters** to open the filter panel. Add a filter group (AND/OR), then add individual rules per field. Each field type renders the appropriate control:
-- String fields → text input or multi-select (for faceted fields like category, region)
-- Numeric fields → from/to range inputs
-- Date fields → date range pickers
-- Boolean fields → yes/no dropdown
-
-### Charts
-Charts appear automatically once data loads. Select chart type (Bar / Line / Pie), X-axis field, and Y-axis field. **Click a bar or pie segment** to drill down — it adds that value as a filter to the table instantly.
-
-### Date Comparison
-Set a date range in the toolbar, then click **Prev period** or **Last year**. The table renders comparison columns alongside current values with colour-coded percentage change indicators (green = positive, red = negative).
-
-### Saved Views
-Click **+ Save** in the sidebar to persist your current column selection, filters, sort order, and column widths. Click the ★ icon to mark a view as default — it loads automatically on next login.
-
-### Export
-Click **⬇ CSV** to stream the full result set as a downloadable CSV file using cursor-based pagination (no row limit).
-
----
-
-## Adding a New Field to the Schema
-
-1. **Solr** — add the field to `solr/configsets/report_schema/schema.xml`:
-   ```xml
-   <field name="my_field" type="string" indexed="true" stored="true"/>
-   ```
-
-2. **Recreate the Solr collection** (drops existing data):
-   ```bash
-   docker exec solr bin/solr delete -c report_data
-   docker exec solr bin/solr create -c report_data -d /opt/solr/server/solr/configsets/report_schema
-   ```
-
-3. **PHP schema array** — add an entry to the `$schemaFields` array in `backend/app/Controllers/ReportController.php`:
-   ```php
-   ['name' => 'my_field', 'type' => 'string', 'label' => 'My Field', 'faceted' => false],
-   ```
-
-4. **Re-ingest data** — run the Kafka producer again with your updated CSV.
-
----
-
-## Folder Structure
-
-```
-reporting-system/
-├── docker-compose.yml
-├── .env
-├── sample_data.csv
-├── backend/              PHP MVC API
-│   ├── public/           Apache document root (index.php)
-│   └── app/
-│       ├── Controllers/
-│       ├── Models/
-│       ├── Services/     QueryBuilder, Solr, Redis
-│       ├── Middleware/   Auth (JWT), CORS
-│       └── Config/       DB, Solr, Kafka
-├── kafka/
-│   ├── producer/         CsvParser + KafkaProducer
-│   └── consumer/         KafkaConsumer + SolrIndexer
-├── frontend/             React 18 + Vite + Tailwind
-│   └── src/
-│       ├── components/   DataTable, FilterBuilder, ChartRenderer, SavedViews
-│       ├── pages/        ReportPage
-│       ├── store/        Zustand (reportStore, filterStore)
-│       ├── services/     api.js
-│       └── hooks/        useReport, useDebounce
-├── solr/                 schema.xml + solrconfig.xml
-└── mysql/                init.sql (schema + seed data)
-```
-
----
-
-## Stopping & Cleanup
+### Open MySQL shell
 
 ```bash
-# Stop all services (preserves volumes)
-docker compose down
-
-# Stop and remove all data volumes
-docker compose down -v
-
-# Rebuild a single service after code changes
-docker compose up -d --build php-backend
-docker compose up -d --build react-frontend
+docker exec -it mysql mysql -u root -p
 ```
-
----
 
 ## Troubleshooting
 
-| Issue | Fix |
-|-------|-----|
-| Solr collection not created | Run: `docker exec solr bin/solr create -c report_data -d /opt/solr/server/solr/configsets/report_schema` |
-| No data in table after CSV load | Check: `docker logs kafka-consumer` and `docker logs kafka-producer` |
-| PHP API returns 500 | Check: `docker logs php-backend` |
-| Frontend can't reach API | Ensure `VITE_API_URL=http://localhost:8080/api` in `.env` |
-| MySQL connection refused | Wait 15–20s for MySQL to fully initialise, then restart php-backend |
+### Frontend loads but data does not appear
+
+Check:
+
+- `docker compose logs -f php-backend`
+- `docker compose logs -f solr`
+
+### Realtime status stays offline
+
+Check:
+
+- `docker compose logs -f realtime-server`
+- `.env` has the correct `VITE_WS_URL`
+
+### CSV upload fails
+
+Check:
+
+- `docker compose logs -f php-backend`
+- PHP upload limits
+- file format and extension
+
+### Scheduled report does not send
+
+Check:
+
+- `docker compose logs -f scheduled-reports-worker`
+- `http://localhost:8025` for MailHog inbox
+- schedule time and timezone
+- `SCHEDULE_ATTACHMENT_MAX_BYTES` if the report is very large
+
+### New MySQL tables do not appear
+
+If MySQL volume already existed before the table was added, `init.sql` will not rerun automatically.
+
+Either:
+
+- create the missing tables manually in MySQL
+- or reset the MySQL volume with `docker compose down -v`
+
+## Suggested Learning Path For Juniors
+
+If you are new to this codebase, read it in this order:
+
+1. `docker-compose.yml`
+2. `backend/public/index.php`
+3. `backend/routes/api.php`
+4. `backend/app/Controllers/ReportController.php`
+5. `backend/app/Services/QueryBuilderService.php`
+6. `frontend/src/pages/ReportPage.jsx`
+7. `frontend/src/hooks/useReport.js`
+8. `frontend/src/store/filterStore.js`
+9. `frontend/src/store/reportStore.js`
+
+That path helps you understand request flow from browser to backend and back.
+
+## Cleanup
+
+```bash
+docker compose down
+docker compose down -v
+```
+
+Use `down -v` carefully because it removes local database, Solr, Redis, and Kafka data volumes.
